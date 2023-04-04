@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 560)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
@@ -27,16 +27,16 @@
 	[msgBuf 40]
 	[titleBuf 22]
 )
-(instance rm560 of Room
+(instance rm560 of Rm
 	(properties
 		picture 560
 		horizon -10
 	)
 	
 	(method (init)
-		(Load SOUND 4)
-		(Load SOUND 561)
-		(Load SCRIPT DPATH)
+		(Load rsSOUND 4)
+		(Load rsSOUND 561)
+		(Load rsSCRIPT 964)
 		(= obstacleX 222)
 		(= originalScore score)
 		(super init:)
@@ -52,19 +52,22 @@
 			posn: 222 113
 			setPri: 6
 			setStep: 3 1
-			setCycle: Forward
+			setCycle: Fwd
 			init:
 		)
 		(HandsOff)
-		(User canControl: TRUE)
-		(music number: 560 loop: -1 priority: 9999 play:)
+		(User canInput: 0 canControl: 1 mapKeyToDir: 0)
+		(gTheMusic number: 560 loop: -1 priority: 9999 play:)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
-		(if (and (== state 2) (< (aObstacle distanceTo: ego) 9))
+		(if
+		(and (== state 2) (< (aObstacle distanceTo: ego) 9))
 			(self changeState: 6)
 		)
 	)
@@ -96,18 +99,14 @@
 					(= oldEgoX (ego x?))
 				)
 				(cond 
-					((< oldEgoX (- obstacleX 5))
-						(- oldEgoX 5)
-					)
-					((> oldEgoX (+ obstacleX 5))
-						(+ oldEgoX 5)
-					)
+					((< oldEgoX (- obstacleX 5)) (- oldEgoX 5))
+					((> oldEgoX (+ obstacleX 5)) (+ oldEgoX 5))
 				)
 				(aObstacle
 					posn: obstacleX 89
 					setLoop: (Random 0 obstacleLoop)
 					cel: obstacleLoop
-					setCycle: EndLoop
+					setCycle: End
 					show:
 					setMotion: MoveTo oldEgoX (+ (ego y?) 5) self
 				)
@@ -117,9 +116,7 @@
 				)
 			)
 			(3
-				(if (== (aObstacle loop?) 3)
-					(Print 560 2 #at -1 10)
-				)
+				(if (== (aObstacle loop?) 3) (Print 560 2 #at -1 10))
 				(theGame changeScore: obstacleLoop)
 				(self changeState: 0)
 			)
@@ -131,8 +128,8 @@
 			)
 			(5
 				(Print 560 4 #at -1 10)
-				(DisposeScript DPATH)
-				(music priority: 0)
+				(DisposeScript 964)
+				(gTheMusic priority: 0)
 				(curRoom newRoom: 580)
 			)
 			(6
@@ -142,12 +139,12 @@
 				(aRightBank setCel: 0)
 				(aDot setScript: 0 setMotion: 0 setCel: 0)
 				(aObstacle hide:)
-				(ego setLoop: 4 cel: 0 setCycle: EndLoop self)
+				(ego setLoop: 4 cel: 0 setCycle: End self)
 			)
 			(7
-				(music stop:)
+				(gTheMusic stop:)
 				(Print 560 5 #at -1 10)
-				(soundFX number: 4 loop: 1 play:)
+				(orchidSeconds number: 4 loop: 1 play:)
 				(aLog init:)
 				(ego
 					cycleSpeed: 0
@@ -156,15 +153,15 @@
 					setStep: 3 3
 					setLoop: 5
 					cel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 					setMotion: MoveTo (aLeftBank x?) 100 self
 				)
 			)
 			(8)
 			(9
-				(soundFX number: 561 loop: 1 play:)
-				(theGame setScript: (ScriptID DYING))
-				((ScriptID DYING)
+				(orchidSeconds number: 561 loop: 1 play:)
+				(theGame setScript: (ScriptID 40))
+				((ScriptID 40)
 					caller: 563
 					register: (Format @msgBuf 560 6)
 					next: (Format @titleBuf 560 7)
@@ -176,34 +173,61 @@
 	(method (handleEvent event)
 		(if
 			(and
-				(== (event type?) keyDown)
-				(== (event claimed?) FALSE)
-				(== (event message?) `#8)
+				(== (event type?) evKEYBOARD)
+				(== (event claimed?) 0)
+				(== (event message?) KEY_F8)
 				(< state 4)
 			)
 			(Print 560 0)
 			(= score originalScore)
-			(Bset fSkippedRafting)
+			(Bset 77)
 			(curRoom newRoom: 580)
 			(return)
+		)
+		(if
+			(and
+				(== (event type?) evMOUSEBUTTON)
+				(> (event y?) 20)
+			)
+			(event claimed: 1)
+			(if (not (& (event modifiers?) emSHIFT))
+				(ego setMotion: MoveTo 175 (ego y?))
+			else
+				(ego setMotion: MoveTo 265 (ego y?))
+			)
 		)
 	)
 )
 
 (instance DotScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(ChangeScriptState self newState 2 2)
 		(switch (= state newState)
-			(0
-				(= seconds 1)
-			)
+			(0 (= seconds 1))
 			(1
 				(= obstacleLoop 0)
 				(aObstacle setStep: 2 2 cycleSpeed: 1)
 				(aDot
-					setMotion: DPath
-						209 179 192 183 176 186 151 187
-						127 186 116 182 108 182 101 179
+					setMotion:
+						DPath
+						209
+						179
+						192
+						183
+						176
+						186
+						151
+						187
+						127
+						186
+						116
+						182
+						108
+						182
+						101
+						179
 						self
 				)
 			)
@@ -211,10 +235,34 @@
 				(= obstacleLoop 1)
 				(aObstacle setStep: 3 3 cycleSpeed: 0)
 				(aDot
-					setMotion: DPath
-						93 178 78 173 66 164 55 150 51 140
-						41 133 36 126 36 115 35 109 29 104
-						31 96 35 85 38 78
+					setMotion:
+						DPath
+						93
+						178
+						78
+						173
+						66
+						164
+						55
+						150
+						51
+						140
+						41
+						133
+						36
+						126
+						36
+						115
+						35
+						109
+						29
+						104
+						31
+						96
+						35
+						85
+						38
+						78
 						self
 				)
 			)
@@ -232,7 +280,7 @@
 	)
 )
 
-(instance aDot of Actor
+(instance aDot of Act
 	(properties
 		y 188
 		x 258
@@ -246,7 +294,7 @@
 		(self
 			ignoreHorizon:
 			setScript: DotScript
-			setCycle: Forward
+			setCycle: Fwd
 			setLoop: 3
 			setStep: 1 1
 			setPri: 15
@@ -256,17 +304,17 @@
 	)
 )
 
-(instance atpHorizon of PicView
+(instance atpHorizon of PV
 	(properties
 		y 91
 		x 223
 		view 560
 		loop 1
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance aLeftBank of Actor
+(instance aLeftBank of Act
 	(properties
 		y 92
 		x 222
@@ -277,7 +325,7 @@
 		(super init:)
 		(self
 			setLoop: 0
-			setCycle: Forward
+			setCycle: Fwd
 			setStep: 2 2
 			illegalBits: 0
 			ignoreActors:
@@ -285,7 +333,7 @@
 	)
 )
 
-(instance aRightBank of Actor
+(instance aRightBank of Act
 	(properties
 		y 92
 		x 222
@@ -296,7 +344,7 @@
 		(super init:)
 		(self
 			setLoop: 2
-			setCycle: Forward
+			setCycle: Fwd
 			setStep: 2 2
 			illegalBits: 0
 			ignoreActors:
@@ -304,7 +352,7 @@
 	)
 )
 
-(instance aObstacle of Actor
+(instance aObstacle of Act
 	(properties
 		y 87
 		x 222

@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 290)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use Motion)
 (use Game)
@@ -13,22 +13,22 @@
 (local
 	doneTime
 )
-(instance rm290 of Room
+(instance rm290 of Rm
 	(properties
 		picture 99
-		style IRISIN
+		style $0006
 	)
 	
-	(method (init &tmp speedFile [fileBuf 9])
+	(method (init &tmp temp0 [temp1 9])
 		(HandsOff)
-		(= programControl FALSE)
-		(StatusLine disable:)
+		(= global97 0)
+		(SL disable:)
 		(TheMenuBar hide:)
 		(super init:)
-		(if (!= (= speedFile (FOpen {RESOURCE.LL3} 1)) -1)
-			(= filthLevel (ReadNumber (FGets @fileBuf 8 speedFile)))
+		(if (!= (= temp0 (FOpen {RESOURCE.LL3} 1)) -1)
+			(= global88 (ReadNumber (FGets @temp1 8 temp0)))
 		)
-		(FClose speedFile)
+		(FClose temp0)
 		(ego
 			view: 290
 			posn: 20 100
@@ -42,22 +42,21 @@
 	
 	(method (doit)
 		(super doit:)
-		;EO: The reason for the speed bugs is that
-		; the speed tester didn't account for newer machines.
-		; Later games fixed this by using the howFast global,
-		; with only a few possible values and an upper limit.
-		(if (== (++ machineSpeed) 1)
+		(if (== (++ global87) 1)
 			(= doneTime (+ 60 (GetTime)))
 		)
 		(if (< doneTime (GetTime))
-			(if debugging
+			(if global64
 				(theGame setSpeed: 2)
 			else
 				(theGame setSpeed: 6)
 			)
-			(= expletive
-				(Format @expletiveStr 290 0
-					(switch filthLevel
+			(= filthStr
+				(Format
+					@requiredLegCurls
+					290
+					0
+					(switch global88
 						(4 {Son of a bitch!})
 						(3 {Damn it to hell!})
 						(2 {Damn!})
@@ -66,8 +65,11 @@
 					)
 				)
 			)
-			(Format @filthStr 290 0
-				(switch filthLevel
+			(Format
+				@global121
+				290
+				0
+				(switch global88
 					(4 {Totally Raunchiest})
 					(3 {Really Filthy})
 					(2 {Pretty Dirty})
@@ -75,24 +77,24 @@
 					(else  {Mother Goose})
 				)
 			)
-			(if (> (DoSound NumVoices) 3)
-				(= musicLoop -1)
+			(if (> (DoSound sndFADE) 3)
+				(= global72 -1)
 			else
-				(= musicLoop 1)
+				(= global72 1)
 			)
-			(= global112 0)
-			(= minutesBetweenReminders 5)
-			(= gameSeconds 0)
-			(= gameMinutes 0)
-			(= gameHours 0)
-			(= printTime 20)
-			(= currentEgoView 718)
-			(= currentStatus 19)
-			(= currentEgo (Format @egoName 290 1))
-			(Bclr fAutoSaveDisabled)
-			(Bclr fSaveDisabled)
+			(= global76 0)
+			(= global172 5)
+			(= global67 0)
+			(= global68 0)
+			(= global69 0)
+			(= orchidMinutes 20)
+			(= global66 718)
+			(= gCurRoomNum 19)
+			(= global82 (Format @global83 290 1))
+			(Bclr 4)
+			(Bclr 3)
 			(TheMenuBar draw:)
-			(StatusLine enable:)
+			(SL enable:)
 			(curRoom newRoom: 200)
 		)
 	)

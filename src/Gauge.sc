@@ -1,26 +1,10 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
-;;;;
-;;;;	GAUGE.SC
-;;;;	(c) Sierra On-Line, Inc, 1988
-;;;;
-;;;;	Author: Jeff Stephenson
-;;;;
-;;;;	A class to display a thermometer-like gauge in a Dialog, allowing
-;;;;	the user to set a value.
-;;;;
-;;;;	Classes:
-;;;;		Gauge
-
-
-(script#	GAUGE)
-(include game.sh)
+(script# 987)
+(include sci.sh)
 (use Main)
 (use Intrface)
 (use Save)
 
-
-(define	BLOCKON		6)
-(define	BLOCKOFF		7)
 
 (local
 	textI
@@ -32,179 +16,145 @@
 	noI
 	[str 40]
 )
-
-
-
-(class Gauge kindof Dialog
+(class Gauge of Dialog
 	(properties
-		description 0		;text to tell the user what to do
-		higher {up}			;text for the 'increase value' button
-		lower {down}		;text for the 'decrease value' button
-		normal 7				;default value of quantity being set
-		minimum 0			;minimum value of quantity being set
-		maximum 15			;maximum value of quantity being set
+		elements 0
+		size 0
+		text 0
+		window 0
+		theItem 0
+		nsTop 0
+		nsLeft 0
+		nsBottom 0
+		nsRight 0
+		time 0
+		busy 0
+		seconds 0
+		lastSeconds 0
+		description 0
+		higher {up}
+		lower {down}
+		normal 7
+		minimum 0
+		maximum 15
 	)
-
-;;;	(methods
-;;;		update				;private -- used to update the display
-;;;	)
-
-
-	(method (init value &tmp dx dy)
-		;; Set up the Gauge Dialog.
-
-		; give ourself the class SysWindow as our window
+	
+	(method (init param1 &tmp temp0 temp1)
 		(= window SysWindow)
-
-		(self update:value)
-
+		(self update: param1)
 		((= downI (DButton new:))
-			text: lower,
-			moveTo: MARGIN MARGIN,
+			text: lower
+			moveTo: 4 4
 			setSize:
 		)
-		(self add:downI, setSize:)
+		(self add: downI setSize:)
 		((= gaugeI (DText new:))
-			text:@str,
-			moveTo:(+ (downI nsRight?) MARGIN) MARGIN,
-			font:SYSFONT,
+			text: @str
+			moveTo: (+ (downI nsRight?) 4) 4
+			font: 0
 			setSize:
 		)
-		(self add:gaugeI, setSize:)
+		(self add: gaugeI setSize:)
 		((= upI (DButton new:))
-			text: higher,
-			moveTo:(+ (gaugeI nsRight?) MARGIN) MARGIN,
+			text: higher
+			moveTo: (+ (gaugeI nsRight?) 4) 4
 			setSize:
 		)
-		(self add:upI, setSize:)
-
-		(+= nsBottom (* 2 MARGIN))
-
+		(self add: upI setSize:)
+		(= nsBottom (+ nsBottom 8))
 		((= okI (DButton new:))
-			text: {OK},
-			setSize:,
-			moveTo: MARGIN nsBottom
+			text: {OK}
+			setSize:
+			moveTo: 4 nsBottom
 		)
 		((= normalI (DButton new:))
-			text: {Normal},
-			setSize:,
-			moveTo: (+ (okI nsRight?) MARGIN) nsBottom
+			text: {Normal}
+			setSize:
+			moveTo: (+ (okI nsRight?) 4) nsBottom
 		)
 		((= noI (DButton new:))
-			text: {Cancel},
-			setSize:,
-			moveTo: (+ (normalI nsRight?) MARGIN) nsBottom
+			text: {Cancel}
+			setSize:
+			moveTo: (+ (normalI nsRight?) 4) nsBottom
 		)
-		(self add:okI normalI noI, setSize:)
-		(= dx (- (- nsRight (noI nsRight?)) MARGIN))
-
+		(self add: okI normalI noI setSize:)
+		(= temp0 (- (- nsRight (noI nsRight?)) 4))
 		((= textI (DText new:))
-			text: description,
-			font: smallFont,
-			setSize: (- nsRight (* 2 MARGIN)),
-			moveTo: MARGIN MARGIN
+			text: description
+			font: smallFont
+			setSize: (- nsRight 8)
+			moveTo: 4 4
 		)
-		(= dy (+ (textI nsBottom?) MARGIN))
-		(self add:textI)
-
-		(upI move: 0 dy)
-		(downI move: 0 dy)
-		(gaugeI move: 0 dy)
-		(okI move: dx dy)
-		(normalI move: dx dy)
-		(noI move: dx dy)
-
-		(self	setSize:, center:, open: wTitled 15)
+		(= temp1 (+ (textI nsBottom?) 4))
+		(self add: textI)
+		(upI move: 0 temp1)
+		(downI move: 0 temp1)
+		(gaugeI move: 0 temp1)
+		(okI move: temp0 temp1)
+		(normalI move: temp0 temp1)
+		(noI move: temp0 temp1)
+		(self setSize: center: open: 4 15)
 	)
-
-
-	(method (doit value &tmp i ret)
-		;; Display the Gauge and let the user set the value.
-
-		(self init:value)
-
-		(= ret value)
+	
+	(method (doit theTheNormal &tmp temp0 theNormal)
+		(self init: theTheNormal)
+		(= theNormal theTheNormal)
 		(repeat
-			(self update:ret)
+			(self update: theNormal)
 			(gaugeI draw:)
-
-			(= i (super doit: okI))
-
-			(cond
-				((== i upI)
-					;User wants to increase the value.
-					(if (< ret maximum)
-						(++ ret)
+			(= temp0 (super doit: okI))
+			(cond 
+				((== temp0 upI) (if (< theNormal maximum) (++ theNormal)))
+				((== temp0 downI) (if (> theNormal minimum) (-- theNormal)))
+				(else
+					(if (== temp0 okI) (break))
+					(cond 
+						((== temp0 normalI) (= theNormal normal))
+						((or (== temp0 0) (== temp0 noI)) (= theNormal theTheNormal) (break))
 					)
-				)
-				((== i downI)
-					;User wants to decrease the value.
-					(if (> ret minimum)
-						(-- ret)
-					)
-				)
-				((== i okI)
-					;Value is set.  Return.
-					(break)
-				)
-				((== i normalI)
-					;Reset to value which is considered 'normal'.
-					(= ret normal)
-				)
-				((or (== i 0) (== i noI))
-					;Bail out, setting the value back to that which was in
-					;effect on entry.
-					(= ret value)
-					(break)
 				)
 			)
 		)
-
 		(self dispose:)
-		(return ret)
+		(return theNormal)
 	)
-
-
-	(method (update value &tmp i range)
-		;; Update the string which is the thermometer to reflect 'value'.
-
-		(= range (- maximum minimum))
-		(for	((= i 0))
-				(< i range)
-				((++ i))
-
-			(StrAt @str i (if (< i value) BLOCKON else BLOCKOFF))
+	
+	(method (update param1 &tmp temp0 temp1)
+		(= temp1 (- maximum minimum))
+		(= temp0 0)
+		(while (< temp0 temp1)
+			(StrAt @str temp0 (if (< temp0 param1) 6 else 7))
+			(++ temp0)
 		)
 	)
-
-
+	
 	(method (handleEvent event)
 		(switch (event type?)
-			(keyDown
+			(evKEYBOARD
 				(switch (event message?)
-					(LEFTARROW
-						(event claimed:TRUE)
+					(KEY_NUMPAD4
+						(event claimed: 1)
 						(return downI)
 					)
-					(RIGHTARROW
-						(event claimed:TRUE)
+					(KEY_RIGHT
+						(event claimed: 1)
 						(return upI)
 					)
 				)
 			)
-			(direction
+			(evJOYSTICK
 				(switch (event message?)
-					(dirW
-						(event claimed:TRUE)
+					(JOY_LEFT
+						(event claimed: 1)
 						(return downI)
 					)
-					(dirE
-						(event claimed:TRUE)
+					(JOY_RIGHT
+						(event claimed: 1)
 						(return upI)
 					)
 				)
 			)
 		)
-		(return (super handleEvent:event))
+		(return (super handleEvent: event))
 	)
 )

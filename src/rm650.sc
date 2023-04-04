@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 650)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use Intrface)
 (use Reverse)
@@ -18,27 +18,30 @@
 	congratsMsg
 	[plotString 222]
 )
-(procedure (PrintPlot theWidth &tmp t)
-	(if (< argc 1)
-		(= theWidth 200)
-	)
-	(Print @plotString
-		#at -1 10
-		#width theWidth
-		#time (= t (PrintDelay @plotString))
+(procedure (localproc_000c param1 &tmp temp0)
+	(if (< argc 1) (= param1 200))
+	(Print
+		@plotString
+		#at
+		-1
+		10
+		#width
+		param1
+		#time
+		(= temp0 (PrintDelay @plotString))
 		#dispose
 	)
-	(return (+ 2 t))
+	(return (+ 2 temp0))
 )
 
-(instance rm650 of Room
+(instance rm650 of Rm
 	(properties
 		picture 650
 	)
 	
 	(method (init)
 		(HandsOff)
-		(Load SCRIPT REVERSE)
+		(Load rsSCRIPT 969)
 		(aLeg init:)
 		(aMonitor init:)
 		(aLeftHand init:)
@@ -53,7 +56,7 @@
 			doit:
 		)
 		(self setScript: RoomScript)
-		(= saveSpeed (theGame setSpeed: 6))
+		(= currentStatus (theGame setSpeed: 6))
 		(NormalEgo 6 650)
 		(HandsOff)
 		(ego
@@ -69,38 +72,38 @@
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(switch (= state newState)
-			(0
-				(= seconds 3)
-			)
+			(0 (= seconds 3))
 			(1
 				(Format @plotString 650 0)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(2
 				(Format @plotString 650 1)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(3
 				(Format @plotString 650 2)
-				(= seconds (PrintPlot 122))
+				(= seconds (localproc_000c 122))
 			)
 			(4
 				(Format @plotString 650 3)
-				(= seconds (PrintPlot 111))
+				(= seconds (localproc_000c 111))
 			)
 			(5
 				(Format @plotString 650 4)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(6
 				(Format @plotString 650 5)
 				(aMonitor hide:)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(7
-				(aMonitor show: setLoop: 5 setCycle: Forward)
+				(aMonitor show: setLoop: 5 setCycle: Fwd)
 				(aDoor posn: 64 99)
 				(ego posn: 64 103)
 				(= seconds 6)
@@ -108,19 +111,13 @@
 			(8
 				(ego setMotion: MoveTo 64 100 self)
 			)
-			(9
-				(aDoor setCycle: EndLoop self)
-			)
+			(9 (aDoor setCycle: End self))
 			(10
 				(ego posn: 999 999)
 				(= seconds 3)
 			)
-			(11
-				(aDoor setCycle: BegLoop self)
-			)
-			(12
-				(= seconds 6)
-			)
+			(11 (aDoor setCycle: Beg self))
+			(12 (= seconds 6))
 			(13
 				(aMonitor hide:)
 				(aDoor posn: 234 345)
@@ -128,7 +125,7 @@
 				(= seconds 3)
 			)
 			(14
-				(aMonitor show: loop: 3 setCycle: Forward)
+				(aMonitor show: loop: 3 setCycle: Fwd)
 				(= seconds 3)
 			)
 			(15
@@ -136,98 +133,103 @@
 					(= seconds 7)
 					(= state 6)
 				else
-					(aTheEnd init: setCycle: EndLoop self)
+					(aTheEnd init: setCycle: End self)
 				)
 			)
 			(16
-				(aTheEnd setLoop: 1 cycleSpeed: 3 setCycle: Forward)
+				(aTheEnd setLoop: 1 cycleSpeed: 3 setCycle: Fwd)
 				(= seconds 3)
 			)
 			(17
-				(= congratsMsg TRUE)
+				(= congratsMsg 1)
 				(Format @plotString 650 6)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(18
-				(Format @plotString 650 7)
-				(= seconds (PrintPlot))
+				(Format
+					@plotString
+					{Version Point and Click By: DoomLazer and Pakolmo\nacknowledgements: Kokeween, walas74, Benito Camelo and Stormspirit86}
+				)
+				(= seconds (localproc_000c))
 			)
 			(19
-				(if
-					(and
-						(Btst fGotSuntan)
-						(Btst fMetDale)
-						(Btst fScrewedBambi)
-						(Btst fListenedToComedian)
-						(not (Btst fSkippedRafting))
-						(not (Btst fFoundGymKeyAccidentally))
-						(Btst fScrewedSuzi)
-					)
-					(Format @plotString 650 8)	;congratulations!
-				else
-					(Format @plotString 650 9)	;something you didn't do
-				)
-				(= seconds (PrintPlot))
+				(Format @plotString 650 7)
+				(= seconds (localproc_000c))
 			)
 			(20
-				(if (not (Btst fSkippedRafting))
+				(if
+					(and
+						(Btst 11)
+						(Btst 56)
+						(Btst 52)
+						(Btst 43)
+						(not (Btst 77))
+						(not (Btst 70))
+						(Btst 45)
+					)
+					(Format @plotString 650 8)
+				else
+					(Format @plotString 650 9)
+				)
+				(= seconds (localproc_000c))
+			)
+			(21
+				(if (not (Btst 77))
 					(self cue:)
 				else
 					(Format @plotString 650 10)
-					(= seconds (PrintPlot))
-				)
-			)
-			(21
-				(if (Btst fListenedToComedian)
-					(self cue:)
-				else
-					(Format @plotString 650 11)
-					(= seconds (PrintPlot))
+					(= seconds (localproc_000c))
 				)
 			)
 			(22
-				(if (Btst fFoundGymKeyAccidentally)
-					(Format @plotString 650 12)
-					(= seconds (PrintPlot))
-				else
+				(if (Btst 43)
 					(self cue:)
+				else
+					(Format @plotString 650 11)
+					(= seconds (localproc_000c))
 				)
 			)
 			(23
-				(if (Btst fGotSuntan)
-					(self cue:)
+				(if (Btst 70)
+					(Format @plotString 650 12)
+					(= seconds (localproc_000c))
 				else
-					(Format @plotString 650 13)
-					(= seconds (PrintPlot))
+					(self cue:)
 				)
 			)
 			(24
-				(if (not (Btst fMetDale))
-					(Format @plotString 650 14)
-					(= seconds (PrintPlot))
-				else
+				(if (Btst 11)
 					(self cue:)
+				else
+					(Format @plotString 650 13)
+					(= seconds (localproc_000c))
 				)
 			)
 			(25
-				(if (Btst fScrewedBambi)
-					(self cue:)
+				(if (not (Btst 56))
+					(Format @plotString 650 14)
+					(= seconds (localproc_000c))
 				else
-					(Format @plotString 650 15)
-					(= seconds (PrintPlot))
+					(self cue:)
 				)
 			)
 			(26
-				(if (Btst fScrewedSuzi)
+				(if (Btst 52)
 					(self cue:)
 				else
-					(Format @plotString 650 16)
-					(= seconds (PrintPlot))
+					(Format @plotString 650 15)
+					(= seconds (localproc_000c))
 				)
 			)
 			(27
-				(= state 6)
+				(if (Btst 45)
+					(self cue:)
+				else
+					(Format @plotString 650 16)
+					(= seconds (localproc_000c))
+				)
 			)
+			(28 (= state 6))
 		)
 	)
 	
@@ -238,10 +240,10 @@
 				(not (event claimed?))
 				modelessDialog
 				seconds
-				(== (event message?) ENTER)
-				(== (event type?) keyDown)
+				(== (event message?) KEY_RETURN)
+				(== (event type?) evKEYBOARD)
 			)
-			(event claimed: TRUE)
+			(event claimed: 1)
 			(= seconds 0)
 			(cls)
 			(self cue:)
@@ -249,7 +251,7 @@
 	)
 )
 
-(instance atpKeyboard of PicView
+(instance atpKeyboard of PV
 	(properties
 		y 189
 		x 60
@@ -258,25 +260,25 @@
 	)
 )
 
-(instance atpGlass of PicView
+(instance atpGlass of PV
 	(properties
 		y 158
 		x 221
 		view 650
 		cel 1
 		priority 15
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance atpBigGlass of PicView
+(instance atpBigGlass of PV
 	(properties
 		y 173
 		x 192
 		view 650
 		cel 2
 		priority 15
-		signal ignrAct
+		signal $4000
 	)
 )
 
@@ -291,30 +293,18 @@
 	
 	(method (init)
 		(super init:)
-		(self setPri: 15 setCycle: Forward ignoreActors:)
+		(self setPri: 15 setCycle: Fwd ignoreActors:)
 	)
 	
 	(method (doit &tmp temp0)
 		(super doit:)
 		(cond 
-			((== (= temp0 (Random 0 33)) 1)
-				(self posn: 100 178)
-			)
-			((== temp0 2)
-				(self posn: 101 184)
-			)
-			((== temp0 3)
-				(self posn: 34 180)
-			)
-			((== temp0 4)
-				(self posn: 36 184)
-			)
-			((< temp0 17)
-				(self cel: 0)
-			)
-			(else
-				(self cel: 1)
-			)
+			((== (= temp0 (Random 0 33)) 1) (self posn: 100 178))
+			((== temp0 2) (self posn: 101 184))
+			((== temp0 3) (self posn: 34 180))
+			((== temp0 4) (self posn: 36 184))
+			((< temp0 17) (self cel: 0))
+			(else (self cel: 1))
 		)
 	)
 )
@@ -330,27 +320,17 @@
 	
 	(method (init)
 		(super init:)
-		(self setPri: 15 setCycle: Forward ignoreActors:)
+		(self setPri: 15 setCycle: Fwd ignoreActors:)
 	)
 	
 	(method (doit &tmp temp0)
 		(super doit:)
 		(cond 
-			((== (= temp0 (Random 0 33)) 1)
-				(self posn: 11 173)
-			)
-			((== temp0 2)
-				(self posn: 18 180)
-			)
-			((== temp0 3)
-				(self posn: 8 185)
-			)
-			((< temp0 17)
-				(self cel: 0)
-			)
-			(else
-				(self cel: 1)
-			)
+			((== (= temp0 (Random 0 33)) 1) (self posn: 11 173))
+			((== temp0 2) (self posn: 18 180))
+			((== temp0 3) (self posn: 8 185))
+			((< temp0 17) (self cel: 0))
+			(else (self cel: 1))
 		)
 	)
 )
@@ -365,19 +345,15 @@
 	
 	(method (init)
 		(super init:)
-		(self setPri: 4 setCycle: Forward ignoreActors:)
+		(self setPri: 4 setCycle: Fwd ignoreActors:)
 	)
 	
 	(method (doit)
 		(super doit:)
 		(if (== loop 3)
 			(switch (Random 0 7)
-				(1
-					(self setCycle: Forward)
-				)
-				(2
-					(self setCycle: Reverse)
-				)
+				(1 (self setCycle: Fwd))
+				(2 (self setCycle: Rev))
 				(3
 					(self cycleSpeed: (Random 0 1))
 				)
@@ -397,13 +373,13 @@
 	
 	(method (init)
 		(super init:)
-		(self setCycle: Forward)
+		(self setCycle: Fwd)
 	)
 	
 	(method (doit)
 		(super doit:)
 		(switch (Random 0 7)
-			(0 (self setCycle: Forward))
+			(0 (self setCycle: Fwd))
 			(7 (self setCel:))
 		)
 	)

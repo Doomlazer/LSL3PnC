@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 430)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
@@ -18,28 +18,38 @@
 	actor4
 	actor3
 	actor5
-	[money 6]
-	[actors 6]
-	actorXY = [0 0 54 74 41 78 26 83 11 88 -4 93]
+	money
+	actors
+	actorXY
+	theAMoney3
+	theAMoney4
+	theAMoney5
+	local9
+	theAActor1
+	theAActor2
+	theAActor3
+	theAActor4
+	theAActor5
+	[local15 12] = [0 0 54 74 41 78 26 83 11 88 -4 93]
 )
-(instance rm430 of Room
+(instance rm430 of Rm
 	(properties
 		picture 430
 		horizon 1
 	)
 	
-	(method (init &tmp i)
-		(= showroomState SRshowDone)
-		(= oldStatus currentStatus)
-		(= currentStatus curRoomNum)
+	(method (init &tmp temp0)
+		(= gameMinutes 1)
+		(= gGCurRoomNum gCurRoomNum)
+		(= gCurRoomNum curRoomNum)
 		(HandsOff)
-		(Load VIEW 432)
-		(Load SOUND 431)
-		(Load SOUND 13)
-		(Load SOUND 10)
-		(Load SCRIPT JUMP)
-		(Load PICTURE 431)
-		(music number: 430 loop: -1 play:)
+		(Load rsVIEW 432)
+		(Load rsSOUND 431)
+		(Load rsSOUND 13)
+		(Load rsSOUND 10)
+		(Load rsSCRIPT 991)
+		(Load rsPIC 431)
+		(gTheMusic number: 430 loop: -1 play:)
 		(super init:)
 		(aCurtain ignoreActors: init:)
 		(aActor1 ignoreActors: init:)
@@ -47,159 +57,159 @@
 		(aActor3 ignoreActors: init:)
 		(aActor4 ignoreActors: init:)
 		(aActor5 ignoreActors: init:)
-		(= saveSpeed (theGame setSpeed: 6))
-		(= [actors 1] aActor1)
-		(= [actors 2] aActor2)
-		(= [actors 3] aActor3)
-		(= [actors 4] aActor4)
-		(= [actors 5] aActor5)
+		(= currentStatus (theGame setSpeed: 6))
+		(= theAActor1 aActor1)
+		(= theAActor2 aActor2)
+		(= theAActor3 aActor3)
+		(= theAActor4 aActor4)
+		(= theAActor5 aActor5)
 		(aMoney1 ignoreActors: init:)
 		(aMoney2 ignoreActors: init:)
 		(aMoney3 ignoreActors: init:)
 		(aMoney4 ignoreActors: init:)
 		(aMoney5 ignoreActors: init:)
-		(= [money 1] aMoney1)
-		(= [money 2] aMoney2)
-		(= [money 3] aMoney3)
-		(= [money 4] aMoney4)
-		(= [money 5] aMoney5)
+		(= actors aMoney1)
+		(= actorXY aMoney2)
+		(= theAMoney3 aMoney3)
+		(= theAMoney4 aMoney4)
+		(= theAMoney5 aMoney5)
 		(= actor3 aActor3)
 		(= actor4 aActor4)
 		(= actor5 aActor5)
 		(ego posn: 999 999 init: hide:)
-		(for ((= i 1)) (<= i 5) ((++ i))
-			([actors i]
+		(= temp0 1)
+		(while (<= temp0 5)
+			([local9 temp0]
 				view: 433
-				posn: [actorXY (* i 2)] [actorXY (+ 1 (* i 2))]
+				posn: [local15 (* temp0 2)] [local15 (+ 1 (* temp0 2))]
 				setPri: 3
 				setStep: 1 1
 			)
+			(++ temp0)
 		)
 		(self setScript: RoomScript)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
 	)
 	
-	(method (changeState newState &tmp i)
+	(method (changeState newState &tmp temp0)
 		(ChangeScriptState self newState 1 12)
 		(switch (= state newState)
 			(0
-				([actors 1] setCycle: EndLoop self)
+				(theAActor1 setCycle: End self)
 			)
 			(1
-				([actors 1] cel: 0 setCycle: EndLoop)
-				([actors 2] setCycle: EndLoop self)
+				(theAActor1 cel: 0 setCycle: End)
+				(theAActor2 setCycle: End self)
 			)
 			(2
-				([actors 1] cel: 0 setCycle: EndLoop)
-				([actors 2] cel: 0 setCycle: EndLoop)
-				([actors 3] setCycle: EndLoop self)
+				(theAActor1 cel: 0 setCycle: End)
+				(theAActor2 cel: 0 setCycle: End)
+				(theAActor3 setCycle: End self)
 			)
 			(3
-				([actors 1] cel: 0)
-				([actors 2] cel: 0 setCycle: EndLoop)
-				([actors 3] cel: 0 setCycle: EndLoop)
-				([actors 4] setCycle: EndLoop self)
+				(theAActor1 cel: 0)
+				(theAActor2 cel: 0 setCycle: End)
+				(theAActor3 cel: 0 setCycle: End)
+				(theAActor4 setCycle: End self)
 			)
 			(4
 				(Print 430 0 #at 10 144 #width 290 #dispose)
-				([actors 2] cel: 0)
-				([actors 3] cel: 0 setCycle: EndLoop)
-				([actors 4] cel: 0 setCycle: EndLoop)
-				([actors 5] setCycle: EndLoop self)
+				(theAActor2 cel: 0)
+				(theAActor3 cel: 0 setCycle: End)
+				(theAActor4 cel: 0 setCycle: End)
+				(theAActor5 setCycle: End self)
 			)
 			(5
-				([actors 3] cel: 0)
-				([actors 4] cel: 0 setCycle: EndLoop)
-				([actors 5] cel: 0 setCycle: EndLoop self)
+				(theAActor3 cel: 0)
+				(theAActor4 cel: 0 setCycle: End)
+				(theAActor5 cel: 0 setCycle: End self)
 			)
 			(6
-				([actors 4] cel: 0)
-				([actors 5] setCycle: EndLoop self)
+				(theAActor4 cel: 0)
+				(theAActor5 setCycle: End self)
 			)
 			(7
-				([actors 5] cel: 0 setCycle: EndLoop self)
+				(theAActor5 cel: 0 setCycle: End self)
 			)
 			(8
-				([actors 4] cel: 0 setCycle: EndLoop self)
+				(theAActor4 cel: 0 setCycle: End self)
 			)
 			(9
-				([actors 3] cel: 0 setCycle: EndLoop self)
+				(theAActor3 cel: 0 setCycle: End self)
 			)
 			(10
-				([actors 2] cel: 0 setCycle: EndLoop self)
+				(theAActor2 cel: 0 setCycle: End self)
 			)
 			(11
-				([actors 1] cel: 0 setCycle: EndLoop self)
+				(theAActor1 cel: 0 setCycle: End self)
 			)
 			(12
-				([actors 2] setCycle: EndLoop self)
+				(theAActor2 setCycle: End self)
 			)
 			(13
-				([actors 3] setCycle: EndLoop self)
+				(theAActor3 setCycle: End self)
 			)
 			(14
-				([actors 4] setCycle: EndLoop self)
+				(theAActor4 setCycle: End self)
 			)
 			(15
-				([actors 5] setCycle: EndLoop self)
+				(theAActor5 setCycle: End self)
 			)
 			(16
-				([actors 4] setCycle: EndLoop self)
+				(theAActor4 setCycle: End self)
 			)
 			(17
-				([actors 3] setCycle: EndLoop self)
+				(theAActor3 setCycle: End self)
 			)
 			(18
-				([actors 2] setCycle: EndLoop self)
+				(theAActor2 setCycle: End self)
 			)
 			(19
 				(cls)
-				([actors 1] setCycle: EndLoop self)
+				(theAActor1 setCycle: End self)
 			)
 			(20
-				([actors 1] setCycle: EndLoop self)
-				([actors 2] setCycle: Forward)
+				(theAActor1 setCycle: End self)
+				(theAActor2 setCycle: Fwd)
 			)
 			(21
-				([actors 1] setCycle: EndLoop self)
-				([actors 3] setCycle: Forward)
+				(theAActor1 setCycle: End self)
+				(theAActor3 setCycle: Fwd)
 			)
 			(22
-				([actors 1] setCycle: EndLoop self)
-				([actors 4] setCycle: Forward)
+				(theAActor1 setCycle: End self)
+				(theAActor4 setCycle: Fwd)
 			)
 			(23
-				([actors 1] setCycle: Forward)
-				([actors 5] setCycle: Forward)
+				(theAActor1 setCycle: Fwd)
+				(theAActor5 setCycle: Fwd)
 				(= cycles 55)
 			)
 			(24
-				(for ((= i 1)) (<= i 5) ((++ i))
-					([actors i] setMotion: MoveTo 119 52)
+				(= temp0 1)
+				(while (<= temp0 5)
+					([local9 temp0] setMotion: MoveTo 119 52)
+					(++ temp0)
 				)
 				(= cycles 66)
 			)
 			(25
-				(music fade:)
+				(gTheMusic fade:)
 				(= cycles 66)
 			)
 			(26
-				(music number: 10 loop: -1 play:)
+				(gTheMusic number: 10 loop: -1 play:)
 				(Print 430 1 #at 10 5 #width 290)
-				([actors 1] dispose:)
-				([actors 2] dispose:)
-				(actor3
-					view: 430
-					setLoop: 3
-					posn: 167 97
-					setPri: 2
-					hide:
-				)
+				(theAActor1 dispose:)
+				(theAActor2 dispose:)
+				(actor3 view: 430 setLoop: 3 posn: 167 97 setPri: 2 hide:)
 				(actor4
 					view: 430
 					setLoop: 4
@@ -251,8 +261,8 @@
 			)
 			(30
 				(actor4 stopUpd:)
-				(music number: 431 loop: -1 play:)
-				(actor5 setLoop: 3 setCycle: Forward)
+				(gTheMusic number: 431 loop: -1 play:)
+				(actor5 setLoop: 3 setCycle: Fwd)
 				(= cycles 33)
 			)
 			(31
@@ -260,13 +270,15 @@
 				(= cycles 33)
 			)
 			(32
-				(actor5 cel: 0 setCycle: EndLoop self)
+				(actor5 cel: 0 setCycle: End self)
 			)
 			(33
-				(actor5 setLoop: 1 setCycle: Forward)
+				(actor5 setLoop: 1 setCycle: Fwd)
 				(Print 430 2 #at 10 144 #width 290 #dispose)
-				(for ((= i 1)) (<= i 5) ((++ i))
-					([money i] setScript: (MoneyScript new:))
+				(= temp0 1)
+				(while (<= temp0 5)
+					([money temp0] setScript: (MoneyScript new:))
+					(++ temp0)
 				)
 				(self cue:)
 			)
@@ -279,17 +291,16 @@
 			)
 			(35
 				(cls)
-				(actor5 setCycle: Forward)
-				(= cycles (+ 7 (* 127 2)))
-				;EO: replaced "machineSpeed" with 127 to fix an original speed bug
+				(actor5 setCycle: Fwd)
+				(= cycles 261)
 			)
 			(36
-				(if (< 127 39)
+				(if 0
 					(self cue:)
 				else
-					(aSpotlight setCycle: Forward)
-					(aFloor setCycle: Forward)
-					(= cycles (+ 7 (* 127 2)))
+					(aSpotlight setCycle: Fwd)
+					(aFloor setCycle: Fwd)
+					(= cycles 261)
 				)
 			)
 			(37
@@ -298,42 +309,42 @@
 				(self cue:)
 			)
 			(38
-				(= cycles
-					(* (+ 1 (> 127 39)) (NumCels actor5))
-				)
+				(= cycles (* 2 (NumCels actor5)))
 				(if (< speed 6)
 					(theGame setSpeed: (++ speed))
 					(-- state)
 				)
 			)
 			(39
-				(actor5 setLoop: 2 setCycle: EndLoop self)
+				(actor5 setLoop: 2 setCycle: End self)
 			)
 			(40
 				(actor5 setCel: 255)
-				(music fade:)
+				(gTheMusic fade:)
 				(= seconds 4)
 			)
 			(41
 				(Print 430 3 #at 10 5 #width 290)
-				(music number: 13 loop: -1 play:)
+				(gTheMusic number: 13 loop: -1 play:)
 				(actor4 setMotion: MoveTo 148 163)
 				(actor5 setMotion: MoveTo 149 140 self)
-				(for ((= i 1)) (<= i 5) ((++ i))
-					(([money i] script?) changeState: 2)
+				(= temp0 1)
+				(while (<= temp0 5)
+					(([money temp0] script?) changeState: 2)
+					(++ temp0)
 				)
 			)
 			(42
-				(music fade:)
+				(gTheMusic fade:)
 				(Print 430 4 #at 10 5 #width 290)
 				(actor3 setMotion: MoveTo 167 97 self)
 			)
 			(43
-				(curRoom drawPic: 430 DISSOLVE)
+				(curRoom drawPic: 430 8)
 				(actor3 dispose:)
 				(aSpotlight dispose:)
 				(aFloor dispose:)
-				(Animate (cast elements?) FALSE)
+				(Animate (cast elements?) 0)
 				(Print 430 5 #at 10 5 #width 290)
 				(= seconds 3)
 			)
@@ -343,23 +354,33 @@
 				(= seconds 2)
 			)
 			(45
-				(theGame setSpeed: saveSpeed)
-				(= currentStatus oldStatus)
+				(theGame setSpeed: currentStatus)
+				(= gCurRoomNum gGCurRoomNum)
 				(curRoom newRoom: 420)
 			)
 		)
 	)
 )
 
-(instance aActor1 of Actor)
+(instance aActor1 of Act
+	(properties)
+)
 
-(instance aActor2 of Actor)
+(instance aActor2 of Act
+	(properties)
+)
 
-(instance aActor3 of Actor)
+(instance aActor3 of Act
+	(properties)
+)
 
-(instance aActor4 of Actor)
+(instance aActor4 of Act
+	(properties)
+)
 
-(instance aActor5 of Actor)
+(instance aActor5 of Act
+	(properties)
+)
 
 (instance aSpotlight of Prop
 	(properties
@@ -391,35 +412,39 @@
 	)
 )
 
-(instance aMoney1 of Actor)
+(instance aMoney1 of Act
+	(properties)
+)
 
-(instance aMoney2 of Actor)
+(instance aMoney2 of Act
+	(properties)
+)
 
-(instance aMoney3 of Actor)
+(instance aMoney3 of Act
+	(properties)
+)
 
-(instance aMoney4 of Actor)
+(instance aMoney4 of Act
+	(properties)
+)
 
-(instance aMoney5 of Actor)
+(instance aMoney5 of Act
+	(properties)
+)
 
 (instance MoneyScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(switch (= state newState)
 			(0
-				(client
-					view: 430
-					setLoop: 7
-					setCycle: Forward
-					setStep: 7 7
-				)
+				(client view: 430 setLoop: 7 setCycle: Fwd setStep: 7 7)
 				(= cycles (Random 1 9))
 			)
 			(1
 				(client
 					posn: (Random 8 290) (Random 144 157)
-					setMotion: JumpTo
-						(actor5 x?)
-						(- (actor5 y?) (Random 0 33))
-						self
+					setMotion: JumpTo (actor5 x?) (- (actor5 y?) (Random 0 33)) self
 				)
 				(-- state)
 			)

@@ -1,13 +1,15 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 420)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
 (use DCIcon)
+(use Follow)
 (use Motion)
 (use Game)
 (use Invent)
+(use User)
 (use Menu)
 (use Actor)
 (use System)
@@ -25,31 +27,38 @@
 	[titleBuf 22]
 	passPage
 	inputPassNum
-	;EO: Some of these numbers did not decompile right. I got the correct numbers from the manual.
-	correctPassNum = [0 0 0 00741 0 55811 30004 0 0 18608 25695 32841 00993 0 0 09170 0 0 49114 33794 0 0 55482 62503]
+	[correctPassNum 24] = [0 0 0 741 0 -9725 30004 0 0 18608 25695 -32695 993 0 0 9170 0 0 -16422 -31742 0 0 -10054 -3033]
+	local214
 )
-(procedure (MaitreDSays theView theLoop theCel)
-	(Print @msgBuf
-		#at -1 10
-		#title {the Maitre d' says}
-		#mode teJustCenter
-		#icon theView theLoop theCel
+(procedure (localproc_0032 param1 param2 param3)
+	(Print
+		@msgBuf
+		#at
+		-1
+		10
+		#title
+		{the Maitre d' says}
+		#mode
+		1
+		#icon
+		param1
+		param2
+		param3
 	)
 	(= msgBuf 0)
 )
 
-(instance rm420 of Room
+(instance rm420 of Rm
 	(properties
 		picture 420
 		east 415
 	)
 	
 	(method (init)
-		(Load SOUND 11)
-		(if (ego has: iLandDeed)
-			(Load VIEW 7)
-		)
+		(Load rsSOUND 11)
+		(if (ego has: 7) (Load rsVIEW 7))
 		(super init:)
+		(User canInput: 0 mapKeyToDir: 0)
 		(addToPics
 			add: atpPoster1
 			add: atpPoster2
@@ -60,94 +69,85 @@
 		(aRope init:)
 		(aDoor init:)
 		(NormalEgo)
-		(ego observeControl: cYELLOW cLMAGENTA init:)
+		(ego observeControl: 16384 8192 init:)
 		(self setScript: RoomScript)
 		(if
 			(or
 				(== prevRoomNum 430)
 				(== prevRoomNum 431)
-				(== showroomState 0)
+				(== gameMinutes 0)
 			)
 			(aMaitreD view: 422 setPri: 5 setLoop: 2 init:)
 		)
-		(if (< showroomState SRknowsAboutDeed)
+		(if (< gameMinutes 3)
 			(aManager init:)
-			(= theDoor aDoor)
+			(= roomSeconds aDoor)
 		)
 		(if
 			(or
-				(== showroomState SRshowDone)
-				(== showroomState SRcherriOnPhone)
-				(== showroomState SRknowsAboutDeed)
+				(== gameMinutes 1)
+				(== gameMinutes 2)
+				(== gameMinutes 3)
 			)
 			(aCherri init:)
-			(= theDoor aDoor)
+			(= roomSeconds aDoor)
 		)
 		(cond 
 			((== prevRoomNum 440)
-				(if (== currentStatus 18)
-					(= currentStatus egoNORMAL)
-				)
+				(if (== gCurRoomNum 18) (= gCurRoomNum 0))
 				(TheMenuBar draw:)
-				(StatusLine enable:)
+				(SL enable:)
 				(ego loop: 0 posn: 44 142)
 			)
 			((== prevRoomNum 435)
-				(= currentStatus egoNORMAL)
+				(= gCurRoomNum 0)
 				(ego
-					loop: saveEgoLoop
-					posn: (if saveEgoX else 99) (if saveEgoY else 124)
+					loop: egoName
+					posn: (if currentEgoView else 99) (if gameSeconds else 124)
 				)
 				(aCherri init:)
 			)
-			((== prevRoomNum 430)
-				(RoomScript changeState: 1)
-			)
-			((== prevRoomNum 431)
-				(self style: IRISOUT)
-				(RoomScript changeState: 1)
-			)
-			((> (ego y?) 130)
-				(ego posn: 317 188 loop: 1)
-			)
-			(else
-				(ego loop: 1 posn: 309 163)
-			)
+			((== prevRoomNum 430) (RoomScript changeState: 1))
+			((== prevRoomNum 431) (self style: 7) (RoomScript changeState: 1))
+			((> (ego y?) 130) (ego posn: 317 188 loop: 1))
+			(else (ego loop: 1 posn: 309 163))
 		)
 	)
 	
-	(method (newRoom n)
-		(if (== theDoor aDoor)
-			(= theDoor 0)
+	(method (newRoom newRoomNumber)
+		(if (== roomSeconds aDoor)
+			(= roomSeconds 0)
 			(DisposeScript 421)
 			(DisposeScript 422)
 		)
-		(super newRoom: n)
+		(super newRoom: newRoomNumber)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(ChangeScriptState self newState 1 2)
 		(switch (= state newState)
 			(0)
 			(1
 				(TheMenuBar draw:)
-				(StatusLine enable:)
+				(SL enable:)
 				(aRope setCel: 255 stopUpd:)
 				(aMaitreD view: 422 posn: 125 109 setPri: 5 init:)
 				(NormalEgo 2)
 				(HandsOff)
 				(ego
 					illegalBits: 0
-					ignoreActors: TRUE
+					ignoreActors: 1
 					posn: 150 94
 					setMotion: MoveTo 150 114 self
 				)
 			)
 			(2
 				(ego stopUpd:)
-				(aRope setCycle: BegLoop)
+				(aRope setCycle: Beg)
 				(aMaitreD
 					setLoop: 0
 					setCycle: Walk
@@ -155,14 +155,14 @@
 				)
 			)
 			(3
-				(aMaitreD setLoop: 2 setCycle: Forward)
+				(aMaitreD setLoop: 2 setCycle: Fwd)
 				(= seconds 3)
 			)
 			(4
 				(aMaitreD setCel: 0 stopUpd:)
 				(aRope stopUpd:)
 				(NormalEgo)
-				(ego observeControl: cYELLOW cLMAGENTA)
+				(ego observeControl: 16384 8192)
 				(if (== prevRoomNum 430)
 					(Print 420 20)
 				else
@@ -184,22 +184,18 @@
 				)
 			)
 			(7
-				(aDoor setCycle: EndLoop self)
+				(aDoor setCycle: End self)
 				(ego setLoop: 1)
 			)
 			(8
 				(ego setMotion: MoveTo -3 140 self)
 			)
-			(9
-				(aDoor setCycle: BegLoop self)
-			)
+			(9 (aDoor setCycle: Beg self))
 			(10
-				(soundFX number: 11 loop: 1 play:)
+				(orchidSeconds number: 11 loop: 1 play:)
 				(= cycles 12)
 			)
-			(11
-				(curRoom newRoom: 440)
-			)
+			(11 (curRoom newRoom: 440))
 			(12
 				(HandsOff)
 				(aCherri setScript: 0)
@@ -214,7 +210,7 @@
 				(= cycles 11)
 			)
 			(14
-				(if (== showroomState SRcherriBackstage)
+				(if (== gameMinutes 4)
 					(Print 420 24)
 					(= seconds 3)
 				else
@@ -236,9 +232,7 @@
 			)
 			(17
 				(Print 420 30)
-				(if (ego has: iLandDeed)
-					(= state 19)
-				)
+				(if (ego has: 7) (= state 19))
 				(= seconds 3)
 			)
 			(18
@@ -249,11 +243,11 @@
 				(Print 420 32)
 				(Print 420 33)
 				(NormalEgo)
-				(ego observeControl: cYELLOW cLMAGENTA)
+				(ego observeControl: 16384 8192)
 			)
 			(20
 				(Print 420 34 #icon 7 0 0)
-				(PutInRoom iLandDeed)
+				(PutInRoom 7)
 				(theGame changeScore: 25)
 				(= seconds 3)
 			)
@@ -261,18 +255,14 @@
 				(Print 420 35 #at 10 5 #width 290)
 				(= seconds 3)
 			)
-			(22
-				(aDoor setCycle: EndLoop self)
-			)
+			(22 (aDoor setCycle: End self))
 			(23
 				(aDoor stopUpd:)
 				(ego setMotion: MoveTo -20 (ego y?) self)
 			)
-			(24
-				(aDoor setCycle: BegLoop self)
-			)
+			(24 (aDoor setCycle: Beg self))
 			(25
-				(soundFX number: 11 loop: 1 play:)
+				(orchidSeconds number: 11 loop: 1 play:)
 				(cls)
 				(Print 420 36)
 				(curRoom newRoom: 440)
@@ -280,100 +270,67 @@
 		)
 	)
 	
-	(method (handleEvent event)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
-			(return)
-		)
+	(method (handleEvent event &tmp temp0)
+		(if (event claimed?) (return))
 		(cond 
-			((Said 'look/art,art')
-				(Print 420 0)
-			)
-			((or (Said 'make/call') (Said 'call') (Said 'use/call'))
-				(if (== showroomState SRcherriOnPhone)
+			((Said 'look/art,art') (Print 420 0))
+			(
+			(or (Said 'make/call') (Said 'call') (Said 'use/call'))
+				(if (== gameMinutes 2)
 					(Print 420 1)
 				else
 					(Print 420 2)
 				)
 			)
-			((Said '/change')
-				(Print 420 3)
-			)
-			((Said 'unbolt/door')
-				(Print 420 4)
-			)
+			((Said '/alter') (Print 420 3))
+			((Said 'unbolt/door') (Print 420 4))
 			((Said 'open/door')
 				(cond 
-					((not (& (ego onControl:) cCYAN))
-						(NotClose)
-					)
-					((== currentStatus egoSHOWGIRL)
-						(self changeState: 6)
-					)
-					(else
-						(Print 420 5)
-					)
+					((not (& (ego onControl:) $0008)) (NotClose))
+					((== gCurRoomNum 11) (self changeState: 6))
+					(else (Print 420 5))
 				)
 			)
-			((and (== currentStatus egoSHOWGIRL) (Said '/cloth,cloth'))
-				(Print 420 6)
-			)
+			(
+			(and (== gCurRoomNum 11) (Said '/cloth,cloth')) (Print 420 6))
 			((Said 'knock')
 				(cond 
-					((== currentStatus egoSHOWGIRL)
-						(Print 420 7)
-					)
-					((or (Btst fScrewedCherri) (>= showroomState SRdone))
-						(Print 420 8)
-					)
-					((not (& (ego onControl:) cCYAN))
-						(NotClose)
-					)
-					((== showroomState SRshowDone)
-						(Print 420 9)
-					)
-					(else
-						(self changeState: 12)
-					)
+					((== gCurRoomNum 11) (Print 420 7))
+					((or (Btst 35) (>= gameMinutes 6)) (Print 420 8))
+					((not (& (ego onControl:) $0008)) (NotClose))
+					((== gameMinutes 1) (Print 420 9))
+					(else (self changeState: 12))
 				)
 			)
 			((Said 'look<in/bolt,(hole<key),door')
-				(if (not (& (ego onControl:) cCYAN))
+				(if (not (& (ego onControl:) $0008))
 					(NotClose)
 				else
 					(Print 420 10)
 				)
 			)
 			((Said 'look,look/awning,door')
-				(if (not (& (ego onControl:) cCYAN))
+				(if (not (& (ego onControl:) $0008))
 					(NotClose)
 				else
 					(Print 420 11)
 				)
 			)
-			((Said 'board/backstage')
-				(Print 420 12)
-			)
-			((Said '/hemp')
-				(Print 420 13)
-			)
+			((Said 'board/backstage') (Print 420 12))
+			((Said '/hemp') (Print 420 13))
 			((Said 'look>')
 				(cond 
 					((Said '/lectern')
-						(if (== showroomState SRcherriOnPhone)
+						(if (== gameMinutes 2)
 							(Print 420 14)
 						else
 							(Print 420 15)
 						)
 					)
-					((Said '/backstage')
-						(Print 420 16)
-					)
-					((Said '/wall')
-						(Print 420 0)
-						(Print 420 17)
-					)
+					((Said '/backstage') (Print 420 16))
+					((Said '/wall') (Print 420 0) (Print 420 17))
 					((Said '/call')
-						(if (== showroomState SRcherriOnPhone)
+						(if (== gameMinutes 2)
 							(Print 420 18)
 						else
 							(Print 420 17)
@@ -381,17 +338,14 @@
 					)
 					((Said '[/area]')
 						(Print
-							(Format @msgBuf 420 19
+							(Format
+								@msgBuf
+								420
+								19
 								(cond 
-									((== showroomState SRcherriOnPhone)
-										{a gorgeous woman in a dressing gown}
-									)
-									((cast contains: aMaitreD)
-										{a man standing behind a podium}
-									)
-									(else
-										{you}
-									)
+									((== gameMinutes 2) {a gorgeous woman in a dressing gown})
+									((cast contains: aMaitreD) {a man standing behind a podium})
+									(else {you})
 								)
 							)
 						)
@@ -399,10 +353,437 @@
 				)
 			)
 		)
+		(if
+			(and
+				(== (event type?) evMOUSEBUTTON)
+				(not (& (event modifiers?) emSHIFT))
+			)
+			(if
+				(and
+					(> (event x?) 292)
+					(< (event x?) 319)
+					(> (event y?) 133)
+					(< (event y?) 189)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(999
+						(ego setMotion: MoveTo 324 187 self)
+					)
+					(else  (event claimed: 0))
+				)
+			)
+			(if
+				(and
+					(proc0_26 aMaitreD (event x?) (event y?))
+					(cast contains: aMaitreD)
+				)
+				(switch theCursor
+					(996
+						(event claimed: 1)
+						(cond 
+							((!= gCurRoomNum 0) (GoodIdea))
+							((not (& (ego onControl:) $0010)) (Print 420 50))
+							((>= gameMinutes 5) (Print 420 44))
+							((>= gameMinutes 1) (Print 420 45))
+							(local214
+								(= temp0
+									(Print
+										{What do you want to ask about?}
+										#button
+										{Coupon}
+										1
+										#button
+										{Bar}
+										2
+										#button
+										{Casino}
+										3
+										#button
+										{Show}
+										4
+									)
+								)
+								(switch temp0
+									(1
+										(cond 
+											((!= gCurRoomNum 0) (GoodIdea))
+											((not (& (ego onControl:) $0010)) (Print 420 47))
+											((>= gameMinutes 5) (Print 420 44))
+											((>= gameMinutes 1) (Print 420 45))
+											(else (MaitreDScript changeState: 3))
+										)
+									)
+									(2
+										(if (not musicLoop)
+											(if
+												(cond 
+													((!= gCurRoomNum 0) (GoodIdea))
+													((not (& (ego onControl:) $0010)) (Print 420 37))
+													(else
+														(Print 420 40)
+														(Format @msgBuf 420 41)
+														(MaitreDScript changeState: 4)
+													)
+												)
+												1
+											)
+										)
+									)
+									(3
+										(cond 
+											((!= gCurRoomNum 0) (GoodIdea))
+											((not (& (ego onControl:) $0010)) (Print 420 37))
+											(else
+												(Print 420 42)
+												(Format @msgBuf 420 43)
+												(MaitreDScript changeState: 4)
+											)
+										)
+									)
+									(4
+										(cond 
+											((!= gCurRoomNum 0) (GoodIdea))
+											((not (& (ego onControl:) $0010)) (Print 420 37))
+											((>= gameMinutes 5) (Print 420 44))
+											((>= gameMinutes 1) (Print 420 45))
+											(else (Format @msgBuf 420 46) (MaitreDScript changeState: 4))
+										)
+									)
+								)
+							)
+							(else
+								(= local214 1)
+								(Printf 420 51 global171)
+								(Print 420 52)
+								(Format @msgBuf 420 46)
+								(MaitreDScript changeState: 4)
+							)
+						)
+					)
+					(998
+						(event claimed: 1)
+						(Print 420 53)
+						(Print 420 54 #at -1 144)
+					)
+					(6
+						(event claimed: 1)
+						(cond 
+							((!= gCurRoomNum 0) (GoodIdea))
+							((not (& (ego onControl:) $0010)) (Print 420 47))
+							((>= gameMinutes 5) (Print 420 44))
+							((>= gameMinutes 1) (Print 420 45))
+							(else
+								(= gTheCursor 900)
+								(theGame setCursor: 998 (HaveMouse))
+								(MaitreDScript changeState: 3)
+							)
+						)
+						(cond 
+							((!= gCurRoomNum 0) (GoodIdea))
+							((not (ego has: 6)) (Print 420 48))
+							((not (& (ego onControl:) $0010)) (Print 420 47))
+							((>= gameMinutes 5) (Print 420 49))
+							(else (MaitreDScript changeState: 6))
+						)
+					)
+					(else  (event claimed: 0))
+				)
+			)
+			(if
+				(and
+					(> (event x?) 19)
+					(< (event x?) 42)
+					(> (event y?) 85)
+					(< (event y?) 131)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(7
+						(cond 
+							((== gCurRoomNum 11) (Print 420 7))
+							((or (Btst 35) (>= gameMinutes 6)) (Print 420 8))
+							((not (& (ego onControl:) $0008)) (NotClose))
+							((== gameMinutes 1) (Print 420 9))
+							(else
+								(= gTheCursor 900)
+								(theGame setCursor: 998 (HaveMouse))
+								(self changeState: 12)
+							)
+						)
+					)
+					(995
+						(cond 
+							((== gCurRoomNum 11) (Print 420 7) (self changeState: 6))
+							((or (Btst 35) (>= gameMinutes 6)) (Print 420 8))
+							((not (& (ego onControl:) $0008)) (NotClose))
+							((== gameMinutes 1) (Print 420 9))
+							(else
+								(= gTheCursor 900)
+								(theGame setCursor: 998 (HaveMouse))
+								(self changeState: 12)
+							)
+						)
+					)
+					(994 (Print 420 4))
+					(else  (event claimed: 0))
+				)
+			)
+			(if (proc0_26 atpPoster1 (event x?) (event y?))
+				(event claimed: 1)
+				(switch theCursor
+					(995)
+					(998 (Print 420 0))
+					(994)
+					(else  (event claimed: 0))
+				)
+			)
+			(if (proc0_26 atpPoster2 (event x?) (event y?))
+				(event claimed: 1)
+				(switch theCursor
+					(995)
+					(998 (Print 420 0))
+					(994)
+					(else  (event claimed: 0))
+				)
+			)
+			(if
+				(and
+					(> (event x?) 297)
+					(< (event x?) 300)
+					(> (event y?) 149)
+					(< (event y?) 188)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(998
+						(Print
+							(Format
+								@msgBuf
+								420
+								19
+								(cond 
+									((== gameMinutes 2) {a gorgeous woman in a dressing gown})
+									((cast contains: aMaitreD) {a man standing behind a podium})
+									(else {you})
+								)
+							)
+						)
+					)
+					(994)
+					(else  (event claimed: 0))
+				)
+			)
+			(if
+				(and
+					(> (event x?) 64)
+					(< (event x?) 73)
+					(> (event y?) 73)
+					(< (event y?) 94)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(995 (Print 420 3))
+					(998
+						(if (== gameMinutes 2)
+							(Print 420 1)
+						else
+							(Print 420 2)
+						)
+					)
+					(994)
+					(996)
+					(else  (event claimed: 0))
+				)
+			)
+			(if
+				(and
+					(proc0_26 aCherri (event x?) (event y?))
+					(cast contains: aCherri)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(995)
+					(998
+						(cond 
+							((!= gameMinutes 2) (Print 422 1))
+							((!= gCurRoomNum 0) (GoodIdea))
+							((!= (aCherri xLast?) (aCherri x?)) (Print 422 2))
+							((not (& (ego onControl:) $0020)) (Print 422 3))
+							(else
+								(CherriScript2 changeState: 1)
+								(CherriScript2 changeState: 2)
+							)
+						)
+					)
+					(994)
+					(996)
+					(2 (Print 420 58))
+					(4 (Print 420 59))
+					(3 (Print 420 60))
+					(11 (Print 420 61))
+					(1 (Print 420 62))
+					(else  (event claimed: 0))
+				)
+			)
+		)
 	)
 )
 
-(instance aMaitreD of Actor
+(instance CherriScript2 of Script
+	(properties)
+	
+	(method (doit)
+		(super doit:)
+		(if (and (== state 10) (> (ego x?) 280))
+			(CherriScript2 cue:)
+		)
+		(if
+			(and
+				(== gameMinutes 2)
+				(== (aCherri loop?) 4)
+				(== (aCherri x?) 82)
+				(== (aCherri y?) 124)
+			)
+			(switch (Random 0 6)
+				(0 (aCherri setCel: 0))
+				(1 (aCherri setCycle: Fwd))
+			)
+		)
+	)
+	
+	(method (changeState newState)
+		(ChangeScriptState self newState 3 2)
+		(switch (= state newState)
+			(0
+				(if (== gameMinutes 3) (CherriScript2 changeState: 3))
+				(if (== gameMinutes 1)
+					(CherriScript2 changeState: 10)
+					(aCherri posn: -20 143 stopUpd:)
+				)
+			)
+			(1
+				(Ok)
+				(HandsOff)
+				(= gCurRoomNum 14)
+				(Printf 422 5 global171)
+				(aCherri setStep: 0 0 setMotion: Follow ego 222)
+				(= seconds 3)
+			)
+			(2
+				(if (not (Btst 48))
+					(Bset 48)
+					(theGame changeScore: 5)
+				)
+				(Print 422 6)
+				(= currentEgoView (ego x?))
+				(= gameSeconds (ego y?))
+				(= egoName (ego loop?))
+				(curRoom newRoom: 435)
+			)
+			(3 (HandsOff) (= seconds 3))
+			(4 (Print 422 7) (= seconds 3))
+			(5
+				(Print 422 8)
+				(aCherri
+					illegalBits: 0
+					ignoreActors: 0
+					setLoop: 1
+					setCycle: Walk
+					setMotion: MoveTo 45 140 self
+				)
+				(if
+					(and
+						(> (ego y?) (aCherri y?))
+						(< (ego x?) (+ (aCherri x?) 15))
+					)
+					(ego setCycle: Walk setMotion: MoveTo 97 (ego y?))
+				)
+			)
+			(6
+				(roomSeconds setCycle: End self)
+			)
+			(7
+				(Print 422 9)
+				(roomSeconds stopUpd:)
+				(aCherri setMotion: MoveTo -20 140 self)
+			)
+			(8
+				(roomSeconds setCycle: Beg self)
+			)
+			(9
+				(orchidSeconds number: 11 loop: 1 play:)
+				(= gameMinutes 4)
+				(roomSeconds stopUpd:)
+				(NormalEgo)
+				(ego observeControl: 16384 8192)
+				(aCherri dispose:)
+				(self dispose:)
+			)
+			(10 (= seconds 15))
+			(11
+				(if (< (ego x?) 160)
+					(-- state)
+					(= cycles 2)
+				else
+					(HandsOff)
+					(roomSeconds setCycle: End self)
+					(= seconds 0)
+				)
+			)
+			(12
+				(roomSeconds stopUpd:)
+				(aCherri
+					posn: 13 140
+					loop: 0
+					illegalBits: 0
+					setCycle: Walk
+					setMotion: MoveTo 45 140 self
+				)
+			)
+			(13
+				(roomSeconds setCycle: Beg self)
+			)
+			(14
+				(orchidSeconds number: 11 loop: 1 play:)
+				(roomSeconds stopUpd:)
+				(aCherri setMotion: MoveTo 82 124 self)
+			)
+			(15
+				(aCherri loop: 4)
+				(= gameMinutes 2)
+				(HandsOn)
+				(ego observeControl: 16384 8192)
+			)
+		)
+	)
+	
+	(method (handleEvent event)
+		(if
+			(or
+				(!= (event type?) evSAID)
+				(!= gameMinutes 2)
+				(event claimed?)
+			)
+			(return)
+		)
+		(cond 
+			((or (Said 'give/babe') (Said 'give/*/babe')) (Print 422 0))
+			((Said 'look/babe')
+				(cond 
+					((!= gameMinutes 2) (Print 422 1))
+					((!= gCurRoomNum 0) (GoodIdea))
+					((!= (aCherri xLast?) (aCherri x?)) (Print 422 2))
+					((not (& (ego onControl:) $0020)) (Print 422 3))
+					(else (CherriScript2 changeState: 1))
+				)
+			)
+			((and (== gameMinutes 2) (Said '/babe')) (Print 422 4))
+		)
+	)
+)
+
+(instance aMaitreD of Act
 	(properties
 		y 105
 		x 172
@@ -413,16 +794,14 @@
 	
 	(method (init)
 		(super init:)
-		(self
-			setScript: MaitreDScript
-			ignoreActors:
-			stopUpd:
-		)
+		(self setScript: MaitreDScript ignoreActors: stopUpd:)
 	)
 )
 
 (instance MaitreDScript of Script
-	(method (changeState newState &tmp [numBuf 5])
+	(properties)
+	
+	(method (changeState newState &tmp [temp0 5])
 		(ChangeScriptState self newState 2 2)
 		(switch (= state newState)
 			(0)
@@ -430,7 +809,7 @@
 				(Ok)
 				(HandsOff)
 				(Print 420 64)
-				(aMaitreD setCycle: Forward)
+				(aMaitreD setCycle: Fwd)
 				(= seconds 3)
 			)
 			(2
@@ -438,83 +817,90 @@
 					(= passPage (Random 1 24))
 				)
 				(Format @msgBuf 420 65 passPage)
-				(MaitreDSays 422 3 0)
-				(= numBuf 0)
-				(GetInput @numBuf 7 {My pass number is:})
+				(localproc_0032 422 3 0)
+				(= temp0 0)
+				(GetInput @temp0 7 {My pass number is:})
 				(if
 					(!=
-						(= inputPassNum (ReadNumber @numBuf))
+						(= inputPassNum (ReadNumber @temp0))
 						[correctPassNum passPage]
 					)
-					(= state 12) ;wrong answer; busted!
+					(= state 12)
 				)
-				(if debugging
-					(Printf 420 66 inputPassNum [correctPassNum passPage] passPage)
+				(if global64
+					(Printf
+						420
+						66
+						inputPassNum
+						[correctPassNum passPage]
+						passPage
+					)
 				)
 				(Format @msgBuf 420 67)
-				(MaitreDSays 422 3 0)
+				(localproc_0032 422 3 0)
 				(= seconds 3)
 			)
 			(3
 				(aMaitreD setCel: 0 stopUpd:)
-				(Bset fGaveTicketToMaitreD)
-				(if (not (Btst fGaveMoneyToMaitreD))
+				(Bset 46)
+				(if (not (Btst 47))
 					(Format @msgBuf 420 68)
 					(handIcon view: 422 loop: 4)
-					(Print @msgBuf
-						#at -1 10
-						#title {the Maitre d' says}
-						#mode teJustCenter
-						#icon handIcon
+					(Print
+						@msgBuf
+						#at
+						-1
+						10
+						#title
+						{the Maitre d' says}
+						#mode
+						1
+						#icon
+						handIcon
 					)
 					(= msgBuf 0)
 					(HandsOn)
 				else
 					(Format @msgBuf 420 69)
-					(MaitreDSays 422 3 6)
+					(localproc_0032 422 3 6)
 					(self changeState: 8)
 				)
 			)
 			(4
 				(HandsOff)
-				(aMaitreD setLoop: 2 setCycle: Forward)
+				(aMaitreD setLoop: 2 setCycle: Fwd)
 				(= seconds 3)
 			)
 			(5
 				(aMaitreD setCel: 0 stopUpd:)
-				(if (not msgBuf)
-					(Format @msgBuf 420 70)
-				)
-				(MaitreDSays 422 3 0)
+				(if (not msgBuf) (Format @msgBuf 420 70))
+				(localproc_0032 422 3 0)
 				(HandsOn)
 			)
 			(6
 				(HandsOff)
-				(aMaitreD setLoop: 2 setCycle: Forward)
+				(aMaitreD setLoop: 2 setCycle: Fwd)
 				(= cycles 0)
 				(= seconds 3)
 			)
 			(7
 				(aMaitreD setCel: 0 stopUpd:)
 				(cond 
-					((== ((Inventory at: iMoney) view?) 24)
-						(Print 420 71)
-						(MaitreDSays 422 3 0)
-					)
-					((not (Btst fGaveTicketToMaitreD))
+					((== ((Inv at: 6) view?) 24) (Print 420 71) (localproc_0032 422 3 0))
+					((not (Btst 46))
 						(Format @msgBuf 420 72)
-						(MaitreDSays 422 3 0)
-						(PutInRoom iMoney)
+						(localproc_0032 422 3 1)
+						(PutInRoom 6)
 						(theGame changeScore: 50)
-						(Bset fGaveMoneyToMaitreD)
+						(Bset 47)
 						(HandsOn)
 					)
 					(else
 						(HandsOff)
-						(Format @msgBuf 420 73)
-						(MaitreDSays 422 3 1)
-						(PutInRoom iMoney)
-						(Bset fGaveMoneyToMaitreD)
+						(Format @msgBuf 420 72)
+						(localproc_0032 422 3 1)
+						(PutInRoom 6)
+						(Bset 47)
 						(theGame changeScore: 50)
 						(= seconds 2)
 					)
@@ -523,15 +909,15 @@
 			(8
 				(aMaitreD
 					illegalBits: 0
-					ignoreActors: TRUE
+					ignoreActors: 1
 					setLoop: 1
-					setCycle: Forward
+					setCycle: Fwd
 					setMotion: MoveTo 162 105 self
 				)
 			)
 			(9
 				(aMaitreD setMotion: MoveTo 125 109 self)
-				(aRope cycleSpeed: 1 setCycle: EndLoop)
+				(aRope cycleSpeed: 1 setCycle: End)
 			)
 			(10
 				(aRope stopUpd:)
@@ -545,20 +931,18 @@
 			(11
 				(ego setMotion: MoveTo 149 94 self)
 			)
-			(12
-				(curRoom newRoom: 430)
-			)
+			(12 (curRoom newRoom: 430))
 			(13
 				(aMaitreD setCel: 0 stopUpd:)
 				(Format @msgBuf 420 74)
-				(MaitreDSays 422 3 0)
+				(localproc_0032 422 3 0)
 				(= seconds 2)
 			)
 			(14
 				(Format @msgBuf 420 75)
-				(MaitreDSays 422 3 0)
-				(theGame setScript: (ScriptID DYING))
-				((ScriptID DYING)
+				(localproc_0032 422 3 0)
+				(theGame setScript: (ScriptID 40))
+				((ScriptID 40)
 					caller: 56
 					register: (Format @msgBuf 420 76)
 					next: (Format @titleBuf 420 77)
@@ -567,19 +951,16 @@
 		)
 	)
 	
-	(method (handleEvent event &tmp index)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
+	(method (handleEvent event &tmp inventorySaidMe)
+		(if
+		(or (!= (event type?) evSAID) (event claimed?))
 			(return)
 		)
 		(cond 
 			((or (Said 'ask/pass') (Said 'ask/about/pass'))
 				(cond 
-					((!= currentStatus egoNORMAL)
-						(GoodIdea)
-					)
-					((not (& (ego onControl:) cRED))
-						(Print 420 37)
-					)
+					((!= gCurRoomNum 0) (GoodIdea))
+					((not (& (ego onControl:) $0010)) (Print 420 37))
 					(else
 						(Print 420 38)
 						(Format @msgBuf 420 39)
@@ -587,15 +968,10 @@
 					)
 				)
 			)
-			(
-			(and (not playingAsPatti) (Said '/entertainer'))
+			((and (not musicLoop) (Said '/entertainer'))
 				(cond 
-					((!= currentStatus egoNORMAL)
-						(GoodIdea)
-					)
-					((not (& (ego onControl:) cRED))
-						(Print 420 37)
-					)
+					((!= gCurRoomNum 0) (GoodIdea))
+					((not (& (ego onControl:) $0010)) (Print 420 37))
 					(else
 						(Print 420 40)
 						(Format @msgBuf 420 41)
@@ -610,12 +986,8 @@
 					(Said '//casino,gambling')
 				)
 				(cond 
-					((!= currentStatus egoNORMAL)
-						(GoodIdea)
-					)
-					((not (& (ego onControl:) cRED))
-						(Print 420 37)
-					)
+					((!= gCurRoomNum 0) (GoodIdea))
+					((not (& (ego onControl:) $0010)) (Print 420 37))
 					(else
 						(Print 420 42)
 						(Format @msgBuf 420 43)
@@ -631,137 +1003,73 @@
 					(Said 'look/show')
 				)
 				(cond 
-					((!= currentStatus egoNORMAL)
-						(GoodIdea)
-					)
-					((not (& (ego onControl:) cRED))
-						(Print 420 37)
-					)
-					((>= showroomState SRstageDoorUnlocked)
-						(Print 420 44)
-					)
-					((>= showroomState SRshowDone)
-						(Print 420 45)
-					)
-					(else
-						(Format @msgBuf 420 46)
-						(self changeState: 4)
-					)
+					((!= gCurRoomNum 0) (GoodIdea))
+					((not (& (ego onControl:) $0010)) (Print 420 37))
+					((>= gameMinutes 5) (Print 420 44))
+					((>= gameMinutes 1) (Print 420 45))
+					(else (Format @msgBuf 420 46) (self changeState: 4))
 				)
 			)
 			((Said 'bracelet,use,give,show/pass,book')
 				(cond 
-					((!= currentStatus egoNORMAL)
-						(GoodIdea)
-					)
-					((not (& (ego onControl:) cRED))
-						(Print 420 47)
-					)
-					((>= showroomState SRstageDoorUnlocked)
-						(Print 420 44)
-					)
-					((>= showroomState SRshowDone)
-						(Print 420 45)
-					)
-					(else
-						(self changeState: 1)
-					)
+					((!= gCurRoomNum 0) (GoodIdea))
+					((not (& (ego onControl:) $0010)) (Print 420 47))
+					((>= gameMinutes 5) (Print 420 44))
+					((>= gameMinutes 1) (Print 420 45))
+					(else (self changeState: 1))
 				)
 			)
 			(
 				(or
-					(Said 'bracelet,give,show/buck,500,bill')
+					(Said 'bracelet,give,show/buck,bill')
 					(Said 'buy,tip/man')
-					(Said 'bracelet,give,show/man/buck,500,bill')
+					(Said 'bracelet,give,show/man/buck,bill')
 				)
 				(cond 
-					((!= currentStatus egoNORMAL)
-						(GoodIdea)
-					)
-					((not (ego has: iMoney))
-						(Print 420 48)
-					)
-					((not (& (ego onControl:) cRED))
-						(Print 420 47)
-					)
-					((>= showroomState SRstageDoorUnlocked)
-						(Print 420 49)
-					)
-					(else
-						(self changeState: 6)
-					)
+					((!= gCurRoomNum 0) (GoodIdea))
+					((not (ego has: 6)) (Print 420 48))
+					((not (& (ego onControl:) $0010)) (Print 420 47))
+					((>= gameMinutes 5) (Print 420 49))
+					(else (self changeState: 6))
 				)
 			)
 			((Said 'address/man')
 				(cond 
-					((!= currentStatus egoNORMAL)
-						(GoodIdea)
-					)
-					((not (& (ego onControl:) cRED))
-						(Print 420 50)
-					)
-					((>= showroomState SRstageDoorUnlocked)
-						(Print 420 44)
-					)
-					((>= showroomState SRshowDone)
-						(Print 420 45)
-					)
+					((!= gCurRoomNum 0) (GoodIdea))
+					((not (& (ego onControl:) $0010)) (Print 420 50))
+					((>= gameMinutes 5) (Print 420 44))
+					((>= gameMinutes 1) (Print 420 45))
 					(else
-						(Printf 420 51 introductoryPhrase)
+						(Printf 420 51 global171)
 						(Print 420 52)
 						(Format @msgBuf 420 46)
 						(self changeState: 4)
 					)
 				)
 			)
-			((Said 'look/man')
-				(Print 420 53)
-				(Print 420 54
-					#at -1 144
-				)
-			)
+			((Said 'look/man') (Print 420 53) (Print 420 54 #at -1 144))
 			((Said 'give>')
-				(= index (inventory saidMe:))
-				(event claimed: FALSE)
+				(= inventorySaidMe (inventory saidMe:))
+				(event claimed: 0)
 				(cond 
-					((not (& (ego onControl:) cRED))
-						(Print 420 55)
-					)
-					((Said '[/noword]')
-						(Print 420 56)
-					)
-					((not index)
-						(Print 420 57)
-					)
-					((not (index ownedBy: ego))
-						(DontHave)
-					)
-					((== index (inventory at: iKnife))
-						(Print 420 58)
-					)
-					((== index (inventory at: iGrass))
-						(Print 420 59)
-					)
-					((== index (inventory at: iWood))
-						(Print 420 60)
-					)
-					((== index (inventory at: iOrchids))
-						(Print 420 61)
-					)
-					((== index (inventory at: iCreditCard))
-						(Print 420 62)
-					)
-					(else
-						(Print 420 63)
-					)
+					((not (& (ego onControl:) $0010)) (Print 420 55))
+					((Said '[/!*]') (Print 420 56))
+					((not inventorySaidMe) (Print 420 57))
+					((not (inventorySaidMe ownedBy: ego)) (DontHave))
+					((== inventorySaidMe (inventory at: 2)) (Print 420 58))
+					((== inventorySaidMe (inventory at: 4)) (Print 420 59))
+					((== inventorySaidMe (inventory at: 3)) (Print 420 60))
+					((== inventorySaidMe (inventory at: 11)) (Print 420 61))
+					((== inventorySaidMe (inventory at: 1)) (Print 420 62))
+					(else (Print 420 63))
 				)
-				(event claimed: TRUE)
+				(event claimed: 1)
 			)
 		)
 	)
 )
 
-(instance atpPhone of PicView
+(instance atpPhone of PV
 	(properties
 		y 96
 		x 70
@@ -772,7 +1080,7 @@
 	)
 )
 
-(instance atpPoster1 of PicView
+(instance atpPoster1 of PV
 	(properties
 		y 87
 		x 224
@@ -782,7 +1090,7 @@
 	)
 )
 
-(instance atpPoster2 of PicView
+(instance atpPoster2 of PV
 	(properties
 		y 93
 		x 279
@@ -793,14 +1101,14 @@
 	)
 )
 
-(instance atpPodium of PicView
+(instance atpPodium of PV
 	(properties
 		y 109
 		x 166
 		view 420
 		loop 2
 		priority 6
-		signal ignrAct
+		signal $4000
 	)
 )
 
@@ -810,7 +1118,7 @@
 		x 106
 		view 420
 		loop 3
-		signal ignrAct
+		signal $4000
 		cycleSpeed 1
 	)
 	
@@ -838,7 +1146,7 @@
 		y 132
 		x 42
 		view 420
-		signal ignrAct
+		signal $4000
 	)
 	
 	(method (init)
@@ -847,7 +1155,7 @@
 	)
 )
 
-(instance aCherri of Actor
+(instance aCherri of Act
 	(properties
 		y 124
 		x 82
@@ -862,4 +1170,6 @@
 	)
 )
 
-(instance handIcon of DCIcon)
+(instance handIcon of DCIcon
+	(properties)
+)

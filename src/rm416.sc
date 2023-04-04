@@ -1,11 +1,13 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 416)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
+(use Intrface)
 (use Extra)
 (use Motion)
 (use Game)
+(use User)
 (use Actor)
 (use System)
 
@@ -13,7 +15,7 @@
 	rm416 0
 )
 
-(instance rm416 of Room
+(instance rm416 of Rm
 	(properties
 		picture 416
 		east 450
@@ -21,44 +23,118 @@
 	)
 	
 	(method (init)
-		(Load VIEW 415)
-		(Load VIEW 416)
-		(Load VIEW 417)
-		(Load VIEW 418)
-		(Load VIEW 419)
+		(Load rsVIEW 415)
+		(Load rsVIEW 416)
+		(Load rsVIEW 417)
+		(Load rsVIEW 418)
+		(Load rsVIEW 419)
 		(super init:)
-		(self setRegions: CASINO_MIRROR)
+		(self setRegions: 417)
 		(cond 
-			((== prevRoomNum 410)
-				(ego posn: 1 143)
-			)
-			((or (== currentStatus egoSHOWGIRL) (> (ego yLast?) 180))
-				(ego posn: 315 136)
-			)
-			(else
-				(ego posn: 290 122)
-			)
+			((== prevRoomNum 410) (ego posn: 1 143))
+			((or (== gCurRoomNum 11) (> (ego yLast?) 180)) (ego posn: 315 136))
+			(else (ego posn: 290 122))
 		)
 		(NormalEgo)
 		(ego init:)
-		(aCraps init: isExtra: TRUE)
-		(aCard init: isExtra: TRUE)
-		(if (> machineSpeed 16) (aWalker init:) (aAlterEgo init:))
+		(User canInput: 0 mapKeyToDir: 0)
+		(aCraps init: isExtra: 1)
+		(aCard init: isExtra: 1)
+		(if (> global87 16) (aWalker init:) (aAlterEgo init:))
 	)
 	
 	(method (doit)
 		(super doit:)
 		(if
 			(or
-				(& (ego onControl:) cBLUE)
-				(and (== currentStatus egoSHOWGIRL) (& (ego onControl:) cGREEN))
+				(& (ego onControl:) $0002)
+				(and (== gCurRoomNum 11) (& (ego onControl:) $0004))
 			)
 			(curRoom newRoom: 450)
 		)
 	)
+	
+	(method (handleEvent event)
+		(if (event claimed?) (return))
+		(if
+			(and
+				(== (event type?) evMOUSEBUTTON)
+				(not (& (event modifiers?) emSHIFT))
+			)
+			(if
+				(and
+					(> (event x?) 53)
+					(< (event x?) 245)
+					(> (event y?) 21)
+					(< (event y?) 113)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(998
+						(switch (Random 0 1)
+							(1
+								(Print 417 8)
+								(if (not (Btst 12))
+									(Bset 12)
+									(theGame changeScore: 2)
+								)
+							)
+							(0 (Print 417 9))
+						)
+					)
+					(else  (event claimed: 0))
+				)
+			)
+			(if
+				(and
+					(> (event x?) 260)
+					(< (event x?) 288)
+					(> (event y?) 78)
+					(< (event y?) 128)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(999
+						(ego setMotion: MoveTo 275 75)
+					)
+					(else  (event claimed: 0))
+				)
+			)
+			(if
+				(and
+					(> (event x?) 1)
+					(< (event x?) 8)
+					(> (event y?) 123)
+					(< (event y?) 157)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(999
+						(ego setMotion: MoveTo -4 145)
+					)
+					(else  (event claimed: 0))
+				)
+			)
+			(if
+				(and
+					(> (event x?) 308)
+					(< (event x?) 319)
+					(> (event y?) 117)
+					(< (event y?) 133)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(999
+						(ego setMotion: MoveTo 322 134)
+					)
+					(else  (event claimed: 0))
+				)
+			)
+		)
+	)
 )
 
-(instance aAlterEgo of Actor
+(instance aAlterEgo of Act
 	(properties
 		view 700
 		illegalBits $0000
@@ -80,11 +156,9 @@
 			view: (ego view?)
 			loop:
 			(switch (ego loop?)
-				(loopN loopS)
-				(loopS loopN)
-				(else
-					(ego loop?)
-				)
+				(3 2)
+				(2 3)
+				(else  (ego loop?))
 			)
 			cel: (ego cel?)
 			x: (ego x?)
@@ -102,7 +176,7 @@
 		loop 3
 		cel 11
 		cycleSpeed 0
-		cycleType ExtraEndLoop
+		cycleType 1
 		hesitation 11
 		pauseCel 11
 		minPause 22
@@ -123,7 +197,7 @@
 	)
 )
 
-(instance aWalker of Actor
+(instance aWalker of Act
 	(properties
 		y 15
 		x 119
@@ -143,12 +217,12 @@
 )
 
 (instance WalkerScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(ChangeScriptState self newState 1 2)
 		(switch (= state newState)
-			(0
-				(= seconds (Random 2 6))
-			)
+			(0 (= seconds (Random 2 6)))
 			(1
 				(switch (Random 0 6)
 					(0
@@ -183,9 +257,7 @@
 							setMotion: MoveTo 132 32 self
 						)
 					)
-					(else
-						(= seconds 2)
-					)
+					(else  (= seconds 2))
 				)
 				(= state -1)
 			)

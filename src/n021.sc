@@ -1,26 +1,34 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
-(script# CHANGE_SCRIPT)
-(include game.sh)
+(script# 21)
+(include sci.sh)
 (use Main)
 
 (public
 	ChangeScriptState 1
 )
 
-(procedure (ChangeScriptState theScript newState param3 fgColor &tmp [str 33])
-	(if (and debugging (not (Btst fQAEnabled)))
-		(if (< argc 2) (= fgColor vBLUE))
-		(if (< argc 3) (= fgColor vLGREY))
+(procedure (ChangeScriptState param1 param2 param3 param4 &tmp [temp0 33])
+	(if (and debugging (not (Btst 14)))
+		(if (< argc 2) (= param3 1))
+		(if (< argc 3) (= param4 7))
 		(Display
-			(Format @str 21 0
-				(theScript name?)
-				(theScript state?)
-				newState
+			(Format
+				@temp0
+				21
+				0
+				(param1 name?)
+				(param1 state?)
+				param2
 			)
-			p_at 1 (- (* 8 param3) 7)
-			p_font 999
-			p_color fgColor
-			p_back vBLACK
+			dsCOORD
+			1
+			(- (* 8 param3) 7)
+			dsFONT
+			999
+			dsCOLOR
+			param4
+			dsBACKGROUND
+			0
 		)
 	)
 )

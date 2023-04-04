@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
-(script# BOSSKEY)
-(include game.sh)
+(script# 90)
+(include sci.sh)
 (use Main)
 (use Intrface)
 (use Game)
@@ -11,7 +11,7 @@
 	rm90 0
 )
 
-(instance rm90 of Room
+(instance rm90 of Rm
 	(properties
 		picture 90
 	)
@@ -20,23 +20,22 @@
 		(cls)
 		(super init:)
 		(TheMenuBar hide:)
-		(StatusLine disable:)
+		(SL disable:)
 		(ego hide:)
 		(HandsOff)
-		(User canInput: TRUE)
+		(User canInput: 1)
 		(Animate 0)
 	)
 	
 	(method (handleEvent event)
 		(if
-			(or
-				(== (event type?) mouseUp)
-				(event claimed?)
-			)
+		(or (== (event type?) evMOUSERELEASE) (event claimed?))
 			(return)
 		)
-		(Print 90 0)
+		(Print
+			{Sorry, but from here, all you can do is close the game.}
+		)
 		(Print 90 1 #at -1 144)
-		(event claimed: TRUE)
+		(event claimed: 1)
 	)
 )

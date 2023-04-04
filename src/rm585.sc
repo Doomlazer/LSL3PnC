@@ -1,12 +1,13 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 585)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
 (use DPath)
 (use Motion)
 (use Game)
+(use User)
 (use Actor)
 (use System)
 
@@ -14,16 +15,16 @@
 	rm585 0
 )
 
-(instance rm585 of Room
+(instance rm585 of Rm
 	(properties
 		picture 585
 	)
 	
 	(method (init)
 		(HandsOff)
-		(Load SOUND 485)
-		(Load SCRIPT DPATH)
-		(Load PICTURE 99)
+		(Load rsSOUND 485)
+		(Load rsSCRIPT 964)
+		(Load rsPIC 99)
 		(super init:)
 		(aOldMan init:)
 		(aWhipper init:)
@@ -44,21 +45,24 @@
 			init:
 		)
 		(self setScript: RoomScript)
+		(User canInput: 0 mapKeyToDir: 0)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
-		(if (> machineSpeed 16)
+		(if (> global87 16)
 			(switch (Random 1 22)
-				(1 (aOldMan setCycle: Forward))
+				(1 (aOldMan setCycle: Fwd))
 				(2 (aOldMan stopUpd:))
-				(3 (aWhipper setCycle: EndLoop))
+				(3 (aWhipper setCycle: End))
 				(4 (aWhipper stopUpd:))
-				(5 (aDrummer1 setCycle: Forward))
+				(5 (aDrummer1 setCycle: Fwd))
 				(6 (aDrummer1 stopUpd:))
-				(7 (aDrummer2 setCycle: Forward))
+				(7 (aDrummer2 setCycle: Fwd))
 				(8 (aDrummer2 stopUpd:))
 			)
 		)
@@ -71,23 +75,37 @@
 			(1
 				(Print 585 0)
 				(ego
-					setMotion: DPath
-						343 162 343 162 294 149 222 112 206 80
-						201 72 201 72 197 58 190 48
+					setMotion:
+						DPath
+						343
+						162
+						343
+						162
+						294
+						149
+						222
+						112
+						206
+						80
+						201
+						72
+						201
+						72
+						197
+						58
+						190
+						48
 				)
 				(aWoman
 					setMotion: DPath 329 166 306 154 265 139 207 107 195 78 192 63 187 54 self
 				)
 			)
 			(2
-				(curRoom drawPic: 99 IRISIN)
+				(curRoom drawPic: 99 6)
 				(cast eachElementDo: #hide)
 				(= seconds 3)
 			)
-			(3
-				(Print 585 1)
-				(= seconds 3)
-			)
+			(3 (Print 585 1) (= seconds 3))
 			(4
 				(Print 585 2 #at -1 144)
 				(= seconds 3)
@@ -101,13 +119,10 @@
 				(Print 585 5 #at -1 144)
 				(= seconds 3)
 			)
-			(7
-				(Print 585 6)
-				(= seconds 3)
-			)
+			(7 (Print 585 6) (= seconds 3))
 			(8
-				(music number: 485 loop: -1 play:)
-				(DisposeScript DPATH)
+				(gTheMusic number: 485 loop: -1 play:)
+				(DisposeScript 964)
 				(curRoom newRoom: 590)
 			)
 		)
@@ -137,7 +152,7 @@
 	
 	(method (init)
 		(super init:)
-		(self setCycle: Forward stopUpd:)
+		(self setCycle: Fwd stopUpd:)
 	)
 )
 
@@ -151,7 +166,7 @@
 	
 	(method (init)
 		(super init:)
-		(self setCycle: Forward stopUpd:)
+		(self setCycle: Fwd stopUpd:)
 	)
 )
 
@@ -193,11 +208,11 @@
 	
 	(method (init)
 		(super init:)
-		(self setCycle: Forward stopUpd:)
+		(self setCycle: Fwd stopUpd:)
 	)
 )
 
-(instance aCornMan of Actor
+(instance aCornMan of Act
 	(properties
 		y 89
 		x 89
@@ -218,6 +233,8 @@
 )
 
 (instance ManScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(ChangeScriptState self newState 1 2)
 		(switch (= state newState)
@@ -228,15 +245,15 @@
 				(aCornMan setMotion: DPath 170 90 233 100 261 113 self)
 			)
 			(2
-				(aCornMan setPri: -1 setLoop: 3 cel: 0 setCycle: EndLoop self)
+				(aCornMan setPri: -1 setLoop: 3 cel: 0 setCycle: End self)
 			)
 			(3
-				(aCornMan setLoop: 4 setCycle: EndLoop self)
+				(aCornMan setLoop: 4 setCycle: End self)
 				(aBowl init:)
 			)
 			(4
 				(aCornMan
-					setCycle: Forward
+					setCycle: Fwd
 					setLoop: 5
 					setMotion: DPath 233 100 170 90 122 84 self
 				)
@@ -245,14 +262,12 @@
 				(RoomScript changeState: 1)
 				(aCornMan setPri: 3 setMotion: MoveTo 84 91 self)
 			)
-			(6
-				(aCornMan hide:)
-			)
+			(6 (aCornMan hide:))
 		)
 	)
 )
 
-(instance aWoman of Actor
+(instance aWoman of Act
 	(properties
 		y 163
 		x 330

@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 620)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use Intrface)
 (use Follow)
@@ -12,7 +12,7 @@
 	rm620 0
 )
 
-(instance rm620 of Room
+(instance rm620 of Rm
 	(properties
 		picture 620
 		east 630
@@ -52,76 +52,62 @@
 	)
 	
 	(method (handleEvent event)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
-			(return)
-		)
+		(if (event claimed?) (return))
 		(cond 
-			((Said 'get/flat')
-				(Print 620 0)
-			)
-			((Said 'get')
-				(Print 620 1)
-			)
+			((Said 'get/flat') (Print 620 0))
+			((Said 'get') (Print 620 1))
 			((Said 'look>')
 				(cond 
-					((Said '/prop')
-						(Print 620 2)
+					((Said '/prop') (Print 620 2))
+					((Said '/flat') (Print 620 3))
+					((Said '/couple,man') (Print 620 4))
+					((Said '/cauldron') (Print 620 5))
+					((Said '/number') (Print 620 6))
+					((Said '/cloth') (Print 620 7))
+					((Said '/gravestone') (Print 620 8 #mode 1 #at 10 -1 #width 290))
+					((Said '/awning,column') (Print 620 9))
+					((Said '/cab,auto') (Print 620 10) (Print 620 11 #at -1 144))
+					((Said '[/backdrop,backstage,area]') (Print 620 12))
+				)
+			)
+			(
+				(and
+					(== (event type?) evMOUSEBUTTON)
+					(not (& (event modifiers?) emSHIFT))
+					(> (event x?) 1)
+					(< (event x?) 319)
+					(> (event y?) 21)
+					(< (event y?) 189)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(998
+						(Print 610 3)
+						(Print 610 4 67 -1 144)
 					)
-					((Said '/flat')
-						(Print 620 3)
-					)
-					((Said '/couple,man')
-						(Print 620 4)
-					)
-					((Said '/cauldron')
-						(Print 620 5)
-					)
-					((Said '/number')
-						(Print 620 6)
-					)
-					((Said '/cloth')
-						(Print 620 7)
-					)
-					((Said '/gravestone')
-						(Print 620 8
-							#mode teJustCenter
-							#at 10 -1
-							#width 290
-						)
-					)
-					((Said '/awning,column')
-						(Print 620 9)
-					)
-					((Said '/cab,auto')
-						(Print 620 10)
-						(Print 620 11
-							#at -1 144
-						))
-					((Said '[/backdrop,backstage,area]')
-						(Print 620 12)
-					)
+					(else  (event claimed: 0))
 				)
 			)
 		)
 	)
 	
-	(method (newRoom n)
-		(super newRoom: n)
-		(music fade:)
+	(method (newRoom newRoomNumber)
+		(super newRoom: newRoomNumber)
+		(gTheMusic fade:)
 	)
 )
 
-(instance atpKQsign of PicView
+(instance atpKQsign of PV
 	(properties
 		y 107
 		x 122
 		view 620
 		priority 7
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance atpNumbers of PicView
+(instance atpNumbers of PV
 	(properties
 		y 164
 		x 177
@@ -131,7 +117,7 @@
 	)
 )
 
-(instance atpSalesman1 of PicView
+(instance atpSalesman1 of PV
 	(properties
 		y 134
 		x 7
@@ -141,7 +127,7 @@
 	)
 )
 
-(instance atpSalesman2 of PicView
+(instance atpSalesman2 of PV
 	(properties
 		y 142
 		x 16
@@ -151,7 +137,7 @@
 	)
 )
 
-(instance atpSalesman3 of PicView
+(instance atpSalesman3 of PV
 	(properties
 		y 151
 		x 10
@@ -161,7 +147,7 @@
 	)
 )
 
-(instance atpSalesman4 of PicView
+(instance atpSalesman4 of PV
 	(properties
 		y 156
 		x 26
@@ -171,7 +157,7 @@
 	)
 )
 
-(instance atpTarget1 of PicView
+(instance atpTarget1 of PV
 	(properties
 		y 158
 		x 238
@@ -181,7 +167,7 @@
 	)
 )
 
-(instance atpTarget2 of PicView
+(instance atpTarget2 of PV
 	(properties
 		y 161
 		x 241
@@ -191,7 +177,7 @@
 	)
 )
 
-(instance atpTarget3 of PicView
+(instance atpTarget3 of PV
 	(properties
 		y 164
 		x 245
@@ -201,7 +187,7 @@
 	)
 )
 
-(instance atpTarget4 of PicView
+(instance atpTarget4 of PV
 	(properties
 		y 116
 		x 278
@@ -211,7 +197,7 @@
 	)
 )
 
-(instance atpTaxi of PicView
+(instance atpTaxi of PV
 	(properties
 		y 189
 		x 106
@@ -222,7 +208,7 @@
 	)
 )
 
-(instance atpTombstone of PicView
+(instance atpTombstone of PV
 	(properties
 		y 97
 		x 23
@@ -233,7 +219,7 @@
 	)
 )
 
-(instance atpCauldron of PicView
+(instance atpCauldron of PV
 	(properties
 		y 128
 		x 58
@@ -244,7 +230,7 @@
 	)
 )
 
-(instance atpClothes of PicView
+(instance atpClothes of PV
 	(properties
 		y 137
 		x 185
@@ -255,7 +241,7 @@
 	)
 )
 
-(instance atpMonolithBurger of PicView
+(instance atpMonolithBurger of PV
 	(properties
 		y 156
 		x 297
@@ -265,4 +251,6 @@
 	)
 )
 
-(instance aLarry of Actor)
+(instance aLarry of Act
+	(properties)
+)

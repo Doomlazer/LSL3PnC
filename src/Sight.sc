@@ -1,96 +1,82 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
-(script# SIGHT)
-(include game.sh)
+(script# 982)
+(include sci.sh)
 (use Main)
 
-;;;(procedure 
-;;;	IsOffScreen	
-;;;	CantBeSeen		
-;;;	AngleDiff	
-;;;)
-
 (public
-	IsOffScreen	0
-	CantBeSeen	1
-	AngleDiff	2
+	IsOffScreen 0
+	CantBeSeen 1
+	AngleDiff 2
 )
 
-
-(procedure (IsOffScreen theObj)
+(procedure (IsOffScreen param1)
 	(return
 		(not
-			(and
-				(< 0 (theObj x?) SCRNWIDE)
-				(< 0 (- (theObj y?) (theObj z?)) SCRNHIGH)
+			(if (if (< 0 (param1 x?)) (< (param1 x?) 320))
+				(if
+					(if (< 0 (- (param1 y?) (param1 z?)))
+						(< (- (param1 y?) (param1 z?)) 200)
+					)
+					1
+				)
+			else
+				0
 			)
 		)
 	)
 )
 
-(procedure (CantBeSeen theSight optSeer optFieldAngle optFieldDepth 
-		&tmp 
-		theSeer fieldAngle fieldDepth
-		sx sy 	;theSight's x/y
-		ex ey		;typically ego's x/y
-	)
-	
-	;;is theSight within angle and depth of theSeer's field of vision? 
-	;;	theSeer defaults to ego
-	;;	vision angle defaults to 360
-	;; depth defaults to "very large"
-	;;by Pablo Ghenis
-	
-	(= theSeer optSeer)
-	(= fieldAngle optFieldAngle)
-	(= fieldDepth optFieldDepth)
-	
-	(if (< argc 4) (= fieldDepth  INFINITY)
+(procedure (CantBeSeen param1 theTheEgo param3 param4 &tmp theEgo temp1 temp2 temp3 temp4 theEgoX theEgoY)
+	(= theEgo theTheEgo)
+	(= temp1 param3)
+	(= temp2 param4)
+	(if (< argc 4)
+		(= temp2 32767)
 		(if (< argc 3)
-			(if (< argc 2)
-				(= theSeer ego)
+			(if (< argc 2) (= theEgo ego))
+			(= temp1
+				(- 360 (if (== theEgo ego) (* 2 egoBlindSpot) else 0))
 			)
-			(= fieldAngle 
-				(- 360 
-					(if (== theSeer ego)
-						(* 2 egoBlindSpot)
-						;;else 0
+		)
+	)
+	(= temp3 (param1 x?))
+	(= temp4 (param1 y?))
+	(= theEgoX (theEgo x?))
+	(= theEgoY (theEgo y?))
+	(return
+		(if
+			(and
+				(!= param1 theEgo)
+				(or
+					(<
+						(/ temp1 2)
+						(Abs
+							(AngleDiff
+								(GetAngle theEgoX theEgoY temp3 temp4)
+								(theEgo heading?)
+							)
+						)
+					)
+					(<
+						temp2
+						(GetDistance theEgoX theEgoY temp3 temp4 perspective)
 					)
 				)
 			)
-		)
-	)
-	
-	
-	(= sx	(theSight x?))
-	(= sy (theSight y?))
-	(= ex (theSeer x?))
-	(= ey (theSeer y?))
-	
-	(return
-		(if (!= theSight theSeer)
-			(or
-				(< (/ fieldAngle 2)
-					(Abs (AngleDiff (GetAngle ex ey sx sy) (theSeer heading?)))
-				)
-				(< fieldDepth (GetDistance ex ey sx sy perspective))
-			)
-		)
-		;;else FALSE
-	)
-)
-
-(procedure (AngleDiff ang h)
-	;;return the difference between two angles in -179/+180 range
-	;;positive numbers mean shortest turn is clockwise
-	;;by Pablo Ghenis
-	
-	(if (>= argc 2) (-= ang h))				;deviation in -359/+359 range
-	(return
-		(cond											;convert to -179/+180 range
-			((<= ang -180) (+ ang 360))
-			((>  ang  180) (- ang 360))
-			(else ang)
+			1
+		else
+			0
 		)
 	)
 )
 
+(procedure (AngleDiff param1 param2)
+	(if (>= argc 2) (= param1 (- param1 param2)))
+	(return
+		(cond 
+			((<= param1 -180) (+ param1 360))
+			((> param1 180) (- param1 360))
+			(else param1)
+		)
+	)
+)

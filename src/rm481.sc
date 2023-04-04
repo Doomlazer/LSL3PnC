@@ -1,10 +1,11 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 481)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use Intrface)
 (use Motion)
 (use Game)
+(use User)
 (use Menu)
 (use Actor)
 (use System)
@@ -16,17 +17,22 @@
 (local
 	[plotString 200]
 )
-(procedure (PrintPlot &tmp seconds)
-	(Print @plotString
-		#at 0 70
-		#width 125
-		#time (= seconds (PrintDelay @plotString))
+(procedure (localproc_000c &tmp temp0)
+	(Print
+		@plotString
+		#at
+		0
+		70
+		#width
+		125
+		#time
+		(= temp0 (PrintDelay @plotString))
 		#dispose
 	)
-	(return (+ 3 seconds))
+	(return (+ 3 temp0))
 )
 
-(instance rm481 of Room
+(instance rm481 of Rm
 	(properties
 		picture 485
 		horizon 5
@@ -34,58 +40,59 @@
 	
 	(method (init)
 		(HandsOff)
-		(Load PICTURE 99)
-		(Load VIEW 54)
-		(Load FONT 7)
-		(Load SOUND 484)
-		(Load SOUND 485)
-		(StatusLine disable:)
+		(Load rsPIC 99)
+		(Load rsVIEW 54)
+		(Load rsFONT 7)
+		(Load rsSOUND 484)
+		(Load rsSOUND 485)
+		(SL disable:)
 		(TheMenuBar hide:)
-		(music number: 484 loop: 2 play:)
+		(gTheMusic number: 484 loop: 2 play:)
 		(super init:)
 		(self setScript: RoomScript)
-		(aThermometerP setCycle: EndLoop init:)
-		(aThermometerL setCycle: EndLoop init:)
+		(aThermometerP setCycle: End init:)
+		(aThermometerL setCycle: End init:)
 		(systemWindow color: 7 back: 0)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
+		(User canInput: 0 canControl: 0 mapKeyToDir: 0)
 		(theGame setSpeed: 6)
 	)
 	
 	(method (changeState newState)
 		(switch (= state newState)
-			(0
-				(= cycles 33)
-			)
+			(0 (= cycles 33))
 			(1
 				(Format @plotString 481 1)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(2
 				(Format @plotString 481 2)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(3
 				(Format @plotString 481 3)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(4
 				(Format @plotString 481 4)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(5
 				(Format @plotString 481 5)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(6
-				(curRoom drawPic: 99 IRISIN)
-				(music number: 485 loop: 2 play:)
-				(aThermometerP setLoop: 1 cycleSpeed: 0 setCycle: Forward)
-				(aThermometerL setLoop: 1 cycleSpeed: 0 setCycle: Forward)
+				(curRoom drawPic: 99 6)
+				(gTheMusic number: 485 loop: 2 play:)
+				(aThermometerP setLoop: 1 cycleSpeed: 0 setCycle: Fwd)
+				(aThermometerL setLoop: 1 cycleSpeed: 0 setCycle: Fwd)
 				(= cycles 55)
 			)
 			(7
@@ -94,13 +101,13 @@
 					setLoop: 0
 					setCel: 255
 					cycleSpeed: 2
-					setCycle: BegLoop
+					setCycle: Beg
 				)
 				(aThermometerL
 					setLoop: 0
 					setCel: 255
 					cycleSpeed: 2
-					setCycle: BegLoop
+					setCycle: Beg
 				)
 				(= cycles 55)
 			)
@@ -111,7 +118,7 @@
 			)
 			(9
 				(Format @plotString 481 7)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(10 (curRoom newRoom: 482))
 		)
@@ -120,12 +127,12 @@
 	(method (handleEvent event)
 		(if
 			(and
-				(== (event type?) keyDown)
-				(== (event claimed?) FALSE)
-				(== (event message?) `#8)
+				(== (event type?) evKEYBOARD)
+				(== (event claimed?) 0)
+				(== (event message?) KEY_F8)
 			)
 			(Print 481 0)
-			(Bset fSkippedLoveScene)
+			(Bset 69)
 			(curRoom newRoom: 484)
 		)
 	)

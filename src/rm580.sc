@@ -1,12 +1,13 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 580)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
 (use Jump)
 (use Motion)
 (use Game)
+(use User)
 (use Actor)
 (use System)
 
@@ -14,20 +15,20 @@
 	rm580 0
 )
 
-(instance rm580 of Room
+(instance rm580 of Rm
 	(properties
 		picture 580
 	)
 	
 	(method (init)
 		(HandsOff)
-		(Load VIEW 580)
-		(Load VIEW 582)
-		(Load VIEW 583)
-		(Load SOUND 580)
-		(Load SOUND 581)
-		(Load SOUND 585)
-		(Load SCRIPT JUMP)
+		(Load rsVIEW 580)
+		(Load rsVIEW 582)
+		(Load rsVIEW 583)
+		(Load rsSOUND 580)
+		(Load rsSOUND 581)
+		(Load rsSOUND 585)
+		(Load rsSCRIPT 991)
 		(super init:)
 		(ego
 			view: 581
@@ -38,11 +39,14 @@
 			setCel: 1
 		)
 		(self setScript: RoomScript)
+		(User canInput: 0 mapKeyToDir: 0)
 	)
 )
 
 (instance RoomScript of Script
-	(method (changeState newState &tmp [str 100])
+	(properties)
+	
+	(method (changeState newState &tmp [temp0 100])
 		(ChangeScriptState self newState 1 2)
 		(switch (= state newState)
 			(0
@@ -51,11 +55,11 @@
 			(1
 				(Print 580 0 #at 10 -1 #width 290)
 				(ego viewer: HeadTurner setMotion: MoveTo 130 97)
-				(music fade:)
+				(gTheMusic fade:)
 				(= cycles 60)
 			)
 			(2
-				(music number: 580 loop: 1 play:)
+				(gTheMusic number: 580 loop: 1 play:)
 				(aWoman1
 					ignoreHorizon:
 					ignoreActors:
@@ -70,43 +74,40 @@
 			(3
 				(Print 580 1 #at -1 10 #dispose)
 				(aWoman1 view: 582 setLoop: 1 posn: 94 -2)
-				(ego viewer: 0 setLoop: 1 cel: 0 setCycle: EndLoop self)
+				(ego viewer: 0 setLoop: 1 cel: 0 setCycle: End self)
 			)
 			(4
-				(ego setLoop: 2 cel: 0 setCycle: EndLoop self)
+				(ego setLoop: 2 cel: 0 setCycle: End self)
 			)
 			(5
-				(ego setLoop: 3 setCel: 255 setCycle: BegLoop self)
+				(ego setLoop: 3 setCel: 255 setCycle: Beg self)
 			)
 			(6
-				(music number: 581 loop: 1 play:)
+				(gTheMusic number: 581 loop: 1 play:)
 				(cls)
-				(ego setCycle: EndLoop)
+				(ego setCycle: End)
 				(aWoman2 init:)
 				(aWoman1
-					setCycle: Forward
+					setCycle: Fwd
 					setStep: 1 1
 					setMotion: JumpTo 114 97 self
 				)
 			)
 			(7
 				(ego hide: view: 580 setLoop: 1 cel: 0 posn: 89 118)
-				(aWoman1 setLoop: 2 cel: 0 setCycle: EndLoop self)
+				(aWoman1 setLoop: 2 cel: 0 setCycle: End self)
 			)
 			(8
-				(ego setCycle: EndLoop setMotion: MoveTo -47 164 show:)
+				(ego setCycle: End setMotion: MoveTo -47 164 show:)
 				(= cycles 11)
 			)
-			(9
-				(Print 580 2)
-				(= cycles 22)
-			)
+			(9 (Print 580 2) (= cycles 22))
 			(10
 				(Woman2Script cue:)
-				(aWoman1 setLoop: 3 cel: 0 setCycle: EndLoop self)
+				(aWoman1 setLoop: 3 cel: 0 setCycle: End self)
 			)
 			(11
-				(music number: 585 loop: -1 play:)
+				(gTheMusic number: 585 loop: -1 play:)
 				(aWoman1
 					setLoop: 4
 					setCycle: Walk
@@ -117,11 +118,18 @@
 			)
 			(12
 				(Print
-					(Format @str 580 3 expletive
-						(if (>= filthLevel 3) { lesbian} else {})
+					(Format
+						@temp0
+						580
+						3
+						filthStr
+						(if (>= global88 3) { lesbian} else {})
 					)
-					#at 10 -1
-					#width 290
+					#at
+					10
+					-1
+					#width
+					290
 				)
 			)
 			(13
@@ -132,14 +140,12 @@
 				)
 				(= cycles 11)
 			)
-			(14
-				(Print 580 4 #at -1 144)
-			)
+			(14 (Print 580 4 #at -1 144))
 		)
 	)
 )
 
-(instance aWoman1 of Actor
+(instance aWoman1 of Act
 	(properties
 		y -2
 		x 128
@@ -148,7 +154,7 @@
 	)
 )
 
-(instance aWoman2 of Actor
+(instance aWoman2 of Act
 	(properties
 		y -11
 		x 161
@@ -175,17 +181,17 @@
 			(0
 				(aWoman2
 					setLoop: 1
-					setCycle: Forward
+					setCycle: Fwd
 					setStep: 1 1
 					setMotion: JumpTo 141 94 self
 				)
 			)
 			(1
-				(aWoman2 setLoop: 2 cel: 0 setCycle: EndLoop self)
+				(aWoman2 setLoop: 2 cel: 0 setCycle: End self)
 			)
 			(2)
 			(3
-				(aWoman2 setLoop: 3 cel: 0 setCycle: EndLoop self)
+				(aWoman2 setLoop: 3 cel: 0 setCycle: End self)
 			)
 			(4
 				(aWoman2
@@ -198,17 +204,15 @@
 			(5
 				(aWoman2 setLoop: 5 setMotion: MoveTo -20 60 self)
 			)
-			(6
-				(curRoom newRoom: 585)
-			)
+			(6 (curRoom newRoom: 585))
 		)
 	)
 )
 
 (instance HeadTurner of Code
+	(properties)
+	
 	(method (doit)
-		(if (not (Random 0 3))
-			(ego setCel: (Random 0 4))
-		)
+		(if (not (Random 0 3)) (ego setCel: (Random 0 4)))
 	)
 )

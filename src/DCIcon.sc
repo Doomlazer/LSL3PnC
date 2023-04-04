@@ -1,54 +1,46 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
-(script# DCICON)
+(script# 967)
+(include sci.sh)
 (use Intrface)
 (use Motion)
 
-(class DCIcon 	kindof DIcon
-	;;; Cycling Icons are a sub-class of DIcon.
-	;;; An instance of DCIcon may be passed to Print for use in
-	;;; a dialog.
 
-	;;; additional properties are required to 
-	;;;allow cycling via the Cycler classes.
+(class DCIcon of DIcon
 	(properties
-		cycler 0		; a cycler must be attached dynamically
-		cycleSpeed 6	; 60ths second between cels. 
-		signal 0		; just to satisfy cycler
+		type $0004
+		state $0000
+		nsTop 0
+		nsLeft 0
+		nsBottom 0
+		nsRight 0
+		key 0
+		said 0
+		value 0
+		view 0
+		loop 0
+		cel 0
+		cycler 0
+		cycleSpeed 6
+		signal $0000
 	)
-
-;;;	(methods
-;;;		lastCel			; required by cycler class
-;;;	)
-
-	;;; Do not pass a caller to this cycler
+	
 	(method (init)
-		((= cycler (Forward new:)) init: self)
+		((= cycler (Fwd new:)) init: self)
 	)
-
-	;;; invoked at 60 times per second by the Dialog doit: loop
-	(method (cycle &tmp oldCel)
+	
+	(method (cycle &tmp theCel)
 		(if cycler
-			;; remember current cel
-			(= oldCel cel)
+			(= theCel cel)
 			(cycler doit:)
-			
-			;;; show new cel if it changed
-			(if (!= cel oldCel)
-				(self draw:)
-			)
+			(if (!= cel theCel) (self draw:))
 		)
 	)
-		
-	;;; A completion type cycler may have already disposed of itself
+	
 	(method (dispose)
-		(if cycler
-			(cycler dispose:)
-		)
+		(if cycler (cycler dispose:))
 		(super dispose:)
 	)
 	
-	;; Return the number of the last cel in the current loop of this object.
-	;; this method is called by cycler		
 	(method (lastCel)
 		(return (- (NumCels self) 1))
 	)

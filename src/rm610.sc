@@ -1,12 +1,13 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 610)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
 (use Follow)
 (use Motion)
 (use Game)
+(use User)
 (use Actor)
 (use System)
 
@@ -14,7 +15,7 @@
 	rm610 0
 )
 
-(instance rm610 of Room
+(instance rm610 of Rm
 	(properties
 		picture 610
 		east 620
@@ -22,13 +23,13 @@
 	
 	(method (init)
 		(HandsOff)
-		(Bset fSaveDisabled)
-		(Bset fCursorHidden)
-		(Bset fAutoSaveDisabled)
-		(= saveSpeed (theGame setSpeed: 6))
-		(= playingAsPatti TRUE)
-		(= currentEgoView 801)
-		(= currentEgo (Format @egoName 610 0))
+		(Bset 3)
+		(Bset 5)
+		(Bset 4)
+		(= currentStatus (theGame setSpeed: 6))
+		(= musicLoop 1)
+		(= global66 801)
+		(= global82 (Format @global83 610 0))
 		(super init:)
 		(addToPics
 			add: atpSign
@@ -45,12 +46,13 @@
 		)
 		(self setScript: RoomScript)
 		(HandsOff)
-		(Load SOUND 4)
-		(Load SOUND 5)
-		(Load SOUND 6)
-		(Load SOUND 12)
-		(Load SOUND 611)
-		(Load SOUND 699)
+		(User canInput: 0 mapKeyToDir: 0)
+		(Load rsSOUND 4)
+		(Load rsSOUND 5)
+		(Load rsSOUND 6)
+		(Load rsSOUND 12)
+		(Load rsSOUND 611)
+		(Load rsSOUND 699)
 		(aMan1 init:)
 		(aMan2 init:)
 		(aCar1 init:)
@@ -83,32 +85,27 @@
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
-		(if (& (ego onControl:) cBLUE)
-			(curRoom newRoom: 620)
-		)
+		(if (& (ego onControl:) $0002) (curRoom newRoom: 620))
 	)
 	
 	(method (changeState newState)
 		(ChangeScriptState self newState 5 2)
 		(switch (= state newState)
 			(0
-				(if (< prevRoomNum curRoomNum)
-					(= seconds 3)
-				)
+				(if (< prevRoomNum curRoomNum) (= seconds 3))
 			)
 			(1
 				(Print 610 5 #at 10 40 #width 290)
 				(= seconds 3)
 			)
-			(2
-				(Print 610 6)
-				(= seconds 2)
-			)
+			(2 (Print 610 6) (= seconds 2))
 			(3
 				(Print 610 7)
-				(music number: 610 loop: 1 play: self)
+				(gTheMusic number: 610 loop: 1 play: self)
 				(= seconds 3)
 			)
 			(4
@@ -117,7 +114,7 @@
 			)
 			(5
 				(Print 610 9 #time 2)
-				(aCamera setCycle: Forward)
+				(aCamera setCycle: Fwd)
 				(= seconds 3)
 			)
 			(6
@@ -125,7 +122,7 @@
 				(= seconds 3)
 			)
 			(7
-				(aCamera setMotion: MoveTo 0 0 setCycle: Forward)
+				(aCamera setMotion: MoveTo 0 0 setCycle: Fwd)
 				(aCar1 setMotion: MoveTo 0 129)
 				(aMan1 setMotion: MoveTo 0 143)
 				(Man2Script cue:)
@@ -133,7 +130,7 @@
 			(8
 				(cls)
 				(Print 610 11)
-				(music number: 4 loop: 1 play:)
+				(gTheMusic number: 4 loop: 1 play:)
 				(aMan1
 					moveSpeed: 0
 					cycleSpeed: 0
@@ -153,7 +150,7 @@
 			)
 			(9
 				(aHole dispose:)
-				(music number: 12 loop: 1 play:)
+				(gTheMusic number: 12 loop: 1 play:)
 				(ego
 					posn: 171 143
 					setPri: 12
@@ -163,41 +160,38 @@
 			(10
 				(ego loop: 1 cel: 0 stopUpd:)
 				(Animate (cast elements?) 0)
-				(music number: 5 loop: 1 play:)
+				(gTheMusic number: 5 loop: 1 play:)
 				(ShakeScreen 2 1)
 				(= cycles 33)
 			)
 			(11
 				(cls)
-				(music number: 4 loop: 1 play:)
+				(gTheMusic number: 4 loop: 1 play:)
 				(aLarry setMotion: MoveTo 73 73 self)
 			)
 			(12
 				(aLarry posn: 73 89 view: 611 setLoop: 0 setStep: 2 1)
-				(music number: 12 loop: 1 play:)
-				(Animate (cast elements?) FALSE)
-				(ShakeScreen 1 shakeSDown)
+				(gTheMusic number: 12 loop: 1 play:)
+				(Animate (cast elements?) 0)
+				(ShakeScreen 1 1)
 				(Print 610 12 #at -1 10 #dispose)
 				(= cycles 11)
 			)
 			(13
-				(music number: 6 loop: -1 play:)
+				(gTheMusic number: 6 loop: -1 play:)
 				(cls)
-				(Print 610 13
-					#at 148 22
-					#dispose
-				)
+				(Print 610 13 #at 148 22 #dispose)
 				(aLarry setMotion: MoveTo 169 109 self)
 			)
 			(14
 				(aMan1 dispose:)
 				(aMan2 dispose:)
-				(music number: 611 loop: -1 play:)
-				(aLarry setLoop: 1 setCycle: Forward)
-				(aTowers cycleSpeed: 1 setCycle: EndLoop self)
+				(gTheMusic number: 611 loop: -1 play:)
+				(aLarry setLoop: 1 setCycle: Fwd)
+				(aTowers cycleSpeed: 1 setCycle: End self)
 			)
 			(15
-				(aTowers setLoop: 4 cycleSpeed: 0 setCycle: Forward)
+				(aTowers setLoop: 4 cycleSpeed: 0 setCycle: Fwd)
 				(= cycles 33)
 			)
 			(16
@@ -205,15 +199,15 @@
 				(aLarry setMotion: MoveTo 167 110 self)
 			)
 			(17
-				(music number: 4 loop: 1 play:)
-				(aLarry setPri: 10 setLoop: 2 cel: 0 setCycle: EndLoop self)
+				(gTheMusic number: 4 loop: 1 play:)
+				(aLarry setPri: 10 setLoop: 2 cel: 0 setCycle: End self)
 			)
 			(18
 				(aLarry posn: 165 180 setPri: 12 setLoop: 3 cel: 0)
 				(= cycles 15)
 			)
 			(19
-				(music number: 5 loop: 1 play: self)
+				(gTheMusic number: 5 loop: 1 play: self)
 			)
 			(20
 				(Print 610 14)
@@ -223,9 +217,7 @@
 				(Print 610 15)
 				(= cycles 11)
 			)
-			(22
-				(aLarry setCycle: EndLoop self)
-			)
+			(22 (aLarry setCycle: End self))
 			(23
 				(NormalActor aLarry 2 720)
 				(aLarry illegalBits: 0)
@@ -235,11 +227,9 @@
 				(Print 610 16)
 				(= seconds 2)
 			)
-			(25
-				(ego setCycle: EndLoop self)
-			)
+			(25 (ego setCycle: End self))
 			(26
-				(NormalEgo 3 currentEgoView)
+				(NormalEgo 3 global66)
 				(ego illegalBits: 0)
 				(HandsOff)
 				(= cycles 22)
@@ -253,19 +243,17 @@
 			(28
 				(aLarry setMotion: MoveTo 276 185 self)
 			)
-			(29
-				(ego loop: 1)
-			)
+			(29 (ego loop: 1))
 			(30
-				(Bclr fSaveDisabled)
-				(Bclr fCursorHidden)
-				(Bclr fAutoSaveDisabled)
-				(theGame setSpeed: saveSpeed)
+				(Bclr 3)
+				(Bclr 5)
+				(Bclr 4)
+				(theGame setSpeed: currentStatus)
 				(NormalEgo 1)
 				(ego setPri: 7)
 				(aLarry
 					setPri: 7
-					illegalBits: cWHITE
+					illegalBits: -32768
 					setMotion: Follow ego 28
 				)
 				(Print 610 19)
@@ -274,33 +262,42 @@
 			(31
 				(Print 610 20)
 				(Print 610 21)
-				(music number: 699 loop: musicLoop play:)
+				(gTheMusic number: 699 loop: global72 play:)
 			)
 		)
 	)
 	
 	(method (handleEvent event)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
-			(return)
-		)
+		(if (event claimed?) (return))
 		(if (Said 'look>')
 			(cond 
-				((Said '/door,wall,awning,exit')
-					(Print 610 1)
-				)
-				((Said '/gravestone')
-					(Print 610 2)
-				)
-				((Said '[/backdrop,buffet,backstage,area]')
+				((Said '/door,wall,awning,exit') (Print 610 1))
+				((Said '/gravestone') (Print 610 2))
+				((Said '[/backdrop,buffet,backstage,area]') (Print 610 3) (Print 610 4 #at -1 144))
+			)
+		)
+		(if
+			(and
+				(== (event type?) evMOUSEBUTTON)
+				(not (& (event modifiers?) emSHIFT))
+				(> (event x?) 1)
+				(< (event x?) 263)
+				(> (event y?) 21)
+				(< (event y?) 189)
+			)
+			(event claimed: 1)
+			(switch theCursor
+				(998
 					(Print 610 3)
 					(Print 610 4 #at -1 144)
 				)
+				(else  (event claimed: 0))
 			)
 		)
 	)
 )
 
-(instance atpSign of PicView
+(instance atpSign of PV
 	(properties
 		y 46
 		x 285
@@ -309,18 +306,18 @@
 	)
 )
 
-(instance atpStencil1 of PicView
+(instance atpStencil1 of PV
 	(properties
 		y 143
 		view 610
 		loop 2
 		cel 1
 		priority 15
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance atpStencil2 of PicView
+(instance atpStencil2 of PV
 	(properties
 		y 142
 		x 173
@@ -328,11 +325,11 @@
 		loop 2
 		cel 1
 		priority 15
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance atpHouse1 of PicView
+(instance atpHouse1 of PV
 	(properties
 		y 126
 		x 91
@@ -341,7 +338,7 @@
 	)
 )
 
-(instance atpHouse2 of PicView
+(instance atpHouse2 of PV
 	(properties
 		y 104
 		x 5
@@ -351,7 +348,7 @@
 	)
 )
 
-(instance atpHouse3 of PicView
+(instance atpHouse3 of PV
 	(properties
 		y 126
 		x 41
@@ -361,7 +358,7 @@
 	)
 )
 
-(instance atpHouse4 of PicView
+(instance atpHouse4 of PV
 	(properties
 		y 99
 		x 57
@@ -371,7 +368,7 @@
 	)
 )
 
-(instance atpHouse5 of PicView
+(instance atpHouse5 of PV
 	(properties
 		y 97
 		x 95
@@ -381,7 +378,7 @@
 	)
 )
 
-(instance atpHouse6 of PicView
+(instance atpHouse6 of PV
 	(properties
 		y 116
 		x 128
@@ -391,7 +388,7 @@
 	)
 )
 
-(instance atpHouse7 of PicView
+(instance atpHouse7 of PV
 	(properties
 		y 109
 		x 123
@@ -415,7 +412,7 @@
 	)
 )
 
-(instance aCamera of Actor
+(instance aCamera of Act
 	(properties
 		x 145
 		view 616
@@ -428,7 +425,7 @@
 	)
 )
 
-(instance aCar1 of Actor
+(instance aCar1 of Act
 	(properties
 		y 129
 		x 145
@@ -448,7 +445,7 @@
 	)
 )
 
-(instance aMan1 of Actor
+(instance aMan1 of Act
 	(properties
 		y 143
 		x 145
@@ -464,7 +461,7 @@
 	)
 )
 
-(instance aCar2 of Actor
+(instance aCar2 of Act
 	(properties
 		y 127
 		x 130
@@ -484,7 +481,7 @@
 	)
 )
 
-(instance aMan2 of Actor
+(instance aMan2 of Act
 	(properties
 		y 141
 		x 130
@@ -507,6 +504,8 @@
 )
 
 (instance Man2Script of Script
+	(properties)
+	
 	(method (changeState newState)
 		(ChangeScriptState self newState 1 2)
 		(switch (= state newState)
@@ -537,4 +536,6 @@
 	)
 )
 
-(instance aLarry of Actor)
+(instance aLarry of Act
+	(properties)
+)

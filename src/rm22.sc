@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 22)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use Intrface)
 (use File)
@@ -13,86 +13,78 @@
 )
 
 (instance rm22 of Locale
-	(method (handleEvent event &tmp i [temp1 3] [buf1 30] [buf2 30] [buf3 30])
-		(if (or (not (Btst fQAEnabled)) (event claimed?))
-			(return)
-		)
+	(properties)
+	
+	(method (handleEvent event &tmp temp0 [temp1 3] [temp4 30] [temp34 30] [temp64 30])
+		(if (or (not (Btst 14)) (event claimed?)) (return))
 		(switch (event type?)
-			(keyDown
+			(evKEYBOARD
 				(switch (event message?)
-					(`@c
-						(Show CMAP)
-						(Animate (cast elements?) FALSE)
-						(while (== nullEvt ((= event (Event new:)) type?))
+					(KEY_ALT_c
+						(Show 4)
+						(Animate (cast elements?) 0)
+						(while (== 0 ((= event (Event new:)) type?))
 							(event dispose:)
 						)
 						(event dispose:)
-						(Show VMAP)
+						(Show 1)
 						(return)
 					)
-					(`@d
-						(SetDebug)
-					)
-					(`@i
-						(User canInput: TRUE)
-					)
-					(`@m
-						(theGame showMem:)
-					)
-					(`@n
-						(= buf2 0)
-						(= buf3 0)
-						(= i 1)
-						(++ noteNum)
-						(while (GetInput @buf3 40 {Press "Enter" or "ESC" when done.})
-							(Format @buf1 22 0 (theGame name?) @noteFileNameBuf)
-							(Format @buf2 22 1
+					(KEY_ALT_d (SetDebug))
+					(KEY_ALT_i (User canInput: 1))
+					(KEY_ALT_m (theGame showMem:))
+					(KEY_ALT_n
+						(= temp34 0)
+						(= temp64 0)
+						(= temp0 1)
+						(++ global183)
+						(while
+						(GetInput @temp64 40 {Press "Enter" or "ESC" when done.})
+							(Format @temp4 22 0 (theGame name?) @global180)
+							(Format
+								@temp34
+								22
+								1
 								curRoomNum
 								version
-								@QANoteBuf
-								@noteFileNameBuf
-								noteNum
-								i
-								(ego view?) (ego x?) (ego y?)
+								@global175
+								@global180
+								global183
+								temp0
+								(ego view?)
+								(ego x?)
+								(ego y?)
 							)
-							(File
-								name: @buf1
-								write: @buf2 @buf3 {\0D\n}
+							(gamefile_sh
+								name: @temp4
+								write: @temp34 @temp64 {\0D\n}
 								close:
 							)
-							(= buf3 0)
-							(++ i)
+							(= temp64 0)
+							(++ temp0)
 						)
 					)
-					(`@p
-						(Show PMAP)
+					(KEY_ALT_p (Show 2))
+					(KEY_ALT_r
+						(Print (Format @temp4 22 2 curRoomNum))
 					)
-					(`@r
-						(Print (Format @buf1 22 2 curRoomNum))
-					)
-					(`@v
-						(Show VMAP)
-					)
-					(`@x
-						(= quit TRUE)
-					)
-					(`@z
-						(= quit TRUE)
-					)
-					(`^d
-						(= i (GetNumber {Teleport to}))
-						(if (Load SCRIPT i)
+					(KEY_ALT_v (Show 1))
+					(KEY_ALT_x)
+					(KEY_ALT_z (= quit 1))
+					(JOY_DOWNRIGHT
+						(= temp0 (GetNumber {Teleport to}))
+						(if (Load rsSCRIPT temp0)
 							(NormalEgo)
-							(curRoom newRoom: i)
+							(curRoom newRoom: temp0)
 						else
 							(Print 22 3)
 							(SetDebug)
 						)
 					)
-					(`^e
+					(JOY_DOWN
 						(Print
 							(Format
-								@buf1
+								@temp4
 								{view %d loop %d cel %d posn %d %d pri %d OnControl $%x Origin on $%x}
 								(ego view?)
 								(ego loop?)
@@ -101,22 +93,23 @@
 								(ego y?)
 								(ego priority?)
 								(ego onControl:)
-								(ego onControl: origin)
+								(ego onControl: 1)
 							)
-							#icon (ego view?) (ego loop?) (ego cel?)
+							#icon
+							(ego view?)
+							(ego loop?)
+							(ego cel?)
 						)
 					)
-					(8
-						(theGame showMem:)
-					)
+					(JOY_UPLEFT (theGame showMem:))
 				)
 			)
-			(saidEvent
+			(evSAID
 				(if (Said 'tp')
-					(= i (GetNumber {Teleport to}))
-					(if (Load SCRIPT i)
+					(= temp0 (GetNumber {Teleport to}))
+					(if (Load rsSCRIPT temp0)
 						(NormalEgo)
-						(curRoom newRoom: i)
+						(curRoom newRoom: temp0)
 					else
 						(Print 22 3)
 						(SetDebug)
@@ -124,8 +117,6 @@
 				)
 			)
 		)
-		(if (not (event claimed?))
-			(super handleEvent: event)
-		)
+		(if (not (event claimed?)) (super handleEvent: event))
 	)
 )

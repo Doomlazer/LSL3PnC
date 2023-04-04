@@ -1,10 +1,11 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 350)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use Intrface)
 (use Motion)
 (use Game)
+(use User)
 (use Actor)
 (use System)
 
@@ -18,7 +19,7 @@
 (local
 	talkCount
 )
-(instance rm350 of Room
+(instance rm350 of Rm
 	(properties
 		picture 350
 		east 305
@@ -41,55 +42,54 @@
 		(aDave init:)
 		(aDoor init:)
 		(aPins init:)
-		(if (> machineSpeed 16)
-			(aWaterfall
-				setCycle: Forward
-				isExtra: TRUE
-				init:
-			)
+		(if (> global87 16)
+			(aWaterfall setCycle: Fwd isExtra: 1 init:)
 		)
 		(cond 
 			((== prevRoomNum 355)
 				(HandsOff)
-				(Load SOUND 350)
-				(Load SOUND 351)
-				(Load SOUND 11)
-				(Load PICTURE 99)
+				(Load rsSOUND 350)
+				(Load rsSOUND 351)
+				(Load rsSOUND 11)
+				(Load rsPIC 99)
 				(aKen ignoreActors: setCycle: Walk setPri: 4 init:)
 				(ego
 					view: 351
 					illegalBits: 0
 					posn: 17 141
 					setLoop: 0
-					setCycle: Forward
+					setCycle: Fwd
 					setStep: 10 1
 					init:
 				)
 				(DaveScript changeState: 3)
 				(RoomScript changeState: 9)
 			)
-			((not (Btst fRolledOut))
+			((not (Btst 23))
 				(HandsOff)
-				(Bset fOpening200)
-				(Bset fOpening210)
-				(Bset fBrokeUp)
-				(Bset fBackInLeisureSuit)
-				(Bset fFired)
-				(Bset fRolledOut)
-				(= currentStatus egoROLLOUT)
+				(Bset 17)
+				(Bset 19)
+				(Bset 20)
+				(Bset 21)
+				(Bset 22)
+				(Bset 23)
+				(= gCurRoomNum 4)
 				(ego illegalBits: 0 loop: 1 posn: 295 144 init:)
 				(RoomScript changeState: 1)
 			)
 			(else
-				(NormalEgo loopW)
-				(ego observeControl: cYELLOW posn: 295 144 init:)
+				(NormalEgo 1)
+				(ego observeControl: 16384 posn: 295 144 init:)
 			)
 		)
-		(music number: 32 loop: musicLoop play:)
+		(gTheMusic number: 32 loop: global72 play:)
+		(User canInput: 0 mapKeyToDir: 0)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
 	)
@@ -118,7 +118,7 @@
 			)
 			(6
 				(ego loop: 1)
-				(aDoor setCycle: EndLoop self)
+				(aDoor setCycle: End self)
 			)
 			(7
 				(aDoor stopUpd:)
@@ -128,28 +128,28 @@
 			(9
 				(ego setMotion: MoveTo 192 141 self)
 				(aKen setMotion: MoveTo 35 141)
-				(soundFX number: 350 loop: 1 play:)
+				(orchidSeconds number: 350 loop: 1 play:)
 			)
 			(10
 				(ego
 					setPri: 10
 					setLoop: 1
 					cel: 0
-					setCycle: EndLoop
+					setCycle: End
 					setMotion: MoveTo 255 137 self
 				)
-				(aPins setCycle: EndLoop)
-				(music stop:)
-				(soundFX stop: number: 351 loop: 1 play:)
+				(aPins setCycle: End)
+				(gTheMusic stop:)
+				(orchidSeconds stop: number: 351 loop: 1 play:)
 			)
 			(11
-				(soundFX fade:)
+				(orchidSeconds fade:)
 				(aPins stopUpd:)
 				(ego stopUpd:)
 				(= seconds 2)
 			)
 			(12
-				(Printf 350 31 expletive)
+				(Printf 350 31 filthStr)
 				(= seconds 2)
 			)
 			(13
@@ -158,58 +158,38 @@
 			)
 			(14
 				(aKen dispose:)
-				(aDoor setCycle: BegLoop self)
+				(aDoor setCycle: Beg self)
 				(Print 350 33)
 				(Print 350 34)
 				(= seconds 3)
 			)
 			(15
-				(soundFX number: 11 loop: 1 play:)
+				(orchidSeconds number: 11 loop: 1 play:)
 			)
 			(16
-				(curRoom drawPic: 99 IRISIN)
+				(curRoom drawPic: 99 6)
 				(cast eachElementDo: #hide)
 				(= cycles 20)
 			)
 			(17
 				(Print 350 35)
-				(= currentStatus egoROLLOUT)
+				(= gCurRoomNum 4)
 				(curRoom newRoom: 305)
 			)
 		)
 	)
 	
 	(method (handleEvent event)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
-			(return)
-		)
+		(if (event claimed?) (return))
 		(cond 
-			((Said 'lie')
-				(Print 350 0)
-				(Print 350 1)
-			)
-			((Said 'open/door')
-				(Print 350 2)
-				(Print 350 3
-					#at -1 144
-				)
-			)
-			((Said 'drink,get/water')
-				(Print 350 4)
-				(Print 350 5)
-			)
-			((Said 'get')
-				(Print 350 6)
-			)
-			((Said 'give')
-				(Print 350 7)
-			)
+			((Said 'lie') (Print 350 0) (Print 350 1))
+			((Said 'open/door') (Print 350 2) (Print 350 3 #at -1 144))
+			((Said 'drink,get/water') (Print 350 4) (Print 350 5))
+			((Said 'get') (Print 350 6))
+			((Said 'give') (Print 350 7))
 			((Said 'address/man,guard')
 				(switch (++ talkCount)
-					(1
-						(Print 350 8)
-						(Print 350 9)
-					)
+					(1 (Print 350 8) (Print 350 9))
 					(2
 						(Print 350 10)
 						(Print 350 11)
@@ -220,46 +200,148 @@
 					)
 				)
 			)
-			((or (Said '//job') (Said '/job'))
-				(Print 350 14)
-			)
-			((or (Said '/chairman') (Said '//chairman'))
-				(Print 350 15)
-				(Print 350 16
-					#at -1 144
-				)
-			)
+			((or (Said '//job') (Said '/job')) (Print 350 14))
+			((or (Said '/chairman') (Said '//chairman')) (Print 350 15) (Print 350 16 #at -1 144))
 			((Said 'look>')
 				(cond 
-					((Said '/clit,skin,carpet,(head<skin),skin')
-						(Print 350 17)
-						(Print 350 18
-							#at -1 144
+					((Said '/clit,skin,carpet,(head<skin),skin') (Print 350 17) (Print 350 18 #at -1 144))
+					((Said '/barstool,book') (Printf 350 19 global82))
+					((Said '/cup') (Print 350 20))
+					((Said '/flower') (Print 350 21))
+					((Said '/water,fountain,cascade') (Print 350 22))
+					((Said '/buffet') (Print 350 23))
+					((Said '/guard,man') (Print 350 24))
+					((Said '/door') (Print 350 25))
+					((Said '[/area]') (Print 350 26))
+				)
+			)
+			(
+				(and
+					(== (event type?) evMOUSEBUTTON)
+					(not (& (event modifiers?) emSHIFT))
+				)
+				(if
+					(and
+						(> (event x?) 99)
+						(< (event x?) 187)
+						(> (event y?) 130)
+						(< (event y?) 153)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(998
+							(Print 350 17)
+							(Print 350 18 #at -1 144)
 						)
+						(else  (event claimed: 0))
 					)
-					((Said '/barstool,book')
-						(Printf 350 19 currentEgo)
+				)
+				(if
+					(or
+						(proc0_26 atpTable1 (event x?) (event y?))
+						(proc0_26 atpTable2 (event x?) (event y?))
 					)
-					((Said '/cup')
-						(Print 350 20)
+					(event claimed: 1)
+					(switch theCursor
+						(998 (Print 350 23))
+						(else  (event claimed: 0))
 					)
-					((Said '/flower')
-						(Print 350 21)
+				)
+				(if
+					(and
+						(> (event x?) 277)
+						(< (event x?) 318)
+						(> (event y?) 86)
+						(< (event y?) 150)
 					)
-					((Said '/water,fountain,cascade')
-						(Print 350 22)
+					(event claimed: 1)
+					(switch theCursor
+						(999
+							(ego setMotion: MoveTo 286 181 self)
+							(ego setMotion: MoveTo 321 140)
+						)
+						(else  (event claimed: 0))
 					)
-					((Said '/buffet')
-						(Print 350 23)
+				)
+				(if
+					(and
+						(> (event x?) 27)
+						(< (event x?) 41)
+						(> (event y?) 83)
+						(< (event y?) 131)
 					)
-					((Said '/guard,man')
-						(Print 350 24)
+					(event claimed: 1)
+					(switch theCursor
+						(998
+							(Print 350 2)
+							(Print 350 3 #at -1 144)
+						)
+						(995 (Print 350 25))
+						(else  (event claimed: 0))
 					)
-					((Said '/door')
-						(Print 350 25)
+				)
+				(if
+					(or
+						(proc0_26 atpChair1 (event x?) (event y?))
+						(proc0_26 atpChair2 (event x?) (event y?))
+						(proc0_26 atpChair3 (event x?) (event y?))
+						(proc0_26 atpChair4 (event x?) (event y?))
 					)
-					((Said '[/area]')
-						(Print 350 26)
+					(event claimed: 1)
+					(switch theCursor
+						(995
+							(Print 350 0)
+							(Print 350 1)
+						)
+						(else  (event claimed: 0))
+					)
+				)
+				(if (proc0_26 aDave (event x?) (event y?))
+					(event claimed: 1)
+					(switch theCursor
+						(996
+							(event type: 1 claimed: 1)
+							(switch (++ talkCount)
+								(1 (Print 350 8) (Print 350 9))
+								(2
+									(Print 350 10)
+									(Print 350 11)
+								)
+								(else 
+									(Print 350 12)
+									(Print 350 13)
+								)
+							)
+						)
+						(998 (Print 350 24))
+						(else  (event claimed: 0))
+					)
+				)
+				(if (proc0_26 aWaterfall (event x?) (event y?))
+					(event claimed: 1)
+					(switch theCursor
+						(998
+							(event type: 1 claimed: 1)
+							(Print 350 22)
+						)
+						(995
+							(Print 350 4)
+							(Print 350 5)
+						)
+						(else  (event claimed: 0))
+					)
+				)
+				(if
+					(and
+						(> (event x?) 81)
+						(< (event x?) 238)
+						(> (event y?) 23)
+						(< (event y?) 63)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(998 (Print 350 26))
+						(else  (event claimed: 0))
 					)
 				)
 			)
@@ -267,7 +349,7 @@
 	)
 )
 
-(instance atpChair1 of PicView
+(instance atpChair1 of PV
 	(properties
 		y 124
 		x 69
@@ -276,7 +358,7 @@
 	)
 )
 
-(instance atpChair2 of PicView
+(instance atpChair2 of PV
 	(properties
 		y 126
 		x 256
@@ -285,7 +367,7 @@
 	)
 )
 
-(instance atpChair3 of PicView
+(instance atpChair3 of PV
 	(properties
 		y 168
 		x 295
@@ -294,7 +376,7 @@
 	)
 )
 
-(instance atpChair4 of PicView
+(instance atpChair4 of PV
 	(properties
 		y 168
 		x 25
@@ -302,7 +384,7 @@
 	)
 )
 
-(instance atpTable1 of PicView
+(instance atpTable1 of PV
 	(properties
 		y 108
 		x 93
@@ -311,7 +393,7 @@
 	)
 )
 
-(instance atpTable2 of PicView
+(instance atpTable2 of PV
 	(properties
 		y 109
 		x 232
@@ -334,14 +416,14 @@
 	)
 )
 
-(instance atpTenPin of PicView
+(instance atpTenPin of PV
 	(properties
 		y 148
 		x 239
 		view 350
 		loop 1
 		priority 11
-		signal ignrAct
+		signal $4000
 	)
 )
 
@@ -364,6 +446,8 @@
 )
 
 (instance DaveScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
 		(if (== 0 (aDave loop?))
@@ -380,20 +464,18 @@
 		)
 	)
 	
-	(method (changeState newState &tmp randVal)
+	(method (changeState newState &tmp temp0)
 		(switch (= state newState)
-			(0
-				(= cycles (Random 11 22))
-			)
+			(0 (= cycles (Random 11 22)))
 			(1
 				(= seconds (Random 3 9))
-				(switch (= randVal (Random 0 5))
+				(switch (= temp0 (Random 0 5))
 					(0
-						(aDave loop: 1 setCycle: EndLoop self)
+						(aDave loop: 1 setCycle: End self)
 						(= seconds 0)
 					)
 					(1
-						(aDave loop: 2 setCycle: EndLoop)
+						(aDave loop: 2 setCycle: End)
 					)
 					(else 
 						(aDave loop: 0)
@@ -402,7 +484,7 @@
 				)
 			)
 			(2
-				(aDave setCycle: BegLoop self)
+				(aDave setCycle: Beg self)
 				(= state -1)
 			)
 			(3
@@ -413,7 +495,7 @@
 	)
 )
 
-(instance aKen of Actor
+(instance aKen of Act
 	(properties
 		y 141
 		x 17

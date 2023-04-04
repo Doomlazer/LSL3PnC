@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 431)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
@@ -17,25 +17,41 @@
 )
 
 (local
-	[actors 6]
-	[veggies 6]
-	toX = [999 113 127 141 155 169 183 197 999]
-	[msgBuf 40]
-	[titleBuf 22]
+	actors
+	veggies
+	toX
+	msgBuf
+	titleBuf
+	theAActor5
+	local6
+	theAActor1
+	theAActor2
+	theAActor3
+	theAActor4
+	theAActor5_2
+	local12 =  999
+	local13 =  113
+	local14 =  127
+	local15 =  141
+	[local16 2] = [155 169]
+	local18 =  183
+	[local19 2] = [197 999]
+	[local21 40]
+	[local61 22]
 )
-(instance rm431 of Room
+(instance rm431 of Rm
 	(properties
 		picture 430
 		horizon 1
 	)
 	
-	(method (init &tmp i)
-		(Load SOUND 10)
-		(Load SOUND 433)
-		(Load SOUND 432)
-		(Load SCRIPT JUMP)
-		(Load PICTURE 99)
-		(Load FONT 7)
+	(method (init &tmp temp0)
+		(Load rsSOUND 10)
+		(Load rsSOUND 433)
+		(Load rsSOUND 432)
+		(Load rsSCRIPT 991)
+		(Load rsPIC 99)
+		(Load rsFONT 7)
 		(super init:)
 		(self setScript: RoomScript)
 		(aCurtain ignoreActors: init:)
@@ -44,17 +60,17 @@
 		(aActor3 ignoreActors: init:)
 		(aActor4 ignoreActors: init:)
 		(aActor5 ignoreActors: init:)
-		(= saveSpeed (theGame setSpeed: 6))
-		(= [actors 1] aActor1)
-		(= [actors 2] aActor2)
-		(= [actors 3] aActor3)
-		(= [actors 4] aActor4)
-		(= [actors 5] aActor5)
-		(= [veggies 1] aActor1)
-		(= [veggies 2] aActor2)
-		(= [veggies 3] aActor3)
-		(= [veggies 4] aActor4)
-		(= [veggies 5] aActor5)
+		(= currentStatus (theGame setSpeed: 6))
+		(= veggies aActor1)
+		(= toX aActor2)
+		(= msgBuf aActor3)
+		(= titleBuf aActor4)
+		(= theAActor5 aActor5)
+		(= theAActor1 aActor1)
+		(= theAActor2 aActor2)
+		(= theAActor3 aActor3)
+		(= theAActor4 aActor4)
+		(= theAActor5_2 aActor5)
 		(NormalEgo)
 		(ego
 			view: 431
@@ -73,50 +89,52 @@
 )
 
 (instance RoomScript of Script
-	(method (doit &tmp i)
+	(properties)
+	
+	(method (doit &tmp temp0)
 		(super doit:)
 		(if
 			(and
-				(== -1 (music prevSignal?))
-				(== (music number?) 432)
+				(== -1 (gTheMusic prevSignal?))
+				(== (gTheMusic number?) 432)
 			)
 			(self changeState: 22)
 		)
-		(if (== currentStatus 431)
+		(if (== gCurRoomNum 431)
 			(cond 
-				((& (ego onControl: 1) cBLUE) (= i 1))
-				((& (ego onControl: 1) cGREEN) (= i 2))
-				((& (ego onControl: 1) cCYAN) (= i 3))
-				((& (ego onControl: 1) cRED) (= i 4))
-				((& (ego onControl: 1) cMAGENTA) (= i 5))
-				((& (ego onControl: 1) cBROWN) (= i 6))
-				(else (= i 0))
+				((& (ego onControl: 1) $0002) (= temp0 1))
+				((& (ego onControl: 1) $0004) (= temp0 2))
+				((& (ego onControl: 1) $0008) (= temp0 3))
+				((& (ego onControl: 1) $0010) (= temp0 4))
+				((& (ego onControl: 1) $0020) (= temp0 5))
+				((& (ego onControl: 1) $0040) (= temp0 6))
+				(else (= temp0 0))
 			)
-			(ego setLoop: i)
+			(ego setLoop: temp0)
 			(aFloor
-				posn: [toX i] 97
+				posn: [local12 temp0] 97
 				setCel:
 					(aSpotlight
-						posn: [toX i] 52
-						setCel: (if (< machineSpeed 39) (return))
+						posn: [local12 temp0] 52
+						setCel: (if (< global87 39) (return) else 0)
 					)
 			)
 		)
 	)
 	
-	(method (changeState newState &tmp i)
+	(method (changeState newState &tmp temp0)
 		(ChangeScriptState self newState 1 12)
 		(switch (= state newState)
 			(0)
 			(1
 				(Print 431 4 #at 10 5 #width 290)
-				(aCurtain setCycle: EndLoop self)
+				(aCurtain setCycle: End self)
 				(= seconds 3)
 			)
 			(2)
 			(3
 				(aCurtain stopUpd:)
-				(Print (Format @msgBuf 431 5 expletive) #font 7)
+				(Print (Format @local21 431 5 filthStr) #font 7)
 				(Print 431 6)
 				(Print 431 7)
 				(= seconds 3)
@@ -138,11 +156,13 @@
 			)
 			(7
 				(Print 431 14)
-				(= currentStatus 432)
+				(= gCurRoomNum 432)
+				(theGame setCursor: 998 (HaveMouse))
+				(HandsOn)
 				(User canInput: 1)
-				(music stop:)
+				(gTheMusic stop:)
 				(ego cel: 0)
-				(aCurtain setCycle: BegLoop self)
+				(aCurtain setCycle: Beg self)
 			)
 			(8
 				(aCurtain stopUpd:)
@@ -153,7 +173,7 @@
 				(= seconds 10)
 			)
 			(10
-				(music number: 433 loop: -1 play:)
+				(gTheMusic number: 433 loop: -1 play:)
 				(Print 431 16 #at -1 10)
 				(Print 431 17 #at -1 144)
 				(Print 431 18)
@@ -166,13 +186,15 @@
 			)
 			(12
 				(HandsOff)
-				(for ((= i 1)) (<= i 5) ((++ i))
-					([veggies i]
+				(= temp0 1)
+				(while (<= temp0 5)
+					([local6 temp0]
 						view: 430
-						setCycle: Forward
+						setCycle: Fwd
 						setStep: 6 6
 						setScript: (VeggieScript new:)
 					)
+					(++ temp0)
 				)
 				(= seconds 8)
 			)
@@ -182,106 +204,95 @@
 			)
 			(14
 				(cls)
-				(for ((= i 1)) (<= i 5) ((++ i))
-					(([veggies i] script?) changeState: 2)
+				(= temp0 1)
+				(while (<= temp0 5)
+					(([local6 temp0] script?) changeState: 2)
+					(++ temp0)
 				)
-				(theGame setScript: (ScriptID DYING))
-				((ScriptID DYING)
+				(theGame setScript: (ScriptID 40))
+				((ScriptID 40)
 					caller: 437
-					register: (Format @msgBuf 431 22)
-					next: (Format @titleBuf 431 23)
+					register: (Format @local21 431 22)
+					next: (Format @local61 431 23)
 				)
 			)
 			(15
-				(= currentStatus 431)
+				(= gCurRoomNum 431)
 				(HandsOff)
 				(Ok)
 				(theGame changeScore: 43)
 				(Print 431 24 #at 10 5 #width 290)
 				(aSpotlight setLoop: 5 setPri: 14 ignoreActors: init:)
 				(aFloor setLoop: 6 setPri: 7 ignoreActors: init:)
-				(ego setMotion: MoveTo [toX 6] 95 self)
+				(ego setMotion: MoveTo local18 95 self)
 				(= cycles 4)
 			)
 			(16
-				(music number: 432 loop: 1 play: self)
+				(gTheMusic number: 432 loop: 1 play: self)
 			)
 			(17
-				(ego setMotion: MoveTo [toX 1] 95 self)
+				(ego setMotion: MoveTo local13 95 self)
 			)
 			(18
 				(Print 431 25 #at 10 5 #width 290 #dispose)
-				([actors 1] setScript: (MoneyScript new:))
-				(ego setMotion: MoveTo [toX 3] 95 self)
+				(veggies setScript: (MoneyScript new:))
+				(ego setMotion: MoveTo local15 95 self)
 			)
 			(19
-				([actors 2] setScript: (MoneyScript new:))
-				([actors 3] setScript: (MoneyScript new:))
-				(ego setStep: 1 1 setMotion: MoveTo [toX 6] 95 self)
+				(toX setScript: (MoneyScript new:))
+				(msgBuf setScript: (MoneyScript new:))
+				(ego setStep: 1 1 setMotion: MoveTo local18 95 self)
 			)
 			(20
 				(cls)
 				(Print 431 26 #at 10 5 #width 290 #time 6 #dispose)
-				([actors 4] setScript: (MoneyScript new:))
-				([actors 5] setScript: (MoneyScript new:))
+				(titleBuf setScript: (MoneyScript new:))
+				(theAActor5 setScript: (MoneyScript new:))
 				(= register 0)
 				(self cue:)
 			)
 			(21
-				(ego
-					setMotion: MoveTo (Random [toX 1] [toX 6]) 95 self
-				)
-				;EO: Tweaked code based on decompiled NRS script
-				(/ machineSpeed 10)
-				(if (>= 2 (++ register))
-					(-- state)
-				)
-				;(if (>= (/ machineSpeed 10) (++ register)) (-- state))
+				(ego setMotion: MoveTo (Random local13 local18) 95 self)
+				(/ global87 10)
+				(if (>= 2 (++ register)) (-- state))
 			)
 			(22
-				(music loop: 1 play:)
-				(curRoom drawPic: 99 IRISIN)
+				(gTheMusic loop: 1 play:)
+				(curRoom drawPic: 99 6)
 				(cast eachElementDo: #hide)
-				(for ((= i 1)) (<= i 5) ((++ i))
-					(([actors i] script?) changeState: 2)
+				(= temp0 1)
+				(while (<= temp0 5)
+					(([actors temp0] script?) changeState: 2)
+					(++ temp0)
 				)
 				(= cycles 20)
 			)
 			(23
-				(music fade:)
+				(gTheMusic fade:)
 				(Print 431 27)
 				(Print 431 28)
 				(Print 431 29)
-				(Print 431 30
-					#at 10 144
-					#width 290
-				)
-				(Load VIEW 708)
-				(= currentEgoView 708)
-				(= currentStatus egoSHOWGIRL)
-				(= showroomState SRdone)
-				(= dollars 500)
-				(Format ((Inventory at: iMoney) name?) 431 31)
-				((Inventory at: iMoney) view: 24)
-				(ego get: iMoney)
-				(theGame setSpeed: saveSpeed)
+				(Print 431 30 #at 10 144 #width 290)
+				(Load rsVIEW 708)
+				(= global66 708)
+				(= gCurRoomNum 11)
+				(= gameMinutes 6)
+				(= global94 500)
+				(Format ((Inv at: 6) name?) 431 31)
+				((Inv at: 6) view: 24)
+				(ego get: 6)
+				(theGame setSpeed: currentStatus)
 				(curRoom newRoom: 420)
 			)
 		)
 	)
 	
 	(method (handleEvent event)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
-			(return)
-		)
+		(if (event claimed?) (return))
 		(cond 
-			((or (Said '/naked,dance') (Said 'naked,dance'))
-				(self changeState: 15)
-			)
-			((Said 'address')
-				(Print 431 0)
-				(Print 431 1)
-			)
+			(
+			(or (Said '/naked,dance') (Said 'naked,dance')) (self changeState: 15))
+			((Said 'address') (Print 431 0) (Print 431 1))
 			(
 				(and
 					(Said 'look>')
@@ -290,19 +301,80 @@
 				(Print 431 2)
 				(Print 431 3 #at -1 144)
 			)
+			(
+				(and
+					(== (event type?) evMOUSEBUTTON)
+					(not (& (event modifiers?) emSHIFT))
+				)
+				(if (== gCurRoomNum 432)
+					(event claimed: 1)
+					(if (== theCursor 992)
+						(switch theCursor
+							(992
+								(theGame setCursor: 998 (HaveMouse))
+								(event claimed: 1)
+							)
+							(994
+								(theGame setCursor: 998 (HaveMouse))
+								(event claimed: 1)
+							)
+							(997
+								(theGame setCursor: 995 (HaveMouse))
+								(event claimed: 1)
+							)
+							(998
+								(theGame setCursor: 997 (HaveMouse))
+								(event claimed: 1)
+							)
+							(995
+								(theGame setCursor: 994 (HaveMouse))
+								(event claimed: 1)
+							)
+							(else  (event claimed: 0))
+						)
+					)
+				)
+				(if
+					(and
+						(> (event x?) 66)
+						(< (event x?) 211)
+						(> (event y?) 86)
+						(< (event y?) 117)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(998
+							(Print 431 2)
+							(Print 431 3 #at -1 144)
+						)
+						(995 (self changeState: 15))
+						(else  (event claimed: 0))
+					)
+				)
+			)
 		)
 	)
 )
 
-(instance aActor1 of Actor)
+(instance aActor1 of Act
+	(properties)
+)
 
-(instance aActor2 of Actor)
+(instance aActor2 of Act
+	(properties)
+)
 
-(instance aActor3 of Actor)
+(instance aActor3 of Act
+	(properties)
+)
 
-(instance aActor4 of Actor)
+(instance aActor4 of Act
+	(properties)
+)
 
-(instance aActor5 of Actor)
+(instance aActor5 of Act
+	(properties)
+)
 
 (instance aSpotlight of Prop
 	(properties
@@ -335,11 +407,11 @@
 )
 
 (instance VeggieScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(switch (= state newState)
-			(0
-				(= cycles (Random 1 9))
-			)
+			(0 (= cycles (Random 1 9)))
 			(1
 				(client
 					setLoop: (Random 8 9)
@@ -357,15 +429,12 @@
 )
 
 (instance MoneyScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(switch (= state newState)
 			(0
-				(client
-					view: 430
-					setLoop: 7
-					setCycle: Forward
-					setStep: 7 7
-				)
+				(client view: 430 setLoop: 7 setCycle: Fwd setStep: 7 7)
 				(= cycles (Random 1 9))
 			)
 			(1

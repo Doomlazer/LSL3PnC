@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 510)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use Intrface)
 (use Motion)
@@ -15,7 +15,7 @@
 (local
 	drownCycles
 )
-(instance rm510 of Room
+(instance rm510 of Rm
 	(properties
 		picture 510
 		horizon 65
@@ -24,10 +24,10 @@
 	)
 	
 	(method (init)
-		(Bset fPassedMaze)
-		(Load VIEW 511)
-		(Load VIEW 812)
-		(Load SOUND 6)
+		(Bset 37)
+		(Load rsVIEW 511)
+		(Load rsVIEW 812)
+		(Load rsSOUND 6)
 		(super init:)
 		(self setScript: RoomScript)
 		(aRock1 init:)
@@ -46,13 +46,15 @@
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
 		(cond 
-			((and (& (ego onControl: origin) cLBLUE) (== currentStatus egoNORMAL))
-				(self changeState: 2)
-			)
-			((and (== currentStatus egoSWIMMING) (< 8 (++ drownCycles)))
+			(
+			(and (& (ego onControl: 1) $0200) (== gCurRoomNum 0)) (self changeState: 2))
+			(
+			(and (== gCurRoomNum 12) (< 8 (++ drownCycles)))
 				(= drownCycles 0)
 				(ego setLoop: (+ (Random 0 1) (* 2 (< (ego y?) 87))))
 			)
@@ -63,19 +65,19 @@
 		(switch (= state newState)
 			(0)
 			(2
-				(= currentStatus egoSWIMMING)
+				(= gCurRoomNum 12)
 				(HandsOff)
 				(rm510 horizon: 1)
 				(ego
 					view: 812
 					setLoop: 0
 					setStep: 1 3
-					setCycle: Forward
+					setCycle: Fwd
 					illegalBits: 0
 					posn: (- (ego x?) 20) (ego y?)
 					setMotion: MoveTo 160 104 self
 				)
-				(music number: 6 loop: -1 play:)
+				(gTheMusic number: 6 loop: -1 play:)
 			)
 			(3
 				(ego setMotion: MoveTo 179 87 self)
@@ -83,46 +85,40 @@
 			(4
 				(ego setMotion: MoveTo 200 54 self)
 			)
-			(5
-				(curRoom newRoom: 520)
-			)
+			(5 (curRoom newRoom: 520))
 			(6
 				(HandsOff)
-				(= currentStatus egoDRINKWATER)
+				(= gCurRoomNum 3)
 				(ego
 					view: 511
 					cycleSpeed: 2
 					setLoop: 0
 					cel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 				)
 			)
 			(7
-				(ego setLoop: 1 setCycle: Forward)
+				(ego setLoop: 1 setCycle: Fwd)
 				(= cycles
 					(* 2 (ego cycleSpeed?) 4 (- (NumCels ego) 1))
 				)
 			)
 			(8
-				(ego setLoop: 0 setCel: 255 setCycle: BegLoop self)
+				(ego setLoop: 0 setCel: 255 setCycle: Beg self)
 			)
-			(9
-				(= seconds 2)
-			)
+			(9 (= seconds 2))
 			(10
 				(theGame changeScore: 42)
-				(Bset fDrankRiverWater)
-				(NormalEgo loopW)
-				(= currentStatus egoNORMAL)
+				(Bset 6)
+				(NormalEgo 1)
+				(= gCurRoomNum 0)
 				(Print 510 10)
 			)
 		)
 	)
 	
 	(method (handleEvent event)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
-			(return)
-		)
+		(if (event claimed?) (return))
 		(cond 
 			(
 				(or
@@ -131,47 +127,45 @@
 					(Said 'drink/water')
 				)
 				(cond 
-					((Btst fDrankRiverWater)
-						(Print 510 0)
-					)
-					((not (& (ego onControl:) cLBLUE))
-						(NotClose)
-					)
-					((!= currentStatus egoNORMAL)
-						(GoodIdea)
-					)
-					(else
-						(self changeState: 6)
-					)
+					((Btst 6) (Print 510 0))
+					((not (& (ego onControl:) $0200)) (NotClose))
+					((!= gCurRoomNum 0) (GoodIdea))
+					(else (self changeState: 6))
 				)
 			)
-			((Said 'make/hemp')
-				(Print 510 1)
-			)
-			((or (Said 'make/boat') (Said 'climb,get,use/bamboo'))
-				(Print 510 2)
-			)
-			((or (Said 'go<swim') (Said 'swim'))
-				(Print 510 3)
-			)
+			((Said 'make/hemp') (Print 510 1))
+			(
+			(or (Said 'make/boat') (Said 'climb,get,use/bamboo')) (Print 510 2))
+			((or (Said 'go<swim') (Said 'swim')) (Print 510 3))
 			((Said 'look>')
 				(cond 
-					((Said '/palm')
-						(Print 510 4)
+					((Said '/palm') (Print 510 4))
+					((Said '/boulder,boob') (Print 510 5))
+					((Said '/bamboo') (Print 510 6))
+					((Said '/cascade,creek') (Print 510 7) (Print 510 8 #at -1 144))
+					((Said '[/area]') (Print 510 9))
+				)
+			)
+			(
+				(and
+					(== (event type?) evMOUSEBUTTON)
+					(not (& (event modifiers?) emSHIFT))
+					(> (event x?) 66)
+					(< (event x?) 190)
+					(> (event y?) 114)
+					(< (event y?) 163)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(995
+						(cond 
+							((Btst 6) (Print 510 0))
+							((not (& (ego onControl:) $0200)) (NotClose))
+							((!= gCurRoomNum 0) (GoodIdea))
+							(else (self changeState: 6))
+						)
 					)
-					((Said '/boulder,boob')
-						(Print 510 5)
-					)
-					((Said '/bamboo')
-						(Print 510 6)
-					)
-					((Said '/cascade,creek')
-						(Print 510 7)
-						(Print 510 8 #at -1 144)
-					)
-					((Said '[/area]')
-						(Print 510 9)
-					)
+					(else  (event claimed: 0))
 				)
 			)
 		)
@@ -188,7 +182,7 @@
 	
 	(method (init)
 		(super init:)
-		(self setCycle: Forward isExtra: TRUE ignoreActors:)
+		(self setCycle: Fwd isExtra: 1 ignoreActors:)
 	)
 )
 
@@ -204,7 +198,7 @@
 	
 	(method (init)
 		(super init:)
-		(self setCycle: Forward isExtra: TRUE ignoreActors:)
+		(self setCycle: Fwd isExtra: 1 ignoreActors:)
 	)
 )
 
@@ -219,7 +213,7 @@
 	
 	(method (init)
 		(super init:)
-		(self setCycle: Forward isExtra: TRUE ignoreActors:)
+		(self setCycle: Fwd isExtra: 1 ignoreActors:)
 	)
 )
 
@@ -234,7 +228,7 @@
 	
 	(method (init)
 		(super init:)
-		(self setCycle: Forward isExtra: TRUE ignoreActors:)
+		(self setCycle: Fwd isExtra: 1 ignoreActors:)
 	)
 )
 
@@ -250,6 +244,6 @@
 	
 	(method (init)
 		(super init:)
-		(self setCycle: Forward isExtra: TRUE ignoreActors:)
+		(self setCycle: Fwd isExtra: 1 ignoreActors:)
 	)
 )

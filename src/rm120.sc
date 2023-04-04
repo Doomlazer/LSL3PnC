@@ -1,8 +1,7 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 120)
-(include game.sh)
+(include sci.sh)
 (use Main)
-(use Intrface)
 (use Motion)
 (use Game)
 (use Menu)
@@ -17,51 +16,48 @@
 	local0
 	[str 20]
 )
-(procedure (DoDisplay theX theY theColor theFont message)
-	(Display message
-		p_at theX theY
-		p_font theFont
-		p_color (- theColor 8)
+(procedure (localproc_000c param1 param2 param3 param4 param5)
+	(Display
+		param5
+		dsCOORD
+		param1
+		param2
+		dsFONT
+		param4
+		dsCOLOR
+		(- param3 8)
 	)
-	(Display message
-		p_at (+ theX 1) (+ theY 1)
-		p_font theFont
-		p_color theColor
+	(Display
+		param5
+		dsCOORD
+		(+ param1 1)
+		(+ param2 1)
+		dsFONT
+		param4
+		dsCOLOR
+		param3
 	)
 )
 
-(instance rm120 of Room
+(instance rm120 of Rm
 	(properties
 		picture 120
-		style WIPERIGHT
+		style $0003
 	)
 	
 	(method (init)
-;;;		;EO: Added Disney+ style disclaimer
-;;;		(Print 
-;;;			"This game includes negative depictions and/or mistreatment of people or cultures.
-;;;			These stereotypes were wrong then and are wrong now.
-;;;			Rather than remove this content, we want to acknowledge its harmful impact, learn from it, and
-;;;			spark conversation to create a more inclusive feature together."
-;;;			#title {Content Advisory}
-;;;			#mode teJustCenter
-;;;			#width 300
-;;;			#font 4
-;;;		)
-;;;		;end disclaimer
-		
 		(HandsOff)
 		(theGame setSpeed: 6)
-		(StatusLine disable:)
+		(SL disable:)
 		(TheMenuBar hide:)
-		(Bset fSaveDisabled)
-		(Bset fCursorHidden)
-		(Bset fAutoSaveDisabled)
-		(Load VIEW 110)
-		(Load VIEW 120)
-		(Load SOUND 110)
-		(Load SOUND 120)
-		(Load FONT 9)
+		(Bset 3)
+		(Bset 5)
+		(Bset 4)
+		(Load rsVIEW 110)
+		(Load rsVIEW 120)
+		(Load rsSOUND 110)
+		(Load rsSOUND 120)
+		(Load rsFONT 9)
 		(super init:)
 		(addToPics
 			add: atpLeg1
@@ -76,26 +72,27 @@
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
-		(if (and (== -1 (music prevSignal?)) (== state 7))
+		(if
+		(and (== -1 (gTheMusic prevSignal?)) (== state 7))
 			(self cue:)
 		)
 	)
 	
 	(method (changeState newState)
 		(switch (= state newState)
-			(0
-				(= cycles 2)
-			)
+			(0 (= cycles 2))
 			(1
-				(music stop: number: 110 loop: 1 play:)
+				(gTheMusic stop: number: 110 loop: 1 play:)
 				(= cycles 16)
 			)
 			(2
 				(aLogoDissolve
 					setCel: 255
-					setCycle: BegLoop self
+					setCycle: Beg self
 					setPri: 10
 					init:
 				)
@@ -107,23 +104,19 @@
 				(= cycles 16)
 			)
 			(4
-				(aSierra init: setCycle: EndLoop self)
+				(aSierra init: setCycle: End self)
 			)
 			(5
 				(aSierra stopUpd:)
 				(= cycles 16)
 			)
 			(6
-				(aPresents init: setCycle: EndLoop self)
+				(aPresents init: setCycle: End self)
 			)
-			(7
-				(aPresents stopUpd:)
-			)
-			(8
-				(= cycles 12)
-			)
+			(7 (aPresents stopUpd:))
+			(8 (= cycles 12))
 			(9
-				(music prevSignal: 0 stop: number: 120 loop: -1 play:)
+				(gTheMusic prevSignal: 0 stop: number: 120 loop: -1 play:)
 				(aLogo dispose:)
 				(aSierra dispose:)
 				(aPresents dispose:)
@@ -133,29 +126,34 @@
 				(= cycles 2)
 			)
 			(10
-				(DoDisplay 128 30 vLBLUE 9 (Format @str 120 0))
+				(localproc_000c 128 30 9 9 (Format @str 120 0))
+				(localproc_000c
+					147
+					58
+					12
+					9
+					(Format @str {Point and Click})
+				)
 				(= cycles 10)
 			)
 			(11
-				(DoDisplay 146 90 vLBLUE 9 (Format @str 120 1))
+				(localproc_000c 146 90 9 9 (Format @str 120 1))
 				(= cycles 10)
 			)
 			(12
-				(DoDisplay 143 110 vLBLUE 9 (Format @str 120 2))
+				(localproc_000c 143 110 9 9 (Format @str 120 2))
 				(= cycles 10)
 			)
 			(13
-				(DoDisplay 132 130 vLBLUE 9 (Format @str 120 3))
+				(localproc_000c 132 130 9 9 (Format @str 120 3))
 				(= cycles 10)
 			)
 			(14
-				(aThigh setCycle: Forward)
-				(aCalf setCycle: Forward)
+				(aThigh setCycle: Fwd)
+				(aCalf setCycle: Fwd)
 				(= cycles 16)
 			)
-			(15
-				(curRoom newRoom: 130)
-			)
+			(15 (curRoom newRoom: 130))
 		)
 	)
 	
@@ -164,14 +162,14 @@
 			((event claimed?))
 			(
 				(and
-					(== (event type?) keyDown)
-					(== (event message?) `#2)
+					(== (event type?) evKEYBOARD)
+					(== (event message?) KEY_F2)
 				)
 				(ToggleSound)
 			)
 			(else
-				(if (!= 120 (music number?))
-					(music number: 120 loop: -1 play:)
+				(if (!= 120 (gTheMusic number?))
+					(gTheMusic number: 120 loop: -1 play:)
 				)
 				(curRoom newRoom: 140)
 			)
@@ -241,7 +239,7 @@
 	)
 )
 
-(instance atpLeg1 of PicView
+(instance atpLeg1 of PV
 	(properties
 		y 36
 		x 37
@@ -251,7 +249,7 @@
 	)
 )
 
-(instance atpLeg2 of PicView
+(instance atpLeg2 of PV
 	(properties
 		y 84
 		x 26
@@ -262,7 +260,7 @@
 	)
 )
 
-(instance atpLeg3 of PicView
+(instance atpLeg3 of PV
 	(properties
 		y 129
 		x 18
@@ -273,7 +271,7 @@
 	)
 )
 
-(instance atpLeg4 of PicView
+(instance atpLeg4 of PV
 	(properties
 		y 190
 		x 25

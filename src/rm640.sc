@@ -1,11 +1,12 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 640)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
 (use Motion)
 (use Game)
+(use User)
 (use Actor)
 (use System)
 
@@ -16,15 +17,15 @@
 (local
 	sceneTakes
 )
-(instance rm640 of Room
+(instance rm640 of Rm
 	(properties
 		picture 640
 	)
 	
 	(method (init)
-		(Load SOUND 640)
-		(Load SOUND 120)
-		(Load PICTURE 99)
+		(Load rsSOUND 640)
+		(Load rsSOUND 120)
+		(Load rsPIC 99)
 		(super init:)
 		(addToPics
 			add: atpChest
@@ -41,24 +42,22 @@
 		(NormalActor aLarry 0 720)
 		(aLarry posn: 8 174 init: stopUpd:)
 		(self setScript: RoomScript)
-		(= saveSpeed (theGame setSpeed: 6))
+		(= currentStatus (theGame setSpeed: 6))
 		(NormalEgo 0)
 		(ego posn: 12 183 init: stopUpd:)
 		(HandsOff)
+		(User canInput: 0 mapKeyToDir: 0)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(ChangeScriptState self newState 1 2)
 		(switch (= state newState)
-			(0
-				(= seconds 3)
-			)
-			(1
-				(Print 640 0)
-				(= seconds 2)
-			)
+			(0 (= seconds 3))
+			(1 (Print 640 0) (= seconds 2))
 			(2
 				(aCamera setStep: 1 1 setMotion: MoveTo 96 189 self)
 			)
@@ -73,13 +72,13 @@
 			)
 			(5
 				(Print 640 3)
-				(music fade:)
+				(gTheMusic fade:)
 				(= seconds 2)
 			)
 			(6
 				(Print 640 4)
-				(aRoberta setCycle: EndLoop)
-				(music number: 640 loop: 1 play:)
+				(aRoberta setCycle: End)
+				(gTheMusic number: 640 loop: 1 play:)
 				(= seconds 3)
 			)
 			(7
@@ -100,19 +99,15 @@
 				)
 			)
 			(9
-				(aRoberta setCycle: BegLoop)
+				(aRoberta setCycle: Beg)
 				(= cycles 15)
 			)
 			(10
 				(aRosella setLoop: 0)
-				(music fade:)
+				(gTheMusic fade:)
 				(switch (++ sceneTakes)
-					(1
-						(Print 640 5)
-					)
-					(2
-						(Print 640 6)
-					)
+					(1 (Print 640 5))
+					(2 (Print 640 6))
 					(3
 						(aRosella stopUpd:)
 						(Print 640 7)
@@ -129,12 +124,10 @@
 					cycleSpeed: 1
 					setMotion: MoveTo 224 115 self
 				)
-				(if (< sceneTakes 3)
-					(= state 5)
-				)
+				(if (< sceneTakes 3) (= state 5))
 			)
 			(12
-				(aRosella cycleSpeed: 1 setLoop: 2 setCycle: Forward)
+				(aRosella cycleSpeed: 1 setLoop: 2 setCycle: Fwd)
 				(= seconds 2)
 			)
 			(13
@@ -142,14 +135,14 @@
 				(= seconds 2)
 			)
 			(14
-				(Printf 640 9 (if (>= filthLevel 3) {on_} else {}))
+				(Printf 640 9 (if (>= global88 3) {on_} else {}))
 				(aRosella setLoop: 1)
 				(= seconds 2)
 			)
 			(15
 				(Print 640 10)
 				(Print 640 11)
-				(aRoberta setCycle: EndLoop self)
+				(aRoberta setCycle: End self)
 			)
 			(16
 				(Print 640 12)
@@ -157,7 +150,7 @@
 				(= seconds 3)
 			)
 			(17
-				(aRoberta setLoop: 2 setCycle: Forward)
+				(aRoberta setLoop: 2 setCycle: Fwd)
 				(= seconds 3)
 			)
 			(18
@@ -181,8 +174,8 @@
 			)
 			(22
 				(Print 640 16)
-				(music number: 699 loop: -1 play:)
-				(aRoberta setCycle: Forward)
+				(gTheMusic number: 699 loop: -1 play:)
+				(aRoberta setCycle: Fwd)
 			)
 			(23
 				(Print 640 17)
@@ -192,7 +185,7 @@
 			(24
 				(aLarry loop: 2 forceUpd: stopUpd:)
 				(Print 640 18)
-				(aRoberta setCycle: Forward)
+				(aRoberta setCycle: Fwd)
 				(= seconds 2)
 			)
 			(25
@@ -223,11 +216,11 @@
 			)
 			(30
 				(Print 640 27)
-				(music fade:)
+				(gTheMusic fade:)
 				(= seconds 6)
 			)
 			(31
-				(music number: 120 loop: -1 play:)
+				(gTheMusic number: 120 loop: -1 play:)
 				(= seconds 3)
 			)
 			(32
@@ -243,62 +236,64 @@
 	)
 )
 
-(instance aLarry of Actor)
+(instance aLarry of Act
+	(properties)
+)
 
-(instance atpChest of PicView
+(instance atpChest of PV
 	(properties
 		y 142
 		x 89
 		view 640
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance atpWheel of PicView
+(instance atpWheel of PV
 	(properties
 		y 141
 		x 159
 		view 640
 		cel 1
 		priority 10
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance atpBarrel1 of PicView
+(instance atpBarrel1 of PV
 	(properties
 		y 137
 		x 250
 		view 640
 		cel 2
 		priority 9
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance atpBarrel2 of PicView
+(instance atpBarrel2 of PV
 	(properties
 		y 134
 		x 47
 		view 640
 		cel 3
 		priority 9
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance atpBarrel3 of PicView
+(instance atpBarrel3 of PV
 	(properties
 		y 135
 		x 209
 		view 640
 		cel 4
 		priority 9
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance atpBertaButt of PicView
+(instance atpBertaButt of PV
 	(properties
 		y 166
 		x 257
@@ -322,7 +317,7 @@
 	)
 )
 
-(instance aCamera of Actor
+(instance aCamera of Act
 	(properties
 		y 189
 		x 120
@@ -332,7 +327,7 @@
 	)
 )
 
-(instance aRosella of Actor
+(instance aRosella of Act
 	(properties
 		y 126
 		x 177

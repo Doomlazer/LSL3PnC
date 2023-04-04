@@ -1,11 +1,12 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 484)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use Intrface)
 (use Motion)
 (use Game)
 (use Invent)
+(use User)
 (use Menu)
 (use Actor)
 (use System)
@@ -63,7 +64,7 @@
 
 (instance aBra of View
 	(properties
-		y 131
+		y 126
 		x 63
 		view 480
 		loop 1
@@ -103,25 +104,25 @@
 		(super init:)
 		(self
 			setPri: 11
-			setCel: (if (InRoom iDress 484) 0 else 255)
+			setCel: (if (InRoom 17 484) 0 else 255)
 			ignoreActors:
 			stopUpd:
 		)
 	)
 )
 
-(instance atpTelescope of PicView
+(instance atpTelescope of PV
 	(properties
 		y 50
 		x 160
 		view 480
 		loop 3
 		priority 1
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance rm484 of Room
+(instance rm484 of Rm
 	(properties
 		picture 480
 		south 470
@@ -129,49 +130,45 @@
 	
 	(method (init)
 		(super init:)
-		(aWine init: setCel: (if (InRoom iWineBottle) 1 else 0))
+		(User canInput: 0 mapKeyToDir: 0)
+		(aWine init: setCel: (if (InRoom 13) 1 else 0))
 		(aDoor init: setCel: 255 stopUpd:)
-		(if (InRoom iPanties)
-			(aPanties init:)
-		)
-		(if (InRoom iBra)
-			(aBra init:)
-		)
-		(if (InRoom iPantyhose)
-			(aPantyhose init:)
-		)
+		(if (InRoom 14) (aPanties init:))
+		(if (InRoom 16) (aBra init:))
+		(if (InRoom 15) (aPantyhose init:))
 		(aDress init:)
 		(addToPics add: atpTelescope doit:)
 		(self setScript: RoomScript)
 		(NormalEgo)
-		(= currentStatus egoNORMAL)
+		(= gCurRoomNum 0)
 		(if (== prevRoomNum 470)
 			(ego posn: 159 188 loop: 3 init:)
 		else
-			(if (or (Btst fSkippedLoveScene) (== prevRoomNum 0))
-				(Bclr fSkippedLoveScene)
-				(systemWindow color: myTextColor back: myBackColor)
-				(TheMenuBar draw: state: TRUE)
-				(StatusLine enable:)
-				(Bclr fAutoSaveDisabled)
-				(Bclr fCursorHidden)
+			(if (or (Btst 69) (== prevRoomNum 0))
+				(Bclr 69)
+				(systemWindow color: gameHours back: oldSysTime)
+				(TheMenuBar draw: state: 1)
+				(SL enable:)
+				(Bclr 4)
+				(Bclr 5)
 			)
-			(= currentEgoView 800)
-			(= playingAsPatti TRUE)
-			(= currentEgo (Format @egoName 484 0))
-			(= newspaperState NSlMissing)
-			(PutInRoom iMoney 450)
-			((Inventory at: iMoney) view: 25)
-			(Format ((Inventory at: iMoney) name?) 484 1)
-			(PutInRoom iMarker 450)
-			(PutInRoom iKnife -1)
-			(PutInRoom iTowel -1)
-			(PutInRoom iSpaKeycard -1)
-			(ego get: iPenthouseKey)
-			((Inventory at: iPenthouseKey) view: 30)
-			(Format ((Inventory at: iPenthouseKey) name?) 484 2)
-			(theGame setSpeed: saveSpeed)
-			(Load VIEW 800)
+			(= global66 800)
+			(= musicLoop 1)
+			(= global82 (Format @global83 484 0))
+			(= global98 4)
+			(PutInRoom 6 450)
+			((Inv at: 6) view: 25)
+			(Format ((Inv at: 6) name?) {47 dolars on tips._____})
+			(PutInRoom 18 450)
+			(PutInRoom 2 -1)
+			(PutInRoom 8 -1)
+			(PutInRoom 9 -1)
+			(ego get: 12)
+			((Inv at: 12) view: 30)
+			(Format ((Inv at: 12) name?) 484 2)
+			(theGame setSpeed: currentStatus)
+			(User canInput: 0 mapKeyToDir: 0)
+			(Load rsVIEW 800)
 			(ego
 				view: 482
 				posn: 160 59
@@ -179,14 +176,14 @@
 				baseSetter: SheetBase
 				init:
 			)
-			(music number: 492 loop: musicLoop play:)
+			(gTheMusic number: 492 loop: global72 play:)
 		)
 	)
 	
-	(method (newRoom n)
-		(music fade:)
-		(super newRoom: n)
-		(music fade:)
+	(method (newRoom newRoomNumber)
+		(gTheMusic fade:)
+		(super newRoom: newRoomNumber)
+		(gTheMusic fade:)
 	)
 )
 
@@ -195,18 +192,19 @@
 	
 	(method (doit)
 		(super doit:)
-		(if (& (ego onControl:) cBROWN)
-			(if (and (not leaveMsg) (!= (ego view?) currentEgoView))
-				(= leaveMsg TRUE)
+		(if (& (ego onControl:) $0040)
+			(if
+			(and (not leaveMsg) (!= (ego view?) global66))
+				(= leaveMsg 1)
 				(Print 484 3)
 			)
 		else
-			(= leaveMsg FALSE)
+			(= leaveMsg 0)
 		)
 		(if (!= (ego view?) 800)
-			(ego observeControl: cLMAGENTA)
+			(ego observeControl: 8192)
 		else
-			(ego ignoreControl: cLMAGENTA)
+			(ego ignoreControl: 8192)
 		)
 	)
 	
@@ -215,56 +213,43 @@
 			(0)
 			(1
 				(Ok)
-				(ego get: iDress view: 800)
+				(ego get: 17 view: 800)
 				(theGame changeScore: 10)
 				(Print 484 36)
-				(aDress setCycle: EndLoop self)
+				(aDress setCycle: End self)
 				(++ state)
 			)
 			(2
 				(Ok)
-				(PutInRoom iDress)
+				(PutInRoom 17)
 				(ego view: 482)
 				(theGame changeScore: -10)
 				(Print 484 37)
-				(aDress setCycle: BegLoop self)
+				(aDress setCycle: Beg self)
 			)
-			(3
-				(aDress stopUpd:)
-			)
+			(3 (aDress stopUpd:))
 		)
 	)
 	
 	(method (handleEvent event)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
-			(return)
-		)
+		(if (event claimed?) (return))
 		(cond 
 			((Said 'drain,(get<off)/dress')
 				(cond 
-					((!= currentStatus egoNORMAL)
-						(GoodIdea)
-					)
-					((not (ego has: iDress))
-						(DontHave)
-					)
-					((and (ego has: iBra) (ego has: iPanties) (ego has: iPantyhose))
-						(Print 484 4)
-					)
-					((not (& (ego onControl:) cRED))
-						(Print 484 5)
-					)
-					(else
-						(self changeState: 2)
-					)
+					((!= gCurRoomNum 0) (GoodIdea))
+					((not (ego has: 17)) (DontHave))
+					(
+					(and (ego has: 16) (ego has: 14) (ego has: 15)) (Print 484 4))
+					((not (& (ego onControl:) $0010)) (Print 484 5))
+					(else (self changeState: 2))
 				)
 			)
-			((Said 'wear,drain,(on<put),(alter<in),(put<on),get>')
+			(
+				(Said
+					'wear,drain,(on<backdrop),(alter<in),(backdrop<on),get>'
+				)
 				(cond 
-					((!= currentStatus egoNORMAL)
-						(GoodIdea)
-						(event claimed: TRUE)
-					)
+					((!= gCurRoomNum 0) (GoodIdea) (event claimed: 1))
 					((Said '/sheet')
 						(if (== (ego view?) 482)
 							(Print 484 6)
@@ -274,31 +259,23 @@
 					)
 					((Said '/beer,bottle')
 						(cond 
-							((not (InRoom iWineBottle))
-								(AlreadyTook)
-							)
-							((not (ego inRect: 126 126 196 141))
-								(NotClose)
-							)
+							((not (InRoom 13)) (AlreadyTook))
+							((not (ego inRect: 126 126 196 141)) (NotClose))
 							(else
 								(Ok)
 								(aWine setCel: 0 stopUpd:)
 								(theGame changeScore: 25)
-								(ego get: iWineBottle)
+								(ego get: 13)
 							)
 						)
 					)
 					((Said '/panties')
 						(cond 
-							((not (InRoom iPanties))
-								(AlreadyTook)
-							)
-							((not (& (ego onControl:) cRED))
-								(Print 484 5)
-							)
+							((not (InRoom 14)) (AlreadyTook))
+							((not (& (ego onControl:) $0010)) (Print 484 5))
 							(else
 								(Ok)
-								(ego get: iPanties)
+								(ego get: 14)
 								(theGame changeScore: 20)
 								(aPanties dispose:)
 								(Print 484 8)
@@ -307,18 +284,12 @@
 					)
 					((Said '/bra')
 						(cond 
-							((not (InRoom iBra))
-								(AlreadyTook)
-							)
-							((not (& (ego onControl:) cRED))
-								(Print 484 5)
-							)
-							((ego has: iBra)
-								(Print 484 9)
-							)
+							((not (InRoom 16)) (AlreadyTook))
+							((not (& (ego onControl:) $0010)) (Print 484 5))
+							((ego has: 16) (Print 484 9))
 							(else
 								(Ok)
-								(ego get: iBra)
+								(ego get: 16)
 								(theGame changeScore: 20)
 								(aBra dispose:)
 								(Print 484 10)
@@ -327,18 +298,12 @@
 					)
 					((Said '/hose')
 						(cond 
-							((!= currentStatus egoNORMAL)
-								(GoodIdea)
-							)
-							((not (InRoom iPantyhose))
-								(AlreadyTook)
-							)
-							((not (& (ego onControl:) cRED))
-								(Print 484 5)
-							)
+							((!= gCurRoomNum 0) (GoodIdea))
+							((not (InRoom 15)) (AlreadyTook))
+							((not (& (ego onControl:) $0010)) (Print 484 5))
 							(else
 								(Ok)
-								(ego get: iPantyhose)
+								(ego get: 15)
 								(theGame changeScore: 20)
 								(aPantyhose dispose:)
 								(Print 484 11)
@@ -347,120 +312,306 @@
 					)
 					((Said '/dress')
 						(cond 
-							((!= currentStatus egoNORMAL)
-								(GoodIdea)
-							)
-							((not (InRoom iDress))
-								(AlreadyTook)
-							)
-							((not (& (ego onControl:) cRED))
-								(Print 484 5)
-							)
-							(else
-								(self changeState: 1)
-							)
+							((!= gCurRoomNum 0) (GoodIdea))
+							((not (InRoom 17)) (AlreadyTook))
+							((not (& (ego onControl:) $0010)) (Print 484 5))
+							(else (self changeState: 1))
 						)
 					)
 				)
 			)
-			((Said 'look<below')
-				(Print 484 12)
-			)
-			((Said 'naked,naked')
-				(Print 484 13)
-			)
-			((Said 'backdrop,decrease,drain,(get<off)/sheet')
-				(Print 484 14)
-			)
-			((Said '/sandal')
-				(Print 484 15)
-			)
-			((Said '/tray')
-				(Print 484 16)
-			)
-			((Said 'play/keyboard')
-				(Print 484 17)
-			)
-			((Said 'close/door')
-				(Print 484 18)
-			)
+			((Said 'look<below') (Print 484 12))
+			((Said 'naked,naked') (Print 484 13))
+			((Said 'backdrop,decrease,drain,(get<off)/sheet') (Print 484 14))
+			((Said '/sandal') (Print 484 15))
+			((Said '/tray') (Print 484 16))
+			((Said 'gamble/keyboard') (Print 484 17))
+			((Said 'close/door') (Print 484 18))
 			((Said 'look>')
 				(cond 
 					((Said '/lotion,(buffet<dressing),cloth')
 						(cond 
-							((InRoom iPantyhose)
-								(Print 484 19)
-							)
-							((InRoom iPanties)
-								(Print 484 20)
-							)
-							((InRoom iBra)
-								(Print 484 21)
-							)
+							((InRoom 15) (Print 484 19))
+							((InRoom 14) (Print 484 20))
+							((InRoom 16) (Print 484 21))
 							(else (Print 484 22))
 						)
-						(if (InRoom iDress)
-							(Print 484 23)
-						)
+						(if (InRoom 17) (Print 484 23))
 					)
 					((Said '/buffet')
-						(if (InRoom iWineBottle)
-							(Print 484 24)
-						else
-							(Print 484 25)
-						)
-						(if
-							(or
-								(InRoom iPantyhose)
-								(InRoom iPanties)
-								(InRoom iBra)
-							)
+						(if (InRoom 13) (Print 484 24) else (Print 484 25))
+						(if (or (InRoom 15) (InRoom 14) (InRoom 16))
 							(Print 484 26)
 						else
 							(Print 484 22)
 						)
 					)
-					((Said '/tray')
-						(if (InRoom iWineBottle)
-							(Print 484 27)
-						else
-							(Print 484 25)
-						)
-					)
-					((and (InRoom iWineBottle) (Said '/bottle'))
-						(Print 484 27)
-					)
-					((Said '/bed')
-						(Print 484 28)
-					)
-					((Said '/keyboard')
-						(Print 484 29)
-					)
-					((Said '/binocular')
-						(Print 484 30)
-					)
-					((Said '/burn')
-						(Print 484 31)
-					)
-					((Said '/bush')
-						(Print 484 32)
-					)
-					((Said '/balcony,look,cup')
-						(Print 484 33)
-					)
-					((Said '[/area]')
-						(Print 484 34)
-					)
+					((Said '/tray') (if (InRoom 13) (Print 484 27) else (Print 484 25)))
+					((and (InRoom 13) (Said '/bottle')) (Print 484 27))
+					((Said '/bed') (Print 484 28))
+					((Said '/keyboard') (Print 484 29))
+					((Said '/binocular') (Print 484 30))
+					((Said '/burn') (Print 484 31))
+					((Said '/bush') (Print 484 32))
+					((Said '/balcony,look,cup') (Print 484 33))
+					((Said '[/area]') (Print 484 34))
 				)
 			)
-			((Said '/cloth')
-				(Print 484 35)
+			((Said '/cloth') (Print 484 35))
+			(
+				(and
+					(== (event type?) evMOUSEBUTTON)
+					(not (& (event modifiers?) emSHIFT))
+				)
+				(if
+					(and
+						(> (event x?) 37)
+						(< (event x?) 47)
+						(> (event y?) 105)
+						(< (event y?) 137)
+						(cast contains: aDress)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(994
+							(cond 
+								((!= gCurRoomNum 0) (GoodIdea))
+								((not (InRoom 17)) (AlreadyTook))
+								((not (& (ego onControl:) $0010)) (Print 484 5))
+								(else (self changeState: 1))
+							)
+						)
+						(995
+							(cond 
+								((!= gCurRoomNum 0) (GoodIdea))
+								((not (InRoom 17)) (AlreadyTook))
+								((not (& (ego onControl:) $0010)) (Print 484 5))
+								(else (self changeState: 1))
+							)
+						)
+						(else  (event claimed: 0))
+					)
+				)
+				(if
+					(and
+						(> (event x?) 138)
+						(< (event x?) 180)
+						(> (event y?) 180)
+						(< (event y?) 189)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(999
+							(ego setMotion: MoveTo 158 192)
+						)
+						(else  (event claimed: 0))
+					)
+				)
+				(if
+					(and
+						(proc0_26 aBra (event x?) (event y?))
+						(cast contains: aBra)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(995
+							(cond 
+								((not (InRoom 16)) (AlreadyTook))
+								((not (& (ego onControl:) $0010)) (Print 484 5))
+								((ego has: 16) (Print 484 9))
+								(else
+									(Ok)
+									(ego get: 16)
+									(theGame changeScore: 20)
+									(aBra dispose:)
+									(Print 484 10)
+								)
+							)
+						)
+						(994
+							(cond 
+								((not (InRoom 16)) (AlreadyTook))
+								((not (& (ego onControl:) $0010)) (Print 484 5))
+								((ego has: 16) (Print 484 9))
+								(else
+									(Ok)
+									(ego get: 16)
+									(theGame changeScore: 20)
+									(aBra dispose:)
+									(Print 484 10)
+								)
+							)
+						)
+						(998
+							(if (InRoom 16) (Print 484 21) else (event claimed: 0))
+						)
+					)
+				)
+				(if
+					(and
+						(proc0_26 aPanties (event x?) (event y?))
+						(cast contains: aPanties)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(995
+							(cond 
+								((not (InRoom 14)) (AlreadyTook))
+								((not (& (ego onControl:) $0010)) (Print 484 5))
+								(else
+									(Ok)
+									(ego get: 14)
+									(theGame changeScore: 20)
+									(aPanties dispose:)
+									(Print 484 8)
+								)
+							)
+						)
+						(994
+							(cond 
+								((not (InRoom 14)) (AlreadyTook))
+								((not (& (ego onControl:) $0010)) (Print 484 5))
+								(else
+									(Ok)
+									(ego get: 14)
+									(theGame changeScore: 20)
+									(aPanties dispose:)
+									(Print 484 8)
+								)
+							)
+						)
+						(998
+							(if (InRoom 14) (Print 484 20) else (event claimed: 0))
+						)
+					)
+				)
+				(if
+					(and
+						(proc0_26 aPantyhose (event x?) (event y?))
+						(cast contains: aPantyhose)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(995
+							(cond 
+								((!= gCurRoomNum 0) (GoodIdea))
+								((not (InRoom 15)) (AlreadyTook))
+								((not (& (ego onControl:) $0010)) (Print 484 5))
+								(else
+									(Ok)
+									(ego get: 15)
+									(theGame changeScore: 20)
+									(aPantyhose dispose:)
+									(Print 484 11)
+								)
+							)
+						)
+						(994
+							(cond 
+								((!= gCurRoomNum 0) (GoodIdea))
+								((not (InRoom 15)) (AlreadyTook))
+								((not (& (ego onControl:) $0010)) (Print 484 5))
+								(else
+									(Ok)
+									(ego get: 15)
+									(theGame changeScore: 20)
+									(aPantyhose dispose:)
+									(Print 484 11)
+								)
+							)
+						)
+						(998
+							(if (InRoom 15) (Print 484 19))
+						)
+						(else  (event claimed: 0))
+					)
+				)
+				(if
+					(and
+						(> (event x?) 153)
+						(< (event x?) 179)
+						(> (event y?) 109)
+						(< (event y?) 136)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(995
+							(cond 
+								((not (InRoom 13)) (AlreadyTook))
+								((not (ego inRect: 126 126 196 141)) (NotClose))
+								(else
+									(Ok)
+									(aWine setCel: 0 stopUpd:)
+									(theGame changeScore: 25)
+									(ego get: 13)
+								)
+							)
+						)
+						(998
+							(if (InRoom 13) (Print 484 27) else (Print 484 25))
+						)
+						(else  (event claimed: 0))
+					)
+				)
+				(if
+					(and
+						(> (event x?) 114)
+						(< (event x?) 216)
+						(> (event y?) 78)
+						(< (event y?) 105)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(998 (Print 484 28))
+						(else  (event claimed: 0))
+					)
+				)
+				(if
+					(and
+						(> (event x?) 271)
+						(< (event x?) 319)
+						(> (event y?) 100)
+						(< (event y?) 154)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(998 (Print 484 29))
+						(else  (event claimed: 0))
+					)
+				)
+				(if
+					(and
+						(proc0_26 aWine (event x?) (event y?))
+						(cast contains: aWine)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(995
+							(cond 
+								((not (InRoom 13)) (AlreadyTook))
+								((not (ego inRect: 126 126 196 141)) (NotClose))
+								(else
+									(Ok)
+									(aWine setCel: 0 stopUpd:)
+									(theGame changeScore: 25)
+									(ego get: 13)
+								)
+							)
+						)
+						(998
+							(if (InRoom 13) (Print 484 27) else (Print 484 25))
+						)
+						(else  (event claimed: 0))
+					)
+				)
 			)
 		)
 	)
 )
 
 (instance SheetBase of Code
+	(properties)
+	
 	(method (doit)
 		(ego brBottom: (+ (ego y?) 1))
 		(ego brTop: (- (ego brBottom?) 2))

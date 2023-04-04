@@ -1,11 +1,12 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 365)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
 (use Motion)
 (use Game)
+(use User)
 (use Menu)
 (use Actor)
 (use System)
@@ -14,38 +15,38 @@
 	rm365 0
 )
 
-(procedure (BambiSays)
-	(systemWindow color: vLRED back: vGREY)
+(procedure (localproc_000c)
+	(systemWindow color: 12 back: 8)
 	(Print &rest #at 195 20 #title {Bambi says} #width 115)
-	(systemWindow color: vBLACK back: vGREY)
+	(systemWindow color: 0 back: 8)
 )
 
-(procedure (YouSay)
-	(systemWindow color: vLBLUE back: vGREY)
+(procedure (localproc_0042)
+	(systemWindow color: 9 back: 8)
 	(Print &rest #at 10 111 #title {You say} #width 150)
-	(systemWindow color: vBLACK back: vGREY)
+	(systemWindow color: 0 back: 8)
 )
 
-(instance rm365 of Room
+(instance rm365 of Rm
 	(properties
 		picture 365
 	)
 	
 	(method (init)
-		(Load VIEW 366)
-		(Load VIEW 725)
-		(Load PICTURE 366)
-		(Load PICTURE 99)
-		(Load SOUND 11)
-		(Load SOUND 365)
-		(Load SOUND 8)
-		(Load SOUND 9)
-		(Load SOUND 261)
+		(Load rsVIEW 366)
+		(Load rsVIEW 725)
+		(Load rsPIC 366)
+		(Load rsPIC 99)
+		(Load rsSOUND 11)
+		(Load rsSOUND 365)
+		(Load rsSOUND 8)
+		(Load rsSOUND 9)
+		(Load rsSOUND 261)
 		(super init:)
-		(Bset fScrewedBambi)
+		(Bset 52)
 		(HandsOff)
-		(StatusLine disable:)
-		(TheMenuBar hide: state: FALSE)
+		(SL disable:)
+		(TheMenuBar hide: state: 0)
 		(aDoor init:)
 		(aLid init:)
 		(aBambi init:)
@@ -61,29 +62,28 @@
 			ignoreActors:
 			init:
 		)
+		(User canInput: 0 canControl: 0 mapKeyToDir: 0)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(ChangeScriptState self newState 1 2)
 		(switch (= state newState)
-			(0
-				(= seconds 3)
-			)
-			(1
-				(aDoor setCycle: EndLoop self)
-			)
+			(0 (= seconds 3))
+			(1 (aDoor setCycle: End self))
 			(2
-				(music stop:)
-				(soundFX number: 11 loop: 1 play:)
+				(gTheMusic stop:)
+				(orchidSeconds number: 11 loop: 1 play:)
 				(aBambi cel: 1)
 				(ego cel: 1)
 				(aDoor stopUpd:)
 				(= seconds 3)
 			)
 			(3
-				(BambiSays 365 0)
+				(localproc_000c 365 0)
 				(= seconds 3)
 			)
 			(4
@@ -98,8 +98,8 @@
 				(= seconds 3)
 			)
 			(6
-				(music number: 8 loop: -1 play:)
-				(BambiSays 365 1)
+				(gTheMusic number: 8 loop: -1 play:)
+				(localproc_000c 365 1)
 				(= seconds 3)
 			)
 			(7
@@ -110,7 +110,7 @@
 				(ego view: 725 setLoop: 0 setMotion: MoveTo 166 110 self)
 			)
 			(9
-				(YouSay 365 3)
+				(localproc_0042 365 3)
 				(= seconds 3)
 			)
 			(10
@@ -119,7 +119,7 @@
 					view: 366
 					setLoop: 0
 					posn: (aBambi x?) (- (aBambi y?) 20)
-					setCycle: EndLoop self
+					setCycle: End self
 				)
 			)
 			(11
@@ -127,12 +127,12 @@
 					viewer: egoHumpCycler
 					posn: 201 94
 					setLoop: 1
-					setCycle: Forward
+					setCycle: Fwd
 				)
 				(= seconds 7)
 			)
 			(12
-				(BambiSays 365 4)
+				(localproc_000c 365 4)
 				(= seconds 5)
 			)
 			(13
@@ -140,11 +140,11 @@
 				(= cycles 11)
 			)
 			(14
-				(soundFX number: 365 loop: 1 play:)
-				(aLid setCycle: EndLoop self)
+				(orchidSeconds number: 365 loop: 1 play:)
+				(aLid setCycle: End self)
 			)
 			(15
-				(curRoom drawPic: 366 WIPELEFT)
+				(curRoom drawPic: 366 2)
 				(aLid dispose:)
 				(aDoor dispose:)
 				(ego
@@ -152,7 +152,7 @@
 					loop: 2
 					setPri: 12
 					cel: 0
-					setCycle: Forward
+					setCycle: Fwd
 				)
 				(aBambi
 					posn: 187 75
@@ -160,14 +160,14 @@
 					loop: 3
 					setPri: 4
 					cel: 0
-					setCycle: Forward
+					setCycle: Fwd
 					show:
 				)
-				(music number: 261 loop: -1 play:)
+				(gTheMusic number: 261 loop: -1 play:)
 				(= seconds 5)
 			)
 			(16
-				(BambiSays 365 6)
+				(localproc_000c 365 6)
 				(= seconds 5)
 			)
 			(17
@@ -175,45 +175,45 @@
 				(= seconds 3)
 			)
 			(18
-				(YouSay 365 8)
+				(localproc_0042 365 8)
 				(= seconds 3)
 			)
 			(19
-				(BambiSays 365 9)
+				(localproc_000c 365 9)
 				(ego viewer: 0 stopUpd:)
 				(aBambi stopUpd:)
 				(= seconds 3)
 			)
 			(20
-				(BambiSays 365 10)
+				(localproc_000c 365 10)
 				(= seconds 3)
 			)
 			(21
-				(YouSay 365 11)
+				(localproc_0042 365 11)
 				(= seconds 3)
 			)
 			(22
-				(music fade:)
-				(curRoom drawPic: 99 IRISIN)
+				(gTheMusic fade:)
+				(curRoom drawPic: 99 6)
 				(cast eachElementDo: #hide)
 				(= seconds 3)
 			)
 			(23
 				(Print 365 12)
-				(music number: 9 loop: 1 play:)
+				(gTheMusic number: 9 loop: 1 play:)
 				(Print 365 13)
 				(= seconds 3)
 			)
 			(24
-				(systemWindow color: myTextColor back: myBackColor)
-				(= currentStatus egoNORMAL)
+				(systemWindow color: gameHours back: oldSysTime)
+				(= gCurRoomNum 0)
 				(curRoom newRoom: 360)
 			)
 		)
 	)
 )
 
-(instance aBambi of Actor
+(instance aBambi of Act
 	(properties
 		y 108
 		x 124
@@ -260,43 +260,41 @@
 	)
 )
 
-(instance atpBed of PicView
+(instance atpBed of PV
 	(properties
 		y 118
 		x 199
 		view 365
 		priority 4
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance humpCycler of Code	;EO: This seesm to be an unused duplicate of egoHumpCycler
-	(method (doit &tmp randVal)
+(instance humpCycler of Code
+	(properties)
+	
+	(method (doit &tmp temp0)
 		(cond 
-			((<= filthLevel 2)
-				(ego stopUpd:)
-				(aBambi stopUpd:)
-			)
+			((<= global88 2) (ego stopUpd:) (aBambi stopUpd:))
 			((not (Random 0 9))
-				(= randVal (Random 0 5))
-				(ego cycleSpeed: randVal)
-				(aBambi cycleSpeed: randVal)
+				(= temp0 (Random 0 5))
+				(ego cycleSpeed: temp0)
+				(aBambi cycleSpeed: temp0)
 			)
 		)
 	)
 )
 
 (instance egoHumpCycler of Code
-	(method (doit &tmp randVal)
+	(properties)
+	
+	(method (doit &tmp temp0)
 		(cond 
-			((<= filthLevel 2)
-				(ego stopUpd:)
-				(aBambi stopUpd:)
-			)
+			((<= global88 2) (ego stopUpd:) (aBambi stopUpd:))
 			((not (Random 0 9))
-				(= randVal (Random 0 5))
-				(ego cycleSpeed: randVal)
-				(aBambi cycleSpeed: randVal)
+				(= temp0 (Random 0 5))
+				(ego cycleSpeed: temp0)
+				(aBambi cycleSpeed: temp0)
 			)
 		)
 	)

@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 324)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
@@ -18,20 +18,20 @@
 	local0
 	interruptions
 )
-(instance rm324 of Room
+(instance rm324 of Rm
 	(properties
 		picture 323
 	)
 	
 	(method (init)
-		(Load VIEW 327)
-		(Load VIEW 328)
-		(Load SOUND 20)
-		(Load SOUND 8)
-		(Load SOUND 9)
-		(Load SOUND 11)
-		(Load SCRIPT JUMP)
-		(Load PICTURE 99)
+		(Load rsVIEW 327)
+		(Load rsVIEW 328)
+		(Load rsSOUND 20)
+		(Load rsSOUND 8)
+		(Load rsSOUND 9)
+		(Load rsSOUND 11)
+		(Load rsSCRIPT 991)
+		(Load rsPIC 99)
 		(super init:)
 		(addToPics add: atpProps doit:)
 		(aSuzi init:)
@@ -41,34 +41,28 @@
 		(aPhone init:)
 		(aTrapdoor init:)
 		(self setScript: RoomScript)
-		(= currentStatus egoSHOWGIRL)
-		(= currentEgoView 708)
-		(NormalEgo loopE)
+		(= gCurRoomNum 11)
+		(= global66 708)
+		(NormalEgo 0)
 		(ego posn: 41 156 illegalBits: 0 init:)
 		(HandsOff)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(ChangeScriptState self newState 1 2)
 		(switch (= state newState)
-			(0
-				(= cycles 22)
-			)
-			(1
-				(Print 324 0)
-				(= seconds 3)
-			)
+			(0 (= cycles 22))
+			(1 (Print 324 0) (= seconds 3))
 			(2
 				(Print 324 1)
 				(Print 324 2 #at -1 144)
 				(= seconds 3)
 			)
-			(3
-				(Print 324 3)
-				(= seconds 3)
-			)
+			(3 (Print 324 3) (= seconds 3))
 			(4
 				(Print 324 4)
 				(ego
@@ -105,16 +99,14 @@
 				(aSuzi setMotion: MoveTo 47 156 self)
 				(= cycles 27)
 			)
-			(10
-				(Print 324 7)
-			)
+			(10 (Print 324 7))
 			(11
-				(aDoorNorth setCycle: BegLoop)
-				(aDoorSouth setCycle: BegLoop self)
-				(music fade:)
+				(aDoorNorth setCycle: Beg)
+				(aDoorSouth setCycle: Beg self)
+				(gTheMusic fade:)
 			)
 			(12
-				(soundFX number: 11 loop: 1 play:)
+				(orchidSeconds number: 11 loop: 1 play:)
 				(aDoorNorth stopUpd:)
 				(aDoorSouth stopUpd:)
 				(Print 324 8)
@@ -131,7 +123,7 @@
 					setPri: 8
 					view: 322
 					cel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 				)
 				(aSuzi loop: 1)
 				(addToPics add: atpHat doit:)
@@ -146,13 +138,11 @@
 					view: 328
 					setLoop: 0
 					cel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 				)
-				(music number: 8 loop: -1 play:)
+				(gTheMusic number: 8 loop: -1 play:)
 			)
-			(17
-				(= seconds 3)
-			)
+			(17 (= seconds 3))
 			(18
 				(Print 324 12)
 				(= seconds 3)
@@ -163,7 +153,7 @@
 			)
 			(20
 				(Print 324 14)
-				(Bset fScrewedSuzi)
+				(Bset 45)
 				(theGame changeScore: 100)
 				(aSuzi hide:)
 				(ego
@@ -176,21 +166,15 @@
 				(addToPics add: atpSuziClothes doit:)
 				(= cycles 22)
 			)
-			(21
-				(ego setCycle: EndLoop self)
-			)
-			(22
-				(= seconds 3)
-			)
-			(23
-				(ego setCycle: BegLoop self)
-			)
+			(21 (ego setCycle: End self))
+			(22 (= seconds 3))
+			(23 (ego setCycle: Beg self))
 			(24
 				(ego
 					viewer: humpCycler
 					posn: 123 118
 					setLoop: 3
-					setCycle: Forward
+					setCycle: Fwd
 				)
 				(= cycles 0)
 				(= seconds 3)
@@ -203,38 +187,32 @@
 				)
 			)
 			(26
-				(music stop:)
-				(soundFX number: 20 loop: -1 play:)
+				(gTheMusic stop:)
+				(orchidSeconds number: 20 loop: -1 play:)
 				(aPhone
 					view: 323
 					setPri: 13
 					setStep: 1 1
 					setLoop: 3
-					setCycle: Forward
+					setCycle: Fwd
 					setMotion: MoveTo 146 6 self
 				)
 			)
 			(27
 				(ego viewer: 0 setCel: 0)
-				(if (== interruptions 1)
-					(Print 324 15)
-				)
+				(if (== interruptions 1) (Print 324 15))
 				(= seconds 3)
 			)
 			(28
 				(switch interruptions
-					(1
-						(Print 324 16)
-					)
+					(1 (Print 324 16))
 					(2
 						(Print 324 17)
 						(Print 324 18 #at -1 144)
 					)
-					(3
-						(Print 324 19)
-					)
+					(3 (Print 324 19))
 					(4
-						(Printf 324 20 expletive)
+						(Printf 324 20 filthStr)
 						(Print 324 21 #at -1 144)
 					)
 				)
@@ -247,18 +225,18 @@
 					cel: 0
 					posn: 133 117
 					setPri: 9
-					setCycle: EndLoop self
+					setCycle: End self
 					show:
 				)
 			)
 			(30
-				(aSuzi setLoop: 5 cel: 0 setCycle: EndLoop self)
+				(aSuzi setLoop: 5 cel: 0 setCycle: End self)
 				(aPhone setLoop: 6 setCel: 1 stopUpd:)
-				(soundFX stop:)
+				(orchidSeconds stop:)
 				(= local0 0)
 			)
 			(31
-				(aSuzi setLoop: 6 setCycle: Forward)
+				(aSuzi setLoop: 6 setCycle: Fwd)
 				(if (== interruptions 4)
 					(self changeState: 51)
 				else
@@ -268,12 +246,10 @@
 			(32
 				(aSuzi setCel: 1)
 				(= cycles (Random 5 11))
-				(if (> 3 (++ local0))
-					(= state 30)
-				)
+				(if (> 3 (++ local0)) (= state 30))
 			)
 			(33
-				(aSuzi setLoop: 5 setCel: 255 setCycle: BegLoop self)
+				(aSuzi setLoop: 5 setCel: 255 setCycle: Beg self)
 			)
 			(34
 				(Print 324 22)
@@ -281,12 +257,12 @@
 				(if (== interruptions 1)
 					(aPhone setMotion: MoveTo (aPhone x?) -111)
 				)
-				(aSuzi setLoop: 4 setCel: 255 setCycle: BegLoop self)
-				(music number: 8 loop: -1 play:)
+				(aSuzi setLoop: 4 setCel: 255 setCycle: Beg self)
+				(gTheMusic number: 8 loop: -1 play:)
 			)
 			(35
 				(aSuzi hide:)
-				(ego viewer: humpCycler setCycle: Forward)
+				(ego viewer: humpCycler setCycle: Fwd)
 				(= seconds 2)
 			)
 			(36
@@ -299,29 +275,27 @@
 						(Print 324 24)
 						(Print 324 25 #at -1 144)
 					)
-					(3
-						(Print 324 26)
-					)
+					(3 (Print 324 26))
 				)
 				(= seconds 2)
 			)
 			(37
 				(ego viewer: 0 setCel: 0)
-				(aSuzi setLoop: 4 cel: 0 setCycle: EndLoop self show:)
+				(aSuzi setLoop: 4 cel: 0 setCycle: End self show:)
 			)
 			(38
-				(aSuzi setLoop: 7 cel: 0 setCycle: EndLoop self)
+				(aSuzi setLoop: 7 cel: 0 setCycle: End self)
 				(aPhone setCel: 2 stopUpd:)
 			)
 			(39
-				(aSuzi setLoop: 8 setCycle: Forward)
+				(aSuzi setLoop: 8 setCycle: Fwd)
 				(= seconds 4)
 			)
 			(40
-				(aSuzi setLoop: 7 setCel: 255 setCycle: BegLoop self)
+				(aSuzi setLoop: 7 setCel: 255 setCycle: Beg self)
 			)
 			(41
-				(aSuzi setLoop: 4 setCel: 255 setCycle: BegLoop self)
+				(aSuzi setLoop: 4 setCel: 255 setCycle: Beg self)
 			)
 			(42
 				(Print 324 27)
@@ -341,10 +315,10 @@
 				(= seconds 3)
 			)
 			(44
-				(aSuzi setLoop: 9 cel: 0 cycleSpeed: 1 setCycle: EndLoop self)
+				(aSuzi setLoop: 9 cel: 0 cycleSpeed: 1 setCycle: End self)
 			)
 			(45
-				(ego viewer: humpCycler setCycle: Forward)
+				(ego viewer: humpCycler setCycle: Fwd)
 				(aSuzi
 					view: 323
 					setLoop: 5
@@ -368,9 +342,7 @@
 			(48
 				(aSuzi setMotion: MoveTo 177 233 self)
 			)
-			(49
-				(= seconds 2)
-			)
+			(49 (= seconds 2))
 			(50
 				(aSuzi
 					view: 328
@@ -386,12 +358,12 @@
 			(51
 				(Print 324 29)
 				(Print 324 30)
-				(music number: 9 loop: 1 play:)
-				(= lawyerState LSWaiting4Divorce)
+				(gTheMusic number: 9 loop: 1 play:)
+				(= lastSysGlobal 6)
 				(= cycles 22)
 			)
 			(52
-				(curRoom drawPic: 99 IRISIN)
+				(curRoom drawPic: 99 6)
 				(cast eachElementDo: #hide)
 				(= cycles 22)
 			)
@@ -404,36 +376,36 @@
 	)
 )
 
-(instance atpProps of PicView
+(instance atpProps of PV
 	(properties
 		y 132
 		x 240
 		view 329
 		loop 4
 		priority 10
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance atpHat of PicView
+(instance atpHat of PV
 	(properties
 		y 138
 		x 115
 		view 328
 		loop 1
 		priority 14
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance atpSuziClothes of PicView
+(instance atpSuziClothes of PV
 	(properties
 		y 133
 		x 148
 		view 323
 		loop 7
 		priority 14
-		signal ignrAct
+		signal $4000
 	)
 )
 
@@ -443,7 +415,7 @@
 		x 247
 		view 329
 		loop 2
-		signal ignrAct
+		signal $4000
 	)
 	
 	(method (init)
@@ -452,7 +424,7 @@
 	)
 )
 
-(instance aSuzi of Actor
+(instance aSuzi of Act
 	(properties
 		y 120
 		x 242
@@ -472,7 +444,7 @@
 	)
 )
 
-(instance aPhone of Actor
+(instance aPhone of Act
 	(properties
 		y -111
 		x 146
@@ -488,12 +460,12 @@
 			setLoop: 3
 			setPri: 13
 			setStep: 1 1
-			setCycle: Forward
+			setCycle: Fwd
 		)
 	)
 )
 
-(instance aTrapdoor of Actor
+(instance aTrapdoor of Act
 	(properties
 		y -4
 		x 152
@@ -541,9 +513,9 @@
 )
 
 (instance humpCycler of Code
+	(properties)
+	
 	(method (doit)
-		(if (not (Random 0 9))
-			(ego cycleSpeed: (Random 0 5))
-		)
+		(if (not (Random 0 9)) (ego cycleSpeed: (Random 0 5)))
 	)
 )

@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 206)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use Intrface)
 (use Motion)
@@ -17,18 +17,20 @@
 	local0
 	girlStage
 )
-(instance rm206 of Room
+(instance rm206 of Rm
 	(properties
 		picture 206
 	)
 	
 	(method (init)
 		(HandsOff)
-		(User canInput: TRUE)
-		(Bset fCursorHidden)
-		(= oldStatus currentStatus)
-		(= currentStatus curRoomNum)
-		(Load SOUND 206)
+		(User canControl: 1)
+		(User canInput: 1)
+		(= theCursor 998)
+		(theGame setCursor: 998)
+		(= gGCurRoomNum gCurRoomNum)
+		(= gCurRoomNum curRoomNum)
+		(Load rsSOUND 206)
 		(super init:)
 		(self setScript: RoomScript)
 		(aShade1 init:)
@@ -36,11 +38,14 @@
 		(aShade3 init:)
 		(aGull init:)
 		(aGirl init:)
-		(= saveSpeed (theGame setSpeed: 6))
+		(= currentStatus (theGame setSpeed: 6))
+		(User canInput: 0 mapKeyToDir: 0)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
 	)
@@ -56,7 +61,7 @@
 				(= cycles 11)
 			)
 			(2
-				(music number: 206 loop: -1 play:)
+				(gTheMusic number: 206 loop: -1 play:)
 			)
 			(3
 				(addToPics
@@ -75,7 +80,7 @@
 				(aGirl
 					setLoop: 4
 					setCel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 					cycleSpeed: 1
 				)
 			)
@@ -84,14 +89,14 @@
 				(aGirl
 					setLoop: 5
 					setCel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 					cycleSpeed: 1
 				)
 			)
 			(7
-				(aGirl setCycle: BegLoop cycleSpeed: 3)
+				(aGirl setCycle: Beg cycleSpeed: 3)
 				(aShade1
-					setMotion: MoveTo 113 (- 102 (* 8 filthLevel)) self
+					setMotion: MoveTo 113 (- 102 (* 8 global88)) self
 				)
 			)
 			(8
@@ -99,7 +104,7 @@
 				(aGirl
 					setLoop: 4
 					setCel: 255
-					setCycle: BegLoop self
+					setCycle: Beg self
 					cycleSpeed: 1
 				)
 			)
@@ -115,7 +120,7 @@
 				(aGirl
 					setLoop: 4
 					setCel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 					cycleSpeed: 1
 				)
 			)
@@ -123,14 +128,14 @@
 				(aGirl
 					setLoop: 5
 					setCel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 					cycleSpeed: 1
 				)
 			)
 			(12
-				(aGirl setCycle: BegLoop cycleSpeed: 3)
+				(aGirl setCycle: Beg cycleSpeed: 3)
 				(aShade2
-					setMotion: MoveTo 169 (- 102 (* 8 filthLevel)) self
+					setMotion: MoveTo 169 (- 102 (* 8 global88)) self
 				)
 			)
 			(13
@@ -138,7 +143,7 @@
 				(aGirl
 					setLoop: 4
 					setCel: 255
-					setCycle: BegLoop self
+					setCycle: Beg self
 					cycleSpeed: 1
 				)
 			)
@@ -154,7 +159,7 @@
 				(aGirl
 					setLoop: 4
 					setCel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 					cycleSpeed: 1
 				)
 			)
@@ -162,14 +167,14 @@
 				(aGirl
 					setLoop: 5
 					setCel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 					cycleSpeed: 1
 				)
 			)
 			(17
-				(aGirl setCycle: BegLoop cycleSpeed: 3)
+				(aGirl setCycle: Beg cycleSpeed: 3)
 				(aShade3
-					setMotion: MoveTo 225 (- 102 (* 8 filthLevel)) self
+					setMotion: MoveTo 225 (- 102 (* 8 global88)) self
 				)
 			)
 			(18
@@ -189,22 +194,18 @@
 				(aGirl
 					setLoop: 6
 					setCel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 					cycleSpeed: 1
 				)
 			)
-			(21
-				(= cycles (+ 8 filthLevel))
-			)
+			(21 (= cycles (+ 8 global88)))
 			(22
-				(aGirl setLoop: 7 setCel: 0 setCycle: EndLoop self)
+				(aGirl setLoop: 7 setCel: 0 setCycle: End self)
 			)
-			(23
-				(= cycles (+ 8 filthLevel))
-			)
+			(23 (= cycles (+ 8 global88)))
 			(24
 				(= girlStage 5)
-				(music fade:)
+				(gTheMusic fade:)
 				(aGirl
 					setLoop: 2
 					setCycle: Walk
@@ -217,19 +218,18 @@
 				(= seconds 3)
 			)
 			(26
-				(Bset fLookedInBinoculars)
-				(theGame changeScore: 2 setSpeed: saveSpeed)
+				(Bset 16)
+				(theGame changeScore: 2 setSpeed: currentStatus)
 				(Print 206 15)
-				(= currentStatus oldStatus)
+				(HandsOn)
+				(theGame setCursor: 998 (HaveMouse))
 				(curRoom newRoom: 200)
 			)
 		)
 	)
 	
 	(method (handleEvent event)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
-			(return)
-		)
+		(if (event claimed?) (return))
 		(cond 
 			(
 				(or
@@ -241,32 +241,18 @@
 					(Said 'backdrop/binocular')
 				)
 				(Ok)
-				(= currentStatus oldStatus)
+				(= gCurRoomNum gGCurRoomNum)
 				(curRoom newRoom: 200)
 			)
-			((Said 'hear/babe')
-				(Print 206 0)
-			)
-			((Said 'address/babe')
-				(Print 206 1)
-			)
-			((Said '/panties,panties')
-				(Print 206 2)
-			)
-			((Said 'drag/binocular')
-				(Print 206 3)
-				(Print 206 4 #at -1 144)
-			)
-			((Said 'look<in/binocular')
-				(Print 206 5)
-			)
-			((Said 'look/area')
-				(Print 206 6)
-				(Print 206 7 #at -1 144)
-			)
+			((Said 'hear/babe') (Print 206 0))
+			((Said 'address/babe') (Print 206 1))
+			((Said '/panties,panties') (Print 206 2))
+			((Said 'drag/binocular') (Print 206 3) (Print 206 4 #at -1 144))
+			((Said 'look<in/binocular') (Print 206 5))
+			((Said 'look/area') (Print 206 6) (Print 206 7 #at -1 144))
 			((Said 'look[/babe]')
 				(switch girlStage
-					(1 (Printf 206 8 currentEgo))
+					(1 (Printf 206 8 global82))
 					(2 (Print 206 9))
 					(3 (Print 206 10))
 					(4 (Print 206 11))
@@ -275,11 +261,89 @@
 					(else  (Print 206 14))
 				)
 			)
+			((== (event type?) evMOUSEBUTTON)
+				(event claimed: 1)
+				(if (& (event modifiers?) emSHIFT)
+					(switch theCursor
+						(gTheCursor
+							(theGame setCursor: 991 (HaveMouse))
+							(event claimed: 1)
+						)
+						(991
+							(theGame setCursor: 998 (HaveMouse))
+							(event claimed: 1)
+						)
+						(999
+							(theGame setCursor: 996 (HaveMouse))
+							(event claimed: 1)
+						)
+						(993
+							(theGame setCursor: 996 (HaveMouse))
+							(event claimed: 1)
+						)
+						(996
+							(theGame setCursor: 994 (HaveMouse))
+							(event claimed: 1)
+						)
+						(998
+							(theGame setCursor: 995 (HaveMouse))
+							(event claimed: 1)
+						)
+						(995
+							(theGame setCursor: 996 (HaveMouse))
+							(event claimed: 1)
+						)
+						(994
+							(if
+								(or
+									(== gTheCursor 900)
+									(== gTheCursor 994)
+									(== gTheCursor 666)
+									(== gTheCursor 992)
+									(== gTheCursor 993)
+								)
+								(theGame setCursor: 991 (HaveMouse))
+							else
+								(theGame setCursor: gTheCursor (HaveMouse))
+								(= theCursor gTheCursor)
+							)
+							(event claimed: 1)
+						)
+					)
+				else
+					(if (== theCursor 998)
+						(if (proc0_26 aGirl (event x?) (event y?))
+							(switch girlStage
+								(1 (Printf 206 8 global82))
+								(2 (Print 206 9))
+								(3 (Print 206 10))
+								(4 (Print 206 11))
+								(5 (Print 206 12))
+								(6 (Print 206 13))
+								(else  (Print 206 14))
+							)
+						else
+							(Print 206 6)
+							(Print 206 7 #at -1 144)
+						)
+					)
+					(if (== theCursor 991)
+						(Ok)
+						(theGame setCursor: 998 setSpeed: currentStatus)
+						(theGame setCursor: 998 (HaveMouse))
+						(event claimed: 1)
+						(= gCurRoomNum gGCurRoomNum)
+						(curRoom newRoom: 200)
+					)
+					(if (== theCursor 996) (Print 206 0))
+				)
+			)
+			(else (event claimed: 0))
 		)
 	)
 )
 
-(instance aShade1 of Actor
+(instance aShade1 of Act
 	(properties
 		y 64
 		x 113
@@ -293,7 +357,7 @@
 	)
 )
 
-(instance aShade2 of Actor
+(instance aShade2 of Act
 	(properties
 		y 64
 		x 169
@@ -307,7 +371,7 @@
 	)
 )
 
-(instance aShade3 of Actor
+(instance aShade3 of Act
 	(properties
 		y 64
 		x 225
@@ -321,7 +385,7 @@
 	)
 )
 
-(instance atpWall1 of PicView
+(instance atpWall1 of PV
 	(properties
 		y 109
 		x 113
@@ -330,7 +394,7 @@
 	)
 )
 
-(instance atpWall2 of PicView
+(instance atpWall2 of PV
 	(properties
 		y 109
 		x 169
@@ -339,7 +403,7 @@
 	)
 )
 
-(instance atpWall3 of PicView
+(instance atpWall3 of PV
 	(properties
 		y 109
 		x 225
@@ -348,7 +412,7 @@
 	)
 )
 
-(instance aGirl of Actor
+(instance aGirl of Act
 	(properties
 		y 109
 		x 263
@@ -362,7 +426,7 @@
 	)
 )
 
-(instance aGull of Actor
+(instance aGull of Act
 	(properties
 		y 70
 		x -66
@@ -374,7 +438,7 @@
 		(super init:)
 		(self
 			setPri: 14
-			setCycle: Forward
+			setCycle: Fwd
 			ignoreActors:
 			setMotion: MoveTo 319 44
 		)

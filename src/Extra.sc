@@ -1,137 +1,104 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
-;;;;
-;;;;	EXTRA.SC
-;;;;	(c) Sierra On-Line, Inc, 1988
-;;;;
-;;;;	Author: Jeff Stephenson
-;;;;
-;;;;	The Extra class (initially developed by Al Lowe) modified and expanded
-;;;;	to have extras add themselves to the picture if animation speed is too
-;;;;	slow to support them.
-;;;;
-;;;;	Classes:
-;;;;		Extra
-
-
-(script#	EXTRA)
-(include game.sh)
+(script# 988)
+(include sci.sh)
 (use Motion)
 (use Actor)
 
-;header file is implicitly included through system.sh
-;(include "extra.sh")
-
-
-(enum
-	waitAsec
-	startAction
-	hesitate
-	continueAction
-	endAction
-)
-
-;;;(procedure
-;;;	InitialCel
-;;;)
-
-
 
 (class Extra of Prop
-	;;; The behavior of an Extra is to wait for a random interval of time,
-	;;; cycle for a while, then wait for another random period before doing
-	;;; it over again.
-	;;;
-	;;; Pablo's extensions:
-	;;; The above is true if cycleType is ExtraForward. If it is ExtraEndLoop 
-	;;; then the pauseCel is a cel where we pause for "hesitation" cycles. If 
-	;;; it is ExtraEndAndBeginLoop then the pause is between the end and begin 
-	;;; loops.
-	
 	(properties
-		cycleSpeed	1
-		cycleType	0			;0=Forward, 1=EndLoop, 2=EndLoop+BegLoop
-		hesitation	0			;if above is 2, delay between loops
-		pauseCel		0			;cel to pause on; -1 for random cel, -2 for last cel
-		minPause		10			;cycles of no action
-		maxPause		30
-		minCycles	8 			;cycles of action if cycleType=ExtraForward
-		maxCycles	20			;else number of waves in a wave train
-		
-		counter		0			;private -- counter for waves left
-		
-		;'Multiple inheritance' from Script.
-		state			-1			;private -- current state of the Extra
-		cycles		0			;private -- cycles left before changing state
+		y 0
+		x 0
+		z 0
+		heading 0
+		yStep 2
+		view 0
+		loop 0
+		cel 0
+		priority 0
+		underBits 0
+		signal $0000
+		nsTop 0
+		nsLeft 0
+		nsBottom 0
+		nsRight 0
+		lsTop 0
+		lsLeft 0
+		lsBottom 0
+		lsRight 0
+		brTop 0
+		brLeft 0
+		brBottom 0
+		brRight 0
+		cycleSpeed 1
+		script 0
+		cycler 0
+		timer 0
+		cycleType 0
+		hesitation 0
+		pauseCel 0
+		minPause 10
+		maxPause 30
+		minCycles 8
+		maxCycles 20
+		counter 0
+		state $ffff
+		cycles 0
 	)
 	
-;;;	(methods
-;;;		stopExtra				;stopUpd: this extra
-;;;		startExtra				;startUpd: this extra
-;;;		changeState				;private -- used to control Extra's action
-;;;	)
+	(procedure (localproc_0004)
+		(switch pauseCel
+			(-1 (Random 0 (self lastCel:)))
+			(-2 (self lastCel:))
+			((== cycleType 0) pauseCel)
+		)
+	)
 	
 	
 	(method (init)
-		;; Set the Extra to its initial cel and put it in the initial wait state.
-		
-		(= cel (InitialCel))
-		(self changeState: waitAsec)
+		(= cel (localproc_0004))
+		(self changeState: 0)
 		(super init:)
 	)
 	
-	
 	(method (doit)
-		;; See if it's time to change states. Detect transition in case we're
-		;; relying on different cue'ing mechanism
-		
-		
-		;For EndLoops, pauseCel is a cel to pause on for a while.
-		(if (and (== cycleType ExtraEndLoop) (== cel pauseCel) (!= pauseCel 0))
+		(if
+			(and
+				(== cycleType 1)
+				(== cel pauseCel)
+				(!= pauseCel 0)
+			)
 			(= cycles (+ hesitation 1))
 		)
-		
-		;transition detection
-		(if (and cycles (not (-- cycles)))
-			(self cue:)
-		)
+		(if (and cycles (not (-- cycles))) (self cue:))
 		(super doit:)
 	)
 	
-	
 	(method (stopExtra)
-		;; stopUpd: the Extra now, setting it to its initial cel.
-		
-		(self 
-			setCel: (InitialCel), 
-			stopUpd:
-		)
+		(self setCel: (localproc_0004) stopUpd:)
 	)
-	
 	
 	(method (startExtra)
-		;; Start the Extra up again.
-		
-		(self changeState: startAction)
+		(self changeState: 1)
 	)
 	
-	
 	(method (cue)
-		(or
-			(& signal (| notUpd stopUpdOn))
-			(self changeState: (+ state 1))
+		(return
+			(if
+			(or (& signal $0005) (self changeState: (+ state 1)))
+				1
+			else
+				0
+			)
 		)
 	)
 	
-	
 	(method (changeState newState)
-		;; This is a small script which runs the Extra.
-		
 		(switch (= state newState)
-			(waitAsec
-				;Wait for a while before animating another set of waves.
+			(0
 				(if (== counter 0)
 					(= cycles (Random minPause maxPause))
-					(if (!= cycleType ExtraForward)
+					(if (!= cycleType 0)
 						(= counter (- (Random minCycles maxCycles) 1))
 					)
 				else
@@ -139,57 +106,31 @@
 					(self cue:)
 				)
 			)
-			(startAction
-				;Start animation for a random period of time.
-				(if (== cycleType ExtraForward)
-					(self setCycle:Forward) 
+			(1
+				(if (== cycleType 0)
+					(self setCycle: Fwd)
 					(= cycles (Random minCycles maxCycles))
-				else 
-					(self setCycle:EndLoop self)
+				else
+					(self setCycle: End self)
 				)
 			)
-			(hesitate
-				(if (== cycleType ExtraEndAndBeginLoop)
+			(2
+				(if (== cycleType 2)
 					(= cycles hesitation)
 				else
 					(self cue:)
 				)
 			)
-			(continueAction
-				(if (== cycleType ExtraEndAndBeginLoop)
-					(self setCycle:BegLoop self)
+			(3
+				(if (== cycleType 2)
+					(self setCycle: Beg self)
 				else
 					(self cue:)
 				)
 			)
-			(endAction
-				;We're done animating -- set the Extra back to its initial cel
-				;and wait before doing it over again.
-				(self setCel: (InitialCel))
-				(self changeState: waitAsec)
-			)
-		)
-	)
-	
-	
-	(procedure (InitialCel)
-		;; Return the initial cel of this Extra based on pauseCel
-		;;		pauseCel =	-1		random cel
-		;;					=	-2		last cel of loop
-		;;					else		use the value of pauseCel
-		
-		(return
-			(switch pauseCel
-				(ExtraRandomCel
-					(Random 0 (self lastCel:))
-				)
-				(ExtraLastCel
-					(self lastCel:)
-				)
-				((== cycleType ExtraForward)
-					pauseCel
-				)
-				;(else 0)
+			(4
+				(self setCel: (localproc_0004))
+				(self changeState: 0)
 			)
 		)
 	)

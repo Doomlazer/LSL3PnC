@@ -1,11 +1,12 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 482)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
 (use Motion)
 (use Game)
+(use User)
 (use Actor)
 (use System)
 
@@ -101,38 +102,39 @@
 		(super init:)
 		(self
 			setPri: 11
-			setCel: (if (InRoom iDress 484) 0 else 255)
+			setCel: (if (InRoom 17 484) 0 else 255)
 			ignoreActors:
 			stopUpd:
 		)
 	)
 )
 
-(instance atpTelescope of PicView
+(instance atpTelescope of PV
 	(properties
 		y 50
 		x 160
 		view 480
 		loop 3
 		priority 1
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance rm482 of Room
+(instance rm482 of Rm
 	(properties
 		picture 480
 	)
 	
 	(method (init)
 		(HandsOff)
-		(Load SCRIPT REVERSE)
-		(Load VIEW 721)
-		(Load SOUND 486)
-		(Load SOUND 487)
-		(Load SOUND 488)
+		(Load rsSCRIPT 969)
+		(Load rsVIEW 721)
+		(Load rsSOUND 486)
+		(Load rsSOUND 487)
+		(Load rsSOUND 488)
 		(super init:)
-		(music number: 486 loop: 2 play:)
+		(User canInput: 0 mapKeyToDir: 0)
+		(gTheMusic number: 486 loop: 2 play:)
 		(aWine init: setCel: 1 stopUpd:)
 		(aDoor init:)
 		(aPanties init:)
@@ -152,131 +154,109 @@
 			loop: 0
 			cycleSpeed: 4
 			cel: 1
-			setCycle: Forward
+			setCycle: Fwd
 			posn: 178 105
 			init:
 		)
-		(systemWindow color: myTextColor back: myBackColor)
+		(systemWindow color: gameHours back: oldSysTime)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
 		(theGame setSpeed: 6)
 	)
 	
-	(method (changeState newState &tmp len)
+	(method (changeState newState &tmp temp0)
 		(ChangeScriptState self newState 1 4)
 		(switch (= state newState)
-			(0
-				(= cycles 33)
-			)
+			(0 (= cycles 33))
 			(1
 				(Format @str 482 1)
 				(PrintLarry cue:)
 			)
-			(2
-				(= cycles 22)
-			)
+			(2 (= cycles 22))
 			(3
 				(Format @str 482 2)
 				(PrintPatti cue:)
 			)
-			(4
-				(= cycles 22)
-			)
+			(4 (= cycles 22))
 			(5
 				(Format @str 482 3)
 				(PrintLarry cue:)
-				(aBubblePatti cel: 0 setCycle: EndLoop)
+				(aBubblePatti cel: 0 setCycle: End)
 			)
 			(6
-				(aBubblePatti setCycle: BegLoop)
+				(aBubblePatti setCycle: Beg)
 				(= cycles 22)
 			)
 			(7
 				(Format @str 482 4)
 				(PrintLarry cue:)
 			)
-			(8
-				(= cycles 22)
-			)
+			(8 (= cycles 22))
 			(9
 				(Format @str 482 5)
 				(PrintPatti cue:)
 			)
-			(10
-				(= cycles 33)
-			)
+			(10 (= cycles 33))
 			(11
 				(Format @str 482 6)
 				(= seconds
-					(= len (+ 3 (/ (StrLen @str) printTime)))
+					(= temp0 (+ 3 (/ (StrLen @str) orchidMinutes)))
 				)
-				(Print @str #time len #dispose)
+				(Print @str #time temp0 #dispose)
 			)
-			(12
-				(= cycles 33)
-			)
+			(12 (= cycles 33))
 			(13
 				(Format @str 482 7)
 				(PrintPatti cue:)
 			)
-			(14
-				(= cycles 33)
-			)
+			(14 (= cycles 33))
 			(15
 				(Format @str 482 8)
 				(= seconds
-					(= len (+ 3 (/ (StrLen @str) printTime)))
+					(= temp0 (+ 3 (/ (StrLen @str) orchidMinutes)))
 				)
-				(Print @str #time len #dispose)
+				(Print @str #time temp0 #dispose)
 			)
-			(16
-				(= cycles 3)
-			)
+			(16 (= cycles 3))
 			(17
-				(music number: 487 loop: 2 play:)
+				(gTheMusic number: 487 loop: 2 play:)
 				(aBubbleLarry cycleSpeed: 0)
 				(Format @str 482 9)
 				(PrintLarry cue:)
-				(ego loop: 2 cel: 0 setCycle: CycleTo 3 1)
+				(ego loop: 2 cel: 0 setCycle: CT 3 1)
 			)
-			(18
-				(= cycles 5)
-			)
+			(18 (= cycles 5))
 			(19
 				(Format @str 482 10)
 				(PrintLarry cue:)
 			)
-			(20
-				(= cycles 5)
-			)
+			(20 (= cycles 5))
 			(21
 				(Format @str 482 11)
 				(PrintLarry cue:)
-				(ego setCycle: EndLoop)
+				(ego setCycle: End)
 			)
-			(22
-				(= cycles 22)
-			)
+			(22 (= cycles 22))
 			(23
-				(ego loop: 3 setCycle: EndLoop)
+				(ego loop: 3 setCycle: End)
 				(= cycles 44)
 			)
 			(24
 				(Format @str 482 12)
 				(PrintLarry cue:)
 			)
-			(25
-				(= cycles 22)
-			)
+			(25 (= cycles 22))
 			(26
 				(ego
 					posn: 188 95
 					setLoop: 4
-					setCycle: Forward
+					setCycle: Fwd
 					setStep: 1 1
 					cycleSpeed: 0
 					setMotion: MoveTo 193 90 self
@@ -293,14 +273,10 @@
 				)
 				(= cycles 6)
 			)
-			(28
-				(ego setCycle: BegLoop self)
-			)
-			(29
-				(= cycles 11)
-			)
+			(28 (ego setCycle: Beg self))
+			(29 (= cycles 11))
 			(30
-				(NormalEgo loopE 720)
+				(NormalEgo 0 720)
 				(HandsOff)
 				(ego setMotion: MoveTo 231 (ego y?) self)
 			)
@@ -311,35 +287,31 @@
 				(ego setMotion: MoveTo 160 188 self)
 			)
 			(33
-				(ego setMotion: MoveTo 160 444 self)
+				(ego setMotion: MoveTo 160 260 self)
 			)
 			(34
-				(aPatti cycleSpeed: 1 loop: 2 cel: 0 setCycle: EndLoop)
+				(aPatti cycleSpeed: 1 loop: 2 cel: 0 setCycle: End)
 				(= cycles 33)
 			)
 			(35
-				(aPatti setCycle: CycleTo 7 -1)
+				(aPatti setCycle: CT 7 -1)
 				(= cycles 22)
 			)
 			(36
-				(aPatti setCycle: EndLoop)
+				(aPatti setCycle: End)
 				(= cycles 22)
 			)
 			(37
-				(aPatti setCycle: CycleTo 7 -1 self)
+				(aPatti setCycle: CT 7 -1 self)
 			)
-			(38
-				(aPatti setCycle: EndLoop self)
-			)
+			(38 (aPatti setCycle: End self))
 			(39
-				(aPatti cycleSpeed: 0 setCycle: CycleTo 7 -1 self)
+				(aPatti cycleSpeed: 0 setCycle: CT 7 -1 self)
 			)
-			(40
-				(aPatti setCycle: EndLoop self)
-			)
+			(40 (aPatti setCycle: End self))
 			(41
-				(music number: 488 loop: 2 play:)
-				(aPatti posn: 155 98 setLoop: 3 cel: 0 setCycle: EndLoop)
+				(gTheMusic number: 488 loop: 2 play:)
+				(aPatti posn: 155 98 setLoop: 3 cel: 0 setCycle: End)
 				(= cycles 22)
 			)
 			(42
@@ -347,23 +319,17 @@
 				(Format @str 482 13)
 				(PrintPatti cue:)
 			)
-			(43
-				(= cycles 11)
-			)
+			(43 (= cycles 11))
 			(44
 				(Format @str 482 14)
 				(PrintPatti cue:)
 			)
-			(45
-				(= cycles 33)
-			)
+			(45 (= cycles 33))
 			(46
 				(Format @str 482 15)
 				(PrintPatti cue:)
 			)
-			(47
-				(= cycles 33)
-			)
+			(47 (= cycles 33))
 			(48
 				(Format @str 482 16)
 				(PrintPatti cue:)
@@ -374,18 +340,18 @@
 					cycleSpeed: 0
 					setLoop: 4
 					cel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 					setMotion: MoveTo 148 89 self
 				)
 			)
-			(50)
+			(50 (= cycles 1))
 			(51
 				(aPatti
 					posn: 143 84
 					setPri: -1
 					setLoop: 5
 					cel: 0
-					setCycle: EndLoop self
+					setCycle: End self
 				)
 			)
 			(52
@@ -398,52 +364,56 @@
 					setMotion: MoveTo 159 65 self
 				)
 			)
-			(53
-				(aDoor setCycle: EndLoop self)
-			)
+			(53 (aDoor setCycle: End self))
 			(54
 				(aDoor stopUpd:)
 				(aPatti setMotion: MoveTo 159 55 self)
 			)
-			(55
-				(curRoom newRoom: 483)
-			)
+			(55 (curRoom newRoom: 483))
 		)
 	)
 	
 	(method (handleEvent event)
 		(if
 			(and
-				(== (event type?) keyDown)
-				(== (event claimed?) FALSE)
-				(== (event message?) `#8)
+				(== (event type?) evKEYBOARD)
+				(== (event claimed?) 0)
+				(== (event message?) KEY_F8)
 			)
 			(Print 482 0)
-			(Bset fSkippedLoveScene)
+			(Bset 69)
 			(curRoom newRoom: 484)
 		)
 	)
 )
 
 (instance PrintLarry of Script
+	(properties)
+	
 	(method (changeState newState)
 		(ChangeScriptState self newState 2 4)
 		(switch (= state newState)
 			(0)
 			(1
-				(aBubbleLarry cel: 0 setCycle: EndLoop self)
+				(aBubbleLarry cel: 0 setCycle: End self)
 			)
 			(2
-				(Print @str
-					#at 10 5
-					#width 290
-					#mode teJustCenter
-					#time (= seconds (PrintDelay @str))
+				(Print
+					@str
+					#at
+					10
+					5
+					#width
+					290
+					#mode
+					1
+					#time
+					(= seconds (PrintDelay @str))
 					#dispose
 				)
 			)
 			(3
-				(aBubbleLarry setCycle: BegLoop)
+				(aBubbleLarry setCycle: Beg)
 				(= state 0)
 				(RoomScript cue:)
 			)
@@ -452,24 +422,32 @@
 )
 
 (instance PrintPatti of Script
+	(properties)
+	
 	(method (changeState newState)
 		(ChangeScriptState self newState 3 4)
 		(switch (= state newState)
 			(0)
 			(1
-				(aBubblePatti cel: 0 setCycle: EndLoop self)
+				(aBubblePatti cel: 0 setCycle: End self)
 			)
 			(2
-				(Print @str
-					#at 10 5
-					#width 290
-					#mode teJustCenter
-					#time (= seconds (PrintDelay @str))
+				(Print
+					@str
+					#at
+					10
+					5
+					#width
+					290
+					#mode
+					1
+					#time
+					(= seconds (PrintDelay @str))
 					#dispose
 				)
 			)
 			(3
-				(aBubblePatti setCycle: BegLoop)
+				(aBubblePatti setCycle: Beg)
 				(= state 0)
 				(RoomScript cue:)
 			)
@@ -497,7 +475,7 @@
 	)
 )
 
-(instance aPatti of Actor
+(instance aPatti of Act
 	(properties
 		view 485
 		cycleSpeed 4
@@ -505,11 +483,6 @@
 	
 	(method (init)
 		(super init:)
-		(self
-			ignoreActors:
-			posn: 155 98
-			setPri: 8
-			setCycle: Forward
-		)
+		(self ignoreActors: posn: 155 98 setPri: 8 setCycle: Fwd)
 	)
 )

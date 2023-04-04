@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
-(script# FACE)
-(include game.sh)
+(script# 71)
+(include sci.sh)
 (use Main)
 (use Intrface)
 (use Motion)
@@ -23,17 +23,13 @@
 	[str 300]
 )
 (procedure (AnimateFace param1 param2 param3)
-	(if (< argc 1)
-		(= param1 0)
-	)
+	(if (< argc 1) (= param1 0))
 	(if (> argc 1)
 		(= theCycles param2)
 	else
 		(= theCycles 22)
 	)
-	(if (> argc 2)
-		(Print @param3)
-	)
+	(if (> argc 2) (Print @param3))
 	(if (== (RegionScript state?) 0)
 		(RegionScript changeState: 1)
 	)
@@ -82,29 +78,38 @@
 )
 
 (procedure (EgoSays)
-	(Print &rest
-		#at -1 20
-		#title {You say...}
-		#width 222
-		#mode teJustCenter
+	(Print
+		&rest
+		#at
+		-1
+		20
+		#title
+		{You say...}
+		#width
+		222
+		#mode
+		1
 	)
 )
 
 (procedure (PersonSays)
 	(Format @str &rest)
 	(if (== (RegionScript state?) 0)
+		(Bset 5)
 		(RegionScript changeState: 1)
 	)
 )
 
-(instance rm71 of Region
+(instance rm71 of Rgn
+	(properties)
+	
 	(method (init)
-		(Load SCRIPT REVERSE)
+		(Load rsSCRIPT 969)
 		(super init:)
-		(HandsOff)
-		(User canInput: TRUE)
+		(User canInput: 1 canControl: 1)
 		(= str 0)
-		(Format @personSaysBuf
+		(Format
+			@personSaysBuf
 			(switch curRoomNum
 				(455 {Patti says...})
 				(265 {Tawni says...})
@@ -115,7 +120,8 @@
 				(else  {Carlos says...})
 			)
 		)
-		(Format @nameBuf
+		(Format
+			@nameBuf
 			(switch curRoomNum
 				(455 {Patti})
 				(265 {Tawni})
@@ -126,9 +132,9 @@
 				(else  {Carlos})
 			)
 		)
-		(= saveSpeed (theGame setSpeed: 6))
+		(= currentStatus (theGame setSpeed: 6))
 		(if (!= curRoomNum 325)
-			(music number: curRoomNum loop: musicLoop play:)
+			(gTheMusic number: curRoomNum loop: global72 play:)
 		)
 		(self setScript: RegionScript)
 		(aEyeWest init:)
@@ -139,10 +145,10 @@
 		(aMouth init:)
 	)
 	
-	(method (newRoom n)
-		(theGame setSpeed: saveSpeed)
-		(if (!= curRoomNum 325) (music fade:))
-		(super newRoom: n)
+	(method (newRoom newRoomNumber)
+		(theGame setSpeed: currentStatus)
+		(if (!= curRoomNum 325) (gTheMusic fade:))
+		(super newRoom: newRoomNumber)
 	)
 	
 	(method (notify param1 param2 param3)
@@ -166,6 +172,8 @@
 )
 
 (instance RegionScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
 	)
@@ -176,59 +184,52 @@
 			(1 (= cycles 22))
 			(2
 				(if str
-					(Print @str
-						#at -1 111
-						#title @personSaysBuf
-						#width 222
-						#mode teJustCenter
+					(Print
+						@str
+						#at
+						-1
+						111
+						#title
+						@personSaysBuf
+						#width
+						222
+						#mode
+						1
 					)
 					(= str 0)
 				)
+				(Bclr 5)
+				(theGame setCursor: 998 (HaveMouse))
 				(= state 0)
 			)
 		)
 	)
 	
 	(method (handleEvent event &tmp temp0)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
-			(return)
-		)
+		(if (event claimed?) (return))
 		(cond 
-			((Said 'embrace')
-				(Print 71 0)
-			)
-			((Said 'eat')
-				(Printf 71 1 currentEgo)
-			)
-			((Said 'drain/cloth,skirt,dress')
-				(Print 71 2)
-			)
+			((Said 'embrace') (Print 71 0))
+			((Said 'eat') (Printf 71 1 global82))
+			((Said 'drain/cloth,skirt,dress') (Print 71 2))
 			(
 				(or
 					(Said 'eat,bang/i')
 					(Said 'clit,crap,leak,bang,fart,boob,ass,asshole')
 				)
-				(Printf 71 3 currentEgo)
+				(Printf 71 3 global82)
 			)
-			((Said '/casino')
-				(EgoSays 71 4)
-				(PersonSays 71 5)
-			)
-			((Said '/entertainer,maller,bambi,attorney,dale,cheri')
-				(Printf 71 6 @nameBuf)
-			)
-			((Said 'address')
-				(Printf 71 7 currentEgo)
-			)
-			((Said '/name')
-				(EgoSays 71 8)
-				(PersonSays 71 9)
-			)
+			((Said '/casino') (EgoSays 71 4) (PersonSays 71 5))
+			(
+			(Said '/entertainer,maller,bambi,attorney,dale,cheri') (Printf 71 6 @nameBuf))
+			((Said 'address') (Printf 71 7 global82))
+			((Said '/name') (EgoSays 71 8) (PersonSays 71 9))
 		)
 	)
 )
 
 (instance EyeScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(switch (= state newState)
 			(0
@@ -236,28 +237,32 @@
 				(if (Random 0 5) (= state 2))
 			)
 			(1
-				(aEyeWest setCycle: EndLoop)
-				(aEyeEast setCycle: EndLoop self)
+				(aEyeWest setCycle: End)
+				(aEyeEast setCycle: End self)
 				(= cycles 0)
 				(= state 3)
 			)
 			(2
-				(aEyeWest setCycle: EndLoop)
-				(aEyeEast setCycle: BegLoop self)
+				(aEyeWest setCycle: End)
+				(aEyeEast setCycle: Beg self)
 				(= cycles 0)
 				(= state 3)
 			)
 			(3
 				(= cycles 0)
 				(aEyeWest
-					setCycle: CycleTo 2
+					setCycle:
+						CT
+						2
 						(cond 
 							((> 2 (aEyeWest cel?)) 1)
 							((< 2 (aEyeWest cel?)) -1)
 						)
 				)
 				(aEyeEast
-					setCycle: CycleTo 2
+					setCycle:
+						CT
+						2
 						(cond 
 							((> 2 (aEyeEast cel?)) 1)
 							((< 2 (aEyeEast cel?)) -1)
@@ -267,8 +272,8 @@
 			)
 			(4 (= cycles theCycles))
 			(5
-				(aEyeWest setCycle: BegLoop)
-				(aEyeEast setCycle: BegLoop self)
+				(aEyeWest setCycle: Beg)
+				(aEyeEast setCycle: Beg self)
 				(= state -1)
 			)
 		)
@@ -276,26 +281,28 @@
 )
 
 (instance EyelidScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(switch (= state newState)
 			(0 (= cycles (Random 11 33)))
 			(1
-				(aEyelidWest setCycle: EndLoop)
-				(aEyelidEast setCycle: EndLoop self)
+				(aEyelidWest setCycle: End)
+				(aEyelidEast setCycle: End self)
 			)
 			(2
-				(aEyelidWest setCycle: BegLoop)
-				(aEyelidEast setCycle: BegLoop self)
+				(aEyelidWest setCycle: Beg)
+				(aEyelidEast setCycle: Beg self)
 				(= state -1)
 			)
 			(3
 				(= cycles 0)
-				(aEyelidWest setCycle: EndLoop self)
+				(aEyelidWest setCycle: End self)
 				(aEyelidEast setCel: 1)
 			)
 			(4 (= cycles theCycles))
 			(5
-				(aEyelidWest setCycle: BegLoop self)
+				(aEyelidWest setCycle: Beg self)
 				(= state -1)
 			)
 			(6
@@ -321,26 +328,28 @@
 )
 
 (instance NoseScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(switch (= state newState)
 			(0 (= cycles (Random 22 66)))
 			(1
-				(aNose setCycle: EndLoop self)
+				(aNose setCycle: End self)
 				(= cycles 0)
 			)
 			(2 (= cycles (Random 10 20)))
 			(3
-				(aNose setCycle: BegLoop self)
+				(aNose setCycle: Beg self)
 				(= cycles 0)
 				(= state -1)
 			)
 			(4
-				(aNose setCycle: EndLoop)
+				(aNose setCycle: End)
 				(= cycles theCycles)
 				(= state 2)
 			)
 			(5
-				(aNose setCycle: BegLoop)
+				(aNose setCycle: Beg)
 				(= cycles theCycles)
 				(= state 0)
 			)
@@ -349,6 +358,8 @@
 )
 
 (instance MouthScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(switch (= state newState)
 			(0
@@ -356,30 +367,30 @@
 				(= cycles 0)
 			)
 			(1
-				(aMouth setLoop: 5 cel: 0 setCycle: EndLoop self)
+				(aMouth setLoop: 5 cel: 0 setCycle: End self)
 				(= cycles 0)
 				(= state -1)
 			)
 			(2
-				(aMouth setLoop: 6 cel: 0 setCycle: EndLoop self)
+				(aMouth setLoop: 6 cel: 0 setCycle: End self)
 				(= cycles 0)
 			)
 			(3 (= cycles theCycles))
 			(4
-				(aMouth setCycle: BegLoop self)
+				(aMouth setCycle: Beg self)
 				(= state -1)
 			)
 			(5
-				(aMouth setLoop: 7 cel: 0 setCycle: EndLoop self)
+				(aMouth setLoop: 7 cel: 0 setCycle: End self)
 				(= cycles 0)
 			)
 			(6 (= cycles 10))
 			(7
-				(aMouth setCycle: BegLoop self)
+				(aMouth setCycle: Beg self)
 				(= state -1)
 			)
 			(8
-				(aMouth setLoop: 8 cel: 0 setCycle: EndLoop self)
+				(aMouth setLoop: 8 cel: 0 setCycle: End self)
 				(= cycles 0)
 				(= state -1)
 			)
@@ -388,6 +399,8 @@
 )
 
 (instance aEyeWest of Prop
+	(properties)
+	
 	(method (init)
 		(self view: curRoomNum setPri: 2 setScript: EyeScript)
 		(super init:)

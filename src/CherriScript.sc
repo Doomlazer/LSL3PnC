@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 422)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
@@ -16,21 +16,21 @@
 )
 
 (instance CherriScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
-		(if (and (== state 10) (> (ego x?) 280))
-			(self cue:)
-		)
+		(if (and (== state 10) (> (ego x?) 280)) (self cue:))
 		(if
 			(and
-				(== showroomState SRcherriOnPhone)
+				(== gameMinutes 2)
 				(== (client loop?) 4)
 				(== (client x?) 82)
 				(== (client y?) 124)
 			)
 			(switch (Random 0 6)
 				(0 (client setCel: 0))
-				(1 (client setCycle: Forward))
+				(1 (client setCycle: Fwd))
 			)
 		)
 	)
@@ -39,10 +39,8 @@
 		(ChangeScriptState self newState 3 2)
 		(switch (= state newState)
 			(0
-				(if (== showroomState SRknowsAboutDeed)
-					(self changeState: 3)
-				)
-				(if (== showroomState SRshowDone)
+				(if (== gameMinutes 3) (self changeState: 3))
+				(if (== gameMinutes 1)
 					(self changeState: 10)
 					(client posn: -20 143 stopUpd:)
 				)
@@ -50,35 +48,29 @@
 			(1
 				(Ok)
 				(HandsOff)
-				(= currentStatus 14)
-				(Printf 422 5 introductoryPhrase)
+				(= gCurRoomNum 14)
+				(Printf 422 5 global171)
 				(client setStep: 0 0 setMotion: Follow ego 222)
 				(= seconds 3)
 			)
 			(2
-				(if (not (Btst fMetCherri))
-					(Bset fMetCherri)
+				(if (not (Btst 48))
+					(Bset 48)
 					(theGame changeScore: 5)
 				)
 				(Print 422 6)
-				(= saveEgoX (ego x?))
-				(= saveEgoY (ego y?))
-				(= saveEgoLoop (ego loop?))
+				(= currentEgoView (ego x?))
+				(= gameSeconds (ego y?))
+				(= egoName (ego loop?))
 				(curRoom newRoom: 435)
 			)
-			(3
-				(HandsOff)
-				(= seconds 3)
-			)
-			(4
-				(Print 422 7)
-				(= seconds 3)
-			)
+			(3 (HandsOff) (= seconds 3))
+			(4 (Print 422 7) (= seconds 3))
 			(5
 				(Print 422 8)
 				(client
 					illegalBits: 0
-					ignoreActors: FALSE
+					ignoreActors: 0
 					setLoop: 1
 					setCycle: Walk
 					setMotion: MoveTo 45 140 self
@@ -92,40 +84,38 @@
 				)
 			)
 			(6
-				(theDoor setCycle: EndLoop self)
+				(roomSeconds setCycle: End self)
 			)
 			(7
 				(Print 422 9)
-				(theDoor stopUpd:)
+				(roomSeconds stopUpd:)
 				(client setMotion: MoveTo -20 140 self)
 			)
 			(8
-				(theDoor setCycle: BegLoop self)
+				(roomSeconds setCycle: Beg self)
 			)
 			(9
-				(soundFX number: 11 loop: 1 play:)
-				(= showroomState SRcherriBackstage)
-				(theDoor stopUpd:)
+				(orchidSeconds number: 11 loop: 1 play:)
+				(= gameMinutes 4)
+				(roomSeconds stopUpd:)
 				(NormalEgo)
-				(ego observeControl: cYELLOW cLMAGENTA)
+				(ego observeControl: 16384 8192)
 				(client dispose:)
 				(self dispose:)
 			)
-			(10
-				(= seconds 15)
-			)
+			(10 (= seconds 15))
 			(11
 				(if (< (ego x?) 160)
 					(-- state)
 					(= cycles 2)
 				else
 					(HandsOff)
-					(theDoor setCycle: EndLoop self)
+					(roomSeconds setCycle: End self)
 					(= seconds 0)
 				)
 			)
 			(12
-				(theDoor stopUpd:)
+				(roomSeconds stopUpd:)
 				(client
 					posn: 13 140
 					loop: 0
@@ -135,18 +125,18 @@
 				)
 			)
 			(13
-				(theDoor setCycle: BegLoop self)
+				(roomSeconds setCycle: Beg self)
 			)
 			(14
-				(soundFX number: 11 loop: 1 play:)
-				(theDoor stopUpd:)
+				(orchidSeconds number: 11 loop: 1 play:)
+				(roomSeconds stopUpd:)
 				(client setMotion: MoveTo 82 124 self)
 			)
 			(15
 				(client loop: 4)
-				(= showroomState 2)
+				(= gameMinutes 2)
 				(HandsOn)
-				(ego observeControl: cYELLOW cLMAGENTA)
+				(ego observeControl: 16384 8192)
 			)
 		)
 	)
@@ -154,38 +144,24 @@
 	(method (handleEvent event)
 		(if
 			(or
-				(!= (event type?) saidEvent)
-				(!= showroomState SRcherriOnPhone)
+				(!= (event type?) evSAID)
+				(!= gameMinutes 2)
 				(event claimed?)
 			)
 			(return)
 		)
 		(cond 
-			((or (Said 'give/babe') (Said 'give/anyword/babe'))
-				(Print 422 0)
-			)
+			((or (Said 'give/babe') (Said 'give/*/babe')) (Print 422 0))
 			((Said 'look/babe')
 				(cond 
-					((!= showroomState SRcherriOnPhone)
-						(Print 422 1)
-					)
-					((!= currentStatus egoNORMAL)
-						(GoodIdea)
-					)
-					((!= (client xLast?) (client x?))
-						(Print 422 2)
-					)
-					((not (& (ego onControl:) cMAGENTA))
-						(Print 422 3)
-					)
-					(else
-						(self changeState: 1)
-					)
+					((!= gameMinutes 2) (Print 422 1))
+					((!= gCurRoomNum 0) (GoodIdea))
+					((!= (client xLast?) (client x?)) (Print 422 2))
+					((not (& (ego onControl:) $0020)) (Print 422 3))
+					(else (self changeState: 1))
 				)
 			)
-			((and (== showroomState SRcherriOnPhone) (Said '/babe'))
-				(Print 422 4)
-			)
+			((and (== gameMinutes 2) (Said '/babe')) (Print 422 4))
 		)
 	)
 )

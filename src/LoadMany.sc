@@ -1,29 +1,21 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
-(script# LOADMANY)
+(script# 958)
+(include sci.sh)
 
-;;;(procedure LoadMany)
-(public LoadMany 0)
+(public
+	LoadMany 0
+)
 
-(procedure (LoadMany what which &tmp i theRes)
-
-	;;Author: Pablo Ghenis, 7/17/89
-	;;
-	;;Usage examples:
-	;;			(LoadMany VIEW 110 111 201)	;to load a series of views
-	;;			(LoadMany SCRIPT 110 111 201)	;to load a series of scripts
-	;;			(LoadMany FALSE 110 111 201)	;to use DisposeScript
-
-	
-	(for
-		((-= argc 2)(= i 0))
-		(<= i argc)
-		((++ i))
-		
-		(= theRes [which i])
-		(if what
-			(Load what theRes)
+(procedure (LoadMany param1 param2 &tmp temp0 temp1)
+	(= argc (- argc 2))
+	(= temp0 0)
+	(while (<= temp0 argc)
+		(= temp1 [param2 temp0])
+		(if param1
+			(Load param1 temp1)
 		else
-			(DisposeScript theRes)
+			(DisposeScript temp1)
 		)
+		(++ temp0)
 	)
 )

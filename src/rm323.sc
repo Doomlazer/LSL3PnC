@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 323)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
@@ -21,17 +21,18 @@
 	[str 300]
 	local300
 	local301
+	local302
 )
-(instance rm323 of Room
+(instance rm323 of Rm
 	(properties
 		picture 323
 		west 320
 	)
 	
 	(method (init)
-		(Load VIEW 326)
-		(Load VIEW 327)
-		(Load SOUND 20)
+		(Load rsVIEW 326)
+		(Load rsVIEW 327)
+		(Load rsSOUND 20)
 		(super init:)
 		(addToPics
 			add: atpProps
@@ -44,21 +45,21 @@
 		(self setScript: RoomScript)
 		(= str 0)
 		(if (!= prevRoomNum 325)
-			(= saveEgoX 41)
-			(= saveEgoY 156)
-			(= saveEgoLoop 0)
+			(= currentEgoView 41)
+			(= gameSeconds 156)
+			(= egoName 0)
 		)
-		(if (== currentStatus 323)
+		(if (== gCurRoomNum 323)
 			(HandsOff)
 			(ego view: 326 setCel: 255)
-			(= saveEgoLoop 0)
+			(= egoName 0)
 			(RoomScript changeState: 4)
 		else
 			(NormalEgo)
 		)
 		(ego
-			posn: saveEgoX saveEgoY
-			loop: saveEgoLoop
+			posn: currentEgoView gameSeconds
+			loop: egoName
 			observeBlocks: blockOne blockTwo wallBlockLeft wallBlockRight
 			init:
 		)
@@ -66,18 +67,20 @@
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
-		(if (& (ego onControl:) cBLUE)
+		(if (& (ego onControl:) $0002)
 			(cond 
-				((== lawyerState LSfree)
-					(++ lawyerState)
+				((== lastSysGlobal 1)
+					(++ lastSysGlobal)
 					(Print 323 0 #icon 324 5 0)
 					(Print 323 1 #icon 324 5 0)
 					(Print 323 2 #icon 324 5 0)
 				)
-				((== lawyerState LSdivorce)
-					(++ lawyerState)
+				((== lastSysGlobal 5)
+					(++ lastSysGlobal)
 					(Print 323 3 #icon 324 5 0)
 					(Print 323 4 #icon 324 5 0)
 				)
@@ -90,80 +93,60 @@
 		(ChangeScriptState self newState 1 2)
 		(switch (= state newState)
 			(0
-				(if (not (Btst fMetSuzi))
-					(= seconds 3)
-				)
+				(if (not (Btst 38)) (= seconds 3))
 			)
 			(1
-				(Bset fMetSuzi)
+				(Bset 38)
 				(Print 323 41)
 				(Print 323 42)
 			)
 			(2
-				(HandsOff)
 				(Ok)
 				(ego illegalBits: 0)
 				(cond 
-					((> (ego x?) 119)
-						(ego setMotion: MoveTo 119 132 self)
-					)
-					((< (ego x?) 90)
-						(ego setMotion: MoveTo 90 132 self)
-					)
-					(else
-						(ego setMotion: MoveTo (ego x?) 132 self)
-					)
+					((> (ego x?) 119) (ego setMotion: MoveTo 119 132 self))
+					((< (ego x?) 90) (ego setMotion: MoveTo 90 132 self))
+					(else (ego setMotion: MoveTo (ego x?) 132 self))
 				)
 			)
 			(3
-				(ego view: 326 loop: 0 cel: 0 setCycle: EndLoop self)
+				(ego view: 326 loop: 0 cel: 0 setCycle: End self)
 			)
 			(4
-				(= currentStatus egoSITTING)
-				(User canInput: TRUE)
+				(= gCurRoomNum 1004)
+				(User mapKeyToDir: 0 canInput: 1)
 				(= cycles (Random 33 66))
 			)
 			(5
-				(ego setLoop: (Random 1 4) cel: 0 setCycle: EndLoop self)
+				(ego setLoop: (Random 1 4) cel: 0 setCycle: End self)
 			)
-			(6
-				(= cycles (Random 11 33))
-			)
+			(6 (= cycles (Random 11 33)))
 			(7
-				(ego setCycle: BegLoop self)
+				(ego setCycle: Beg self)
 				(= state 3)
 			)
 			(8
 				(HandsOff)
 				(Ok)
-				(ego setLoop: 0 setCel: 255 setCycle: BegLoop self)
+				(ego setLoop: 0 setCel: 255 setCycle: Beg self)
 			)
 			(9
-				(NormalEgo loopS)
-				(= currentStatus egoNORMAL)
+				(NormalEgo 2)
+				(= gCurRoomNum 0)
+				(User mapKeyToDir: 1 canInput: 1)
 			)
 		)
 	)
 	
 	(method (handleEvent event)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
-			(return)
-		)
+		(if (event claimed?) (return))
 		(cond 
 			((Said 'lie')
 				(cond 
-					((not (& (ego onControl:) cGREEN))
-						(Print 323 5)
-					)
-					((== currentStatus egoSITTING)
-						(YouAre)
-					)
-					((!= currentStatus egoNORMAL)
-						(GoodIdea)
-					)
-					(else
-						(self changeState: 2)
-					)
+					((not (& (ego onControl:) $0004)) (Print 323 5))
+					((== gCurRoomNum 1004) (YouAre))
+					((!= gCurRoomNum 0) (GoodIdea))
+					(else (self changeState: 2))
 				)
 			)
 			(
@@ -172,27 +155,17 @@
 					(Said 'exit/barstool,barstool')
 				)
 				(cond 
-					((== currentStatus egoNORMAL)
-						(YouAre)
-					)
-					((!= currentStatus egoSITTING)
-						(Print 323 6)
-					)
-					(else
-						(self changeState: 8)
-					)
+					((== gCurRoomNum 0) (YouAre))
+					((!= gCurRoomNum 1004) (Print 323 6))
+					(else (self changeState: 8))
 				)
 			)
 			((Said 'address/babe')
 				(cond 
-					((!= currentStatus egoSITTING)
-						(Print 323 7)
-					)
-					((!= local301 0)
-						(Print 323 8)
-					)
-					((== lawyerState LSfree)
-						(Printf 323 9 introductoryPhrase)
+					((!= gCurRoomNum 1004) (Print 323 7))
+					((!= local301 0) (Print 323 8))
+					((== lastSysGlobal 1)
+						(Printf 323 9 global171)
 						(Format @str 323 10)
 						(SuziScript changeState: 2)
 					)
@@ -205,24 +178,17 @@
 			)
 			((or (Said '/deed,land') (Said '//deed,land'))
 				(cond 
-					((!= currentStatus egoSITTING)
-						(Print 323 13)
-					)
-					((!= local301 0)
-						(Print 323 14)
-					)
-					((== lawyerState LSfree)
-						(++ lawyerState)
+					((!= gCurRoomNum 1004) (Print 323 13))
+					((!= local301 0) (Print 323 14))
+					((== lastSysGlobal 1)
+						(++ lastSysGlobal)
 						(theGame changeScore: 30)
 						(Print 323 15)
 						(Print 323 16)
 						(Format @str 323 17)
 						(SuziScript changeState: 2)
 					)
-					((== lawyerState LSwaiting4Deed)
-						(Format @str 323 18)
-						(SuziScript changeState: 2)
-					)
+					((== lastSysGlobal 2) (Format @str 323 18) (SuziScript changeState: 2))
 					(else
 						(Print 323 11)
 						(Format @str 323 12)
@@ -232,60 +198,37 @@
 			)
 			((or (Said '/decree') (Said '//decree'))
 				(cond 
-					((!= currentStatus egoSITTING)
-						(Print 323 19)
-					)
-					((!= local301 0)
-						(Print 323 14)
-					)
-					((or (== lawyerState LSfree) (== lawyerState LSwaiting4Deed))
+					((!= gCurRoomNum 1004) (Print 323 19))
+					((!= local301 0) (Print 323 14))
+					((or (== lastSysGlobal 1) (== lastSysGlobal 2))
 						(Print 323 20)
 						(Format @str 323 21)
 						(SuziScript changeState: 2)
 					)
-					((== lawyerState LSdivorce)
-						(++ lawyerState)
+					((== lastSysGlobal 5)
+						(++ lastSysGlobal)
 						(theGame changeScore: 40)
 						(Print 323 22)
 						(Format @str 323 23)
 						(SuziScript changeState: 2)
 					)
-					((== lawyerState LSWaiting4Divorce)
+					((== lastSysGlobal 6)
 						(Print 323 24)
 						(Format @str 323 25)
 						(SuziScript changeState: 2)
 					)
-					(else
-						(Format @str 323 26)
-						(SuziScript changeState: 2)
-					)
+					(else (Format @str 323 26) (SuziScript changeState: 2))
 				)
 			)
-			((Said '/equipment')
-				(Print 323 27)
-				(Print 323 28 #at -1 144)
-			)
-			((Said '/call')
-				(Print 323 29)
-			)
-			((Said '/buffet,calf')
-				(Print 323 30)
-			)
-			((Said '/barstool')
-				(Print 323 31)
-			)
-			((Said '/art')
-				(Print 323 32)
-			)
-			((Said '/door')
-				(Print 323 33)
-			)
-			((Said '/cup')
-				(Print 323 34)
-			)
-			((Said '/bookcase,bookcase,bookcase,cabinet,book')
-				(Print 323 35)
-			)
+			((Said '/equipment') (Print 323 27) (Print 323 28 #at -1 144))
+			((Said '/call') (Print 323 29))
+			((Said '/buffet,calf') (Print 323 30))
+			((Said '/barstool') (Print 323 31))
+			((Said '/art') (Print 323 32))
+			((Said '/door') (Print 323 33))
+			((Said '/cup') (Print 323 34))
+			(
+			(Said '/bookcase,bookcase,bookcase,cabinet,book') (Print 323 35))
 			((Said 'look>')
 				(cond 
 					((Said '/babe,eye')
@@ -296,18 +239,158 @@
 							(6 (Print 323 39))
 							(else 
 								(Ok)
-								(= saveEgoX (ego x?))
-								(= saveEgoY (ego y?))
-								(= saveEgoLoop (ego loop?))
-								(if (== currentStatus 1004)
-									(= currentStatus 323)
-								)
+								(= currentEgoView (ego x?))
+								(= gameSeconds (ego y?))
+								(= egoName (ego loop?))
+								(if (== gCurRoomNum 1004) (= gCurRoomNum 323))
 								(curRoom newRoom: 325)
 							)
 						)
 					)
-					((Said '[/office,area]')
-						(Print 323 40)
+					((Said '[/office,area]') (Print 323 40))
+				)
+			)
+			(
+				(and
+					(== (event type?) evMOUSEBUTTON)
+					(not (& (event modifiers?) emSHIFT))
+				)
+				(if
+					(and
+						(== (event type?) evMOUSEBUTTON)
+						(== gCurRoomNum 1004)
+						(or (== theCursor 992) (== theCursor 999))
+					)
+					(self changeState: 8)
+				)
+				(if
+					(and
+						(> (event x?) 75)
+						(< (event x?) 160)
+						(> (event y?) 96)
+						(< (event y?) 129)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(995
+							(cond 
+								((not (& (ego onControl:) $0004)) (Print 323 5))
+								((== gCurRoomNum 1004)
+									(cond 
+										((== gCurRoomNum 0) (YouAre))
+										((!= gCurRoomNum 1004) (Print 323 6))
+										(else (theGame setCursor: 998) (self changeState: 8))
+									)
+								)
+								((!= gCurRoomNum 0) (GoodIdea))
+								(else (theGame setCursor: 998) (self changeState: 2))
+							)
+						)
+						(else 
+							(HandsOn)
+							(event claimed: 0)
+						)
+					)
+				)
+				(if (proc0_26 aSuzi (event x?) (event y?))
+					(event claimed: 1)
+					(switch theCursor
+						(998
+							(switch local301
+								(1 (Print 323 36))
+								(3 (Print 323 37))
+								(5 (Print 323 38))
+								(6 (Print 323 39))
+								(else 
+									(Ok)
+									(= currentEgoView (ego x?))
+									(= gameSeconds (ego y?))
+									(= egoName (ego loop?))
+									(if (== gCurRoomNum 1004)
+										(theGame setCursor: 998)
+										(= gCurRoomNum 323)
+									)
+									(theGame setCursor: 998)
+									(curRoom newRoom: 325)
+								)
+							)
+						)
+						(994
+							(cond 
+								((!= gCurRoomNum 1004) (Print 323 7))
+								((!= local301 0) (Print 323 8))
+								((== lastSysGlobal 1)
+									(Printf 323 9 global171)
+									(Format @str 323 10)
+									(SuziScript changeState: 2)
+								)
+								(else
+									(Print 323 11)
+									(Format @str 323 12)
+									(SuziScript changeState: 2)
+								)
+							)
+						)
+						(996
+							(= local302
+								(Print
+									{What do you want to ask about?}
+									#button
+									{land}
+									1
+									#button
+									{decree}
+									2
+								)
+							)
+							(switch local302
+								(1
+									(cond 
+										((!= gCurRoomNum 1004) (Print 323 13))
+										((!= local301 0) (Print 323 14))
+										((== lastSysGlobal 1)
+											(++ lastSysGlobal)
+											(theGame changeScore: 30)
+											(Print 323 15)
+											(Print 323 16)
+											(Format @str 323 17)
+											(SuziScript changeState: 2)
+										)
+										((== lastSysGlobal 2) (Format @str 323 18) (SuziScript changeState: 2))
+										(else
+											(Print 323 11)
+											(Format @str 323 12)
+											(SuziScript changeState: 2)
+										)
+									)
+								)
+								(2
+									(cond 
+										((!= gCurRoomNum 1004) (Print 323 19))
+										((!= local301 0) (Print 323 14))
+										((or (== lastSysGlobal 1) (== lastSysGlobal 2))
+											(Print 323 20)
+											(Format @str 323 21)
+											(SuziScript changeState: 2)
+										)
+										((== lastSysGlobal 5)
+											(++ lastSysGlobal)
+											(theGame changeScore: 40)
+											(Print 323 22)
+											(Format @str 323 23)
+											(SuziScript changeState: 2)
+										)
+										((== lastSysGlobal 6)
+											(Print 323 24)
+											(Format @str 323 25)
+											(SuziScript changeState: 2)
+										)
+										(else (Format @str 323 26) (SuziScript changeState: 2))
+									)
+								)
+								(else  (event claimed: 0))
+							)
+						)
 					)
 				)
 			)
@@ -316,6 +399,8 @@
 )
 
 (instance SuziScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(ChangeScriptState self newState 2 1)
 		(switch (= state newState)
@@ -328,49 +413,56 @@
 			)
 			(1
 				(cond 
-					((== (= local301 (Random 0 7)) 1)
-						(self changeState: 4)
-					)
-					((== local301 3)
-						(self changeState: 18)
-					)
-					((== local301 5)
-						(self changeState: 6)
-					)
-					((== local301 7)
-						(self changeState: 16)
-					)
-					(else
-						(self changeState: 0)
-					)
+					((== (= local301 (Random 0 7)) 1) (self changeState: 4))
+					((== local301 3) (self changeState: 18))
+					((== local301 5) (self changeState: 6))
+					((== local301 7) (self changeState: 16))
+					(else (self changeState: 0))
 				)
 			)
 			(2
 				(= local301 2)
-				(aSuzi view: 324 loop: 3 setCycle: Forward)
+				(aSuzi view: 324 loop: 3 setCycle: Fwd)
 				(= cycles (Random 11 44))
 			)
 			(3
 				(if (== str 0)
-					(if (== lawyerState LSfree)
+					(if (== lastSysGlobal 1)
 						(Format @str 323 43)
 					else
 						(Format @str 323 44)
 					)
 				)
-				(Print @str
-					#at -1 10
-					#title {Suzi says}
-					#mode teJustCenter
-					#icon 324 5 0
+				(Print
+					@str
+					#at
+					-1
+					10
+					#title
+					{Suzi says}
+					#mode
+					1
+					#icon
+					324
+					5
+					0
 				)
-				(if (and (== lawyerState LSfree) (not local300))
+				(if (and (== lastSysGlobal 1) (not local300))
 					(= local300 1)
-					(Print 323 45
-						#at -1 10
-						#title {Suzi says}
-						#mode teJustCenter
-						#icon 324 5 0
+					(Print
+						323
+						45
+						#at
+						-1
+						10
+						#title
+						{Suzi says}
+						#mode
+						1
+						#icon
+						324
+						5
+						0
 					)
 				)
 				(= str 0)
@@ -378,7 +470,7 @@
 				(= state -1)
 			)
 			(4
-				(aSuzi view: 324 loop: 4 setCycle: Forward)
+				(aSuzi view: 324 loop: 4 setCycle: Fwd)
 				(= seconds 3)
 			)
 			(5
@@ -409,9 +501,7 @@
 			(10
 				(aSuzi setMotion: MoveTo 204 204 self)
 			)
-			(11
-				(= cycles 15)
-			)
+			(11 (= cycles 15))
 			(12
 				(= local301 6)
 				(aSuzi
@@ -436,7 +526,7 @@
 					loop: 0
 					cel: 0
 					setPri: 13
-					setCycle: EndLoop self
+					setCycle: End self
 				)
 				(ChairScript changeState: 5)
 			)
@@ -445,15 +535,15 @@
 				(self changeState: 0)
 			)
 			(18
-				(aSuzi view: 324 loop: 1 cel: 0 setCycle: EndLoop self)
+				(aSuzi view: 324 loop: 1 cel: 0 setCycle: End self)
 				(ChairScript changeState: 2)
 			)
 			(19
-				(aSuzi loop: 2 setCycle: Forward)
+				(aSuzi loop: 2 setCycle: Fwd)
 				(= cycles (Random 11 33))
 			)
 			(20
-				(aSuzi loop: 1 setCel: 255 setCycle: BegLoop self)
+				(aSuzi loop: 1 setCel: 255 setCycle: Beg self)
 			)
 			(21
 				(ChairScript changeState: 0)
@@ -464,12 +554,12 @@
 )
 
 (instance ChairScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(ChangeScriptState self newState 3 4)
 		(switch (= state newState)
-			(0
-				(= seconds (Random 5 10))
-			)
+			(0 (= seconds (Random 5 10)))
 			(1
 				(if (< local301 4)
 					(self cue:)
@@ -478,7 +568,7 @@
 				)
 			)
 			(2
-				(aChair loop: 2 cycleSpeed: 2 setCycle: Forward)
+				(aChair loop: 2 cycleSpeed: 2 setCycle: Fwd)
 				(= seconds (Random 2 5))
 			)
 			(3
@@ -495,21 +585,21 @@
 					loop: 0
 					posn: 247 133
 					cel: 0
-					setCycle: EndLoop
+					setCycle: End
 				)
 			)
 		)
 	)
 )
 
-(instance atpProps of PicView
+(instance atpProps of PV
 	(properties
 		y 132
 		x 240
 		view 329
 		loop 4
 		priority 10
-		signal ignrAct
+		signal $4000
 	)
 )
 
@@ -519,7 +609,7 @@
 		x 247
 		view 329
 		loop 2
-		signal ignrAct
+		signal $4000
 	)
 	
 	(method (init)
@@ -528,7 +618,7 @@
 	)
 )
 
-(instance aSuzi of Actor
+(instance aSuzi of Act
 	(properties
 		y 120
 		x 242
@@ -548,7 +638,7 @@
 	)
 )
 
-(instance blockOne of Block
+(instance blockOne of Blk
 	(properties
 		top 199
 		left 74
@@ -557,7 +647,7 @@
 	)
 )
 
-(instance blockTwo of Block
+(instance blockTwo of Blk
 	(properties
 		top 217
 		left -20
@@ -566,7 +656,7 @@
 	)
 )
 
-(instance wallBlockLeft of Block
+(instance wallBlockLeft of Blk
 	(properties
 		top 175
 		left -20
@@ -575,7 +665,7 @@
 	)
 )
 
-(instance wallBlockRight of Block
+(instance wallBlockRight of Blk
 	(properties
 		left 325
 		bottom 333
@@ -583,7 +673,7 @@
 	)
 )
 
-(instance aPhone of Actor
+(instance aPhone of Act
 	(properties
 		y -4
 		x 152
@@ -603,18 +693,18 @@
 	)
 )
 
-(instance atpDoorSouth of PicView
+(instance atpDoorSouth of PV
 	(properties
 		y 103
 		x 20
 		view 323
 		cel 3
 		priority 13
-		signal ignrAct
+		signal $4000
 	)
 )
 
-(instance atpDoorNorth of PicView
+(instance atpDoorNorth of PV
 	(properties
 		y 95
 		x 41
@@ -622,6 +712,6 @@
 		loop 1
 		cel 3
 		priority 11
-		signal ignrAct
+		signal $4000
 	)
 )

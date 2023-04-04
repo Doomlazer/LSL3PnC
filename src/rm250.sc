@@ -1,11 +1,12 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 250)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use Intrface)
 (use Motion)
 (use Game)
 (use Invent)
+(use User)
 (use Actor)
 (use System)
 
@@ -21,85 +22,72 @@
 	sharpenCycles
 	[plot 200]
 )
-(procedure (PrintPlot &tmp t)
-	(Print @plot
-		#at 10 5
-		#width 290
-		#time (= t (PrintDelay @plot))
+(procedure (localproc_000c &tmp temp0)
+	(Print
+		@plot
+		#at
+		10
+		5
+		#width
+		290
+		#time
+		(= temp0 (PrintDelay @plot))
 		#dispose
 	)
-	(return (+ 3 t))
+	(return (+ 3 temp0))
 )
 
-(instance rm250 of Room
+(instance rm250 of Rm
 	(properties
 		picture 250
 		south 260
 	)
 	
 	(method (init)
-		(if (and (ego has: iKnife) (== ((Inventory at: iKnife) view?) 2))
-			(Load VIEW 251)
-			(Load VIEW 709)
-			(Load VIEW 2)
-			(Load SOUND 250)
+		(if
+		(and (ego has: 2) (== ((Inv at: 2) view?) 2))
+			(Load rsVIEW 251)
+			(Load rsVIEW 709)
+			(Load rsVIEW 2)
+			(Load rsSOUND 250)
 		)
-		(if (== currentStatus egoROLLOUT)
-			(self style: IRISOUT)
-		)
+		(if (== gCurRoomNum 4) (self style: 7))
 		(super init:)
+		(User canInput: 0 mapKeyToDir: 0)
 		(self setScript: RoomScript)
-		(if (not (Btst fFired))
-			(Load VIEW 53)
-		)
-		(if (and (Btst fFired) (not (Btst fCredits250)))
-			(Load VIEW 252)
+		(if (not (Btst 22)) (Load rsVIEW 53))
+		(if (and (Btst 22) (not (Btst 29)))
+			(Load rsVIEW 252)
 			(aCredit1 init:)
 			(aCredit2 init:)
 		)
-		(if (> machineSpeed 16)
-			(aFountain init:)
-		)
+		(if (> global87 16) (aFountain init:))
 		(cond 
-			((== prevRoomNum 305)
-				(ego posn: 2 186)
-				(= nearOffice TRUE)
-			)
-			((== prevRoomNum 220)
-				(ego posn: 2 122)
-			)
-			((== prevRoomNum 253)
-				(ego posn: 317 125)
-			)
-			((== prevRoomNum 260)
-				(ego posn: 154 187 loop: 3)
-			)
-			(else
-				(= nearSteps TRUE)
-				(ego posn: 317 118 loop: 1)
-			)
+			((== prevRoomNum 305) (ego posn: 2 186) (= nearOffice 1))
+			((== prevRoomNum 220) (ego posn: 2 122))
+			((== prevRoomNum 253) (ego posn: 317 125))
+			((== prevRoomNum 260) (ego posn: 154 187 loop: 3))
+			(else (= nearSteps 1) (ego posn: 317 118 loop: 1))
 		)
 		(NormalEgo)
 		(if nearSteps
-			(ego setPri: 11 observeControl: cYELLOW init:)
+			(ego setPri: 11 observeControl: 16384 init:)
 		else
-			(ego observeControl: cLMAGENTA init:)
+			(ego observeControl: 8192 init:)
 		)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
 		(if (ego edgeHit?)
 			(cond 
-				((& (ego onControl:) cBLUE)
-					(curRoom newRoom: 305)
-				)
-				((& (ego onControl:) cCYAN)
-					(curRoom newRoom: 220)
-				)
-				((& (ego onControl:) cRED)
+				((& (ego onControl:) $0002) (curRoom newRoom: 305))
+				((& (ego onControl:) $0008) (curRoom newRoom: 220))
+				((& (ego onControl:) $0010)
 					(if nearSteps
 						(curRoom newRoom: 400)
 					else
@@ -110,102 +98,92 @@
 		)
 		(cond 
 			((== nearSteps -1))
-			((& (ego onControl:) cLRED)
-				(= nearSteps TRUE)
-			)
-			((& (ego onControl:) cLCYAN)
-				(= nearSteps FALSE)
-			)
+			((& (ego onControl:) $1000) (= nearSteps 1))
+			((& (ego onControl:) $0800) (= nearSteps 0))
 		)
-		(if (== nearSteps TRUE)
-			(ego setPri: 11 observeControl: cYELLOW ignoreControl: cLMAGENTA)
+		(if (== nearSteps 1)
+			(ego setPri: 11 observeControl: 16384 ignoreControl: 8192)
 		)
-		(if (== nearSteps FALSE)
+		(if (== nearSteps 0)
 			(ego
 				setPri: -1
-				ignoreControl: cYELLOW cRED
-				observeControl: cLMAGENTA
+				ignoreControl: 16384 16
+				observeControl: 8192
 			)
 		)
 		(if
 			(and
-				(& (ego onControl:) cBLUE)
-				(or playingAsPatti (!= currentStatus egoNORMAL))
+				(& (ego onControl:) $0002)
+				(or musicLoop (!= gCurRoomNum 0))
 			)
 			(if (not nearOffice)
-				(= nearOffice TRUE)
+				(= nearOffice 1)
 				(ego
 					posn: (ego xLast?) (ego yLast?)
 					setMotion: 0
-					observeControl: cBLUE
+					observeControl: 2
 				)
-				(if playingAsPatti
-					(Print 250 0)
-				else
-					(Print 250 1)
-				)
-				(Animate (cast elements?) FALSE)
+				(if musicLoop (Print 250 0) else (Print 250 1))
+				(Animate (cast elements?) 0)
 			)
 		else
-			(= nearOffice FALSE)
+			(= nearOffice 0)
 		)
 		(if
 			(and
-				(& (ego onControl:) cRED)
+				(& (ego onControl:) $0010)
 				nearSteps
-				(!= currentStatus egoSHOWGIRL)
-				(!= currentStatus egoNORMAL)
+				(!= gCurRoomNum 11)
+				(!= gCurRoomNum 0)
 			)
 			(if (not nearCasino)
-				(= nearCasino TRUE)
+				(= nearCasino 1)
 				(ego
 					posn: (ego xLast?) (ego yLast?)
 					setMotion: 0
-					observeControl: cRED
+					observeControl: 16
 				)
 				(Print 250 2)
-				(Animate (cast elements?) FALSE)
+				(Animate (cast elements?) 0)
 			)
 		else
-			(= nearCasino FALSE)
+			(= nearCasino 0)
 		)
-		(if (& (ego onControl:) cGREEN)
+		(if (& (ego onControl:) $0004)
 			(if (not cantGoThere)
-				(= cantGoThere TRUE)
-				(ShakeScreen 1 shakeSRight)
+				(= cantGoThere 1)
+				(ShakeScreen 1 2)
 				(Print 250 3)
 				(Print 250 4 #at -1 144)
 			)
 		else
-			(= cantGoThere FALSE)
+			(= cantGoThere 0)
 		)
 	)
 	
 	(method (changeState newState)
 		(switch (= state newState)
 			(0
-				(if (not (Btst fFired))
-					(= cycles 25)
-				)
+				(if (not (Btst 22)) (= cycles 25))
 			)
 			(1
 				(Format @plot 250 15)
-				(= seconds (PrintPlot))
-				(aCredit1 view: 53 posn: 0 156 setCycle: Forward init:)
+				(= seconds (localproc_000c))
+				(aCredit1 view: 53 posn: 0 156 setCycle: Fwd init:)
 				(= seconds 13)
 			)
 			(2
 				(Format @plot 250 16)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(3
 				(Format @plot 250 17)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(4
-				(Bset fFired)
+				(Bset 22)
 				(Format @plot 250 18)
-				(= seconds (PrintPlot))
+				(= seconds (localproc_000c))
 			)
 			(5
 				(aCredit1 dispose:)
@@ -223,33 +201,31 @@
 					loop: 0
 					cel: 0
 					cycleSpeed: 1
-					setCycle: EndLoop self
+					setCycle: End self
 				)
 			)
 			(8
 				(Print 250 19 #icon 2 0 0)
 				(= sharpenCycles 0)
 				(= seconds 2)
-				(= saveSpeed (theGame setSpeed: 6))
+				(= currentStatus (theGame setSpeed: 6))
 			)
 			(9
-				(soundFX number: 250 loop: 1 play:)
-				(ego view: 251 cel: 0 setCycle: EndLoop)
+				(orchidSeconds number: 250 loop: 1 play:)
+				(ego view: 251 cel: 0 setCycle: End)
 				(= cycles 7)
-				(if (< (++ sharpenCycles) 11)
-					(-- state)
-				)
+				(if (< (++ sharpenCycles) 11) (-- state))
 			)
 			(10
-				((Inventory at: iKnife) view: 21)
-				(Format ((Inventory at: iKnife) name?) 250 20)
-				(soundFX stop:)
-				(theGame setSpeed: saveSpeed changeScore: 50)
-				(ego view: 709 loop: 0 setCel: 255 setCycle: BegLoop self)
+				((Inv at: 2) view: 21)
+				(Format ((Inv at: 2) name?) 250 20)
+				(orchidSeconds stop:)
+				(theGame setSpeed: currentStatus changeScore: 50)
+				(ego view: 709 loop: 0 setCel: 255 setCycle: Beg self)
 			)
 			(11
 				(NormalEgo)
-				(= nearSteps FALSE)
+				(= nearSteps 0)
 				(Print 250 21)
 				(Print 250 22)
 			)
@@ -262,65 +238,138 @@
 				(not (super handleEvent: event))
 				(not (event claimed?))
 				modelessDialog
-				(== (event message?) ENTER)
-				(== (event type?) keyDown)
+				(== (event message?) KEY_RETURN)
+				(== (event type?) evKEYBOARD)
 			)
-			(event claimed: TRUE)
+			(event claimed: 1)
 			(cls)
 			(self cue:)
 		)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
-			(return)
-		)
-		(if (Said 'caress,sharpen/ginsu>')
-			(cond 
-				((not (ego has: iKnife))
-					(DontHave)
+		(if (event claimed?) (return))
+		(if
+			(and
+				(== (event type?) evMOUSEBUTTON)
+				(not (& (event modifiers?) emSHIFT))
+			)
+			(if
+				(and
+					(> (event x?) 180)
+					(< (event x?) 243)
+					(> (event y?) 107)
+					(< (event y?) 152)
 				)
-				((== ((Inventory at: iKnife) view?) 21)
-					(ItIs)
-				)
-				((Said '/[/noword]')
-					(Print 250 5)
-				)
-				((Said '//fountain,barstool,barstool')
-					(Print 250 6)
-				)
-				((not (Said '//stair,carpet'))
-					(Print 250 7)
-				)
-				((not nearSteps)
-					(Print 250 8)
-				)
-				((!= currentStatus egoNORMAL)
-					(GoodIdea)
-				)
-				(else
-					(self changeState: 6)
+				(event claimed: 1)
+				(switch theCursor
+					(2 (Print 250 6))
+					(998 (Print 250 12))
+					(else  (event claimed: 0))
 				)
 			)
-			(event claimed: TRUE)
-		)
-		(if (Said 'look>')
-			(cond 
-				((Said '/palm,bush,carpet')
-					(Print 250 9)
+			(if
+				(and
+					(> (event x?) 1)
+					(< (event x?) 319)
+					(> (event y?) 21)
+					(< (event y?) 79)
 				)
-				((Said '/cannibal,office')
-					(if playingAsPatti
-						(Print 250 10 currentEgo)
-					else
-						(Print 250 11)
+				(event claimed: 1)
+				(switch theCursor
+					(998 (Print 250 14))
+					(else  (event claimed: 0))
+				)
+			)
+			(if (proc0_27 275 317 101 137 event)
+				(event claimed: 1)
+				(switch theCursor
+					(998 (Print 250 13))
+					(2
+						(cond 
+							((not (ego has: 2)) (DontHave))
+							((== ((Inv at: 2) view?) 21) (ItIs))
+							((not nearSteps) (Print 250 8))
+							((!= gCurRoomNum 0) (GoodIdea))
+							(else (self changeState: 6))
+						)
 					)
+					(999
+						(ego setMotion: MoveTo 322 100)
+					)
+					(else  (event claimed: 0))
 				)
-				((Said '/water,cascade,fountain')
-					(Print 250 12)
+			)
+			(if
+				(and
+					(> (event x?) 93)
+					(< (event x?) 214)
+					(> (event y?) 175)
+					(< (event y?) 189)
 				)
-				((Said '/stair,exit,carpet')
-					(Print 250 13)
+				(event claimed: 1)
+				(switch theCursor
+					(999
+						(ego setMotion: MoveTo 146 195)
+					)
+					(else  (event claimed: 0))
 				)
-				((Said '[/area]')
-					(Print 250 14)
+			)
+			(if
+				(and
+					(> (event x?) 312)
+					(< (event x?) 318)
+					(> (event y?) 103)
+					(< (event y?) 151)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(999
+						(ego setMotion: MoveTo 319 126)
+					)
+					(else  (event claimed: 0))
+				)
+			)
+			(if
+				(and
+					(> (event x?) 0)
+					(< (event x?) 10)
+					(> (event y?) 104)
+					(< (event y?) 124)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(999
+						(ego setMotion: MoveTo -4 115)
+					)
+					(else  (event claimed: 0))
+				)
+			)
+			(if
+				(and
+					(> (event x?) 0)
+					(< (event x?) 7)
+					(> (event y?) 151)
+					(< (event y?) 166)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(999
+						(ego setMotion: MoveTo -5 172)
+					)
+					(else  (event claimed: 0))
+				)
+			)
+			(if
+				(and
+					(> (event x?) 290)
+					(< (event x?) 319)
+					(> (event y?) 78)
+					(< (event y?) 114)
+				)
+				(event claimed: 1)
+				(switch theCursor
+					(999
+						(ego setMotion: MoveTo 322 115)
+					)
+					(else  (event claimed: 0))
 				)
 			)
 		)
@@ -337,14 +386,14 @@
 	
 	(method (init)
 		(super init:)
-		(self isExtra: 1 setCycle: Forward setPri: 11)
+		(self isExtra: 1 setCycle: Fwd setPri: 11)
 	)
 )
 
 (instance aCredit1 of Prop
 	(properties
 		y 131
-		x 288
+		x 240
 		view 252
 	)
 	
@@ -357,7 +406,7 @@
 (instance aCredit2 of Prop
 	(properties
 		y 154
-		x 288
+		x 240
 		view 252
 		loop 1
 	)
@@ -369,44 +418,44 @@
 )
 
 (instance CreditsScript of Script
+	(properties)
+	
 	(method (changeState newState)
 		(switch (= state newState)
-			(0
-				(= seconds 3)
-			)
+			(0 (= seconds 3))
 			(1
-				(aCredit1 setCycle: EndLoop)
+				(aCredit1 setCycle: End)
 				(= cycles 13)
 			)
 			(2
-				(aCredit2 setCycle: EndLoop)
+				(aCredit2 setCycle: End)
 				(= cycles 16)
 			)
 			(3
-				(aCredit2 setCycle: BegLoop self)
+				(aCredit2 setCycle: Beg self)
 			)
 			(4
-				(aCredit2 loop: 2 setCycle: EndLoop)
+				(aCredit2 loop: 2 setCycle: End)
 				(= cycles 16)
 			)
 			(5
-				(aCredit2 setCycle: BegLoop self)
+				(aCredit2 setCycle: Beg self)
 			)
 			(6
-				(aCredit2 loop: 3 setCycle: EndLoop)
+				(aCredit2 loop: 3 setCycle: End)
 				(= cycles 16)
 			)
 			(7
-				(aCredit2 setCycle: BegLoop self)
+				(aCredit2 setCycle: Beg self)
 			)
 			(8
-				(aCredit2 loop: 4 setCycle: EndLoop)
+				(aCredit2 loop: 4 setCycle: End)
 				(= cycles 16)
 			)
 			(9
-				(Bset fCredits250)
-				(aCredit1 setCycle: BegLoop)
-				(aCredit2 setCycle: BegLoop self)
+				(Bset 29)
+				(aCredit1 setCycle: Beg)
+				(aCredit2 setCycle: Beg self)
 			)
 			(10
 				(aCredit1 dispose:)

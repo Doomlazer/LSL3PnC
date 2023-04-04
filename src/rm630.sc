@@ -1,6 +1,6 @@
 ;;; Sierra Script 1.0 - (do not remove this comment)
 (script# 630)
-(include game.sh)
+(include sci.sh)
 (use Main)
 (use n021)
 (use Intrface)
@@ -18,7 +18,7 @@
 	(cable cable)
 )
 
-(instance rm630 of Room
+(instance rm630 of Rm
 	(properties
 		picture 630
 		horizon 1
@@ -26,16 +26,16 @@
 	)
 	
 	(method (init)
-		(Load VIEW 720)
-		(Load VIEW 631)
-		(Load VIEW currentEgoView)
-		(Load SOUND 630)
-		(Load SOUND 4)
-		(Load SOUND 5)
-		(Load SOUND 631)
-		(Load SOUND 699)
-		(Load SCRIPT REVERSE)
-		(Load SCRIPT WANDER)
+		(Load rsVIEW 720)
+		(Load rsVIEW 631)
+		(Load rsVIEW global66)
+		(Load rsSOUND 630)
+		(Load rsSOUND 4)
+		(Load rsSOUND 5)
+		(Load rsSOUND 631)
+		(Load rsSOUND 699)
+		(Load rsSCRIPT 969)
+		(Load rsSCRIPT 970)
 		(super init:)
 		(aGeneratorBottom init:)
 		(aGeneratorTop init:)
@@ -53,20 +53,22 @@
 			baseSetter: SQ3Base
 		)
 		(self setScript: RoomScript)
-		(= currentStatus 630)
-		(music number: 630 loop: musicLoop play:)
+		(= gCurRoomNum 630)
+		(gTheMusic number: 630 loop: global72 play:)
 	)
 	
-	(method (newRoom n)
-		(DisposeScript WANDER)
-		(super newRoom: n)
+	(method (newRoom newRoomNumber)
+		(DisposeScript 970)
+		(super newRoom: newRoomNumber)
 	)
 )
 
 (instance RoomScript of Script
+	(properties)
+	
 	(method (doit)
 		(super doit:)
-		(if (== currentStatus 630)
+		(if (== gCurRoomNum 630)
 			(aLarry
 				brLeft: (- (aLarry x?) 4)
 				brRight: (+ (aLarry x?) 4)
@@ -79,14 +81,14 @@
 		(switch (= state newState)
 			(0
 				(HandsOff)
-				(ego setMotion: MoveTo 19 171 setCycle: EndLoop self)
+				(ego setMotion: MoveTo 19 171 setCycle: End self)
 			)
 			(1
 				(ego
 					posn: 35 149
 					setLoop: 1
 					cel: 1
-					setCycle: Forward
+					setCycle: Fwd
 					cycleSpeed: 4
 					moveSpeed: 1
 					setStep: 1 1
@@ -94,9 +96,9 @@
 				)
 			)
 			(2
-				(Printf 630 10 expletive)
+				(Printf 630 10 filthStr)
 				(ego
-					observeControl: cLMAGENTA
+					observeControl: 8192
 					baseSetter: SQ3Base
 					setMotion: MoveTo 187 99 self
 				)
@@ -108,7 +110,7 @@
 					setLoop: 0
 					cel: 0
 					setMotion: MoveTo 18 173
-					setCycle: EndLoop self
+					setCycle: End self
 				)
 			)
 			(4
@@ -117,7 +119,7 @@
 					posn: 31 150
 					setLoop: 1
 					cel: 1
-					setCycle: Forward
+					setCycle: Fwd
 					cycleSpeed: 4
 					moveSpeed: 1
 					setStep: 1 1
@@ -126,41 +128,37 @@
 				(HandsOn)
 				(ego
 					illegalBits: 0
-					observeControl: cWHITE cLMAGENTA
+					observeControl: -32768 8192
 					baseSetter: SQ3Base
 				)
 			)
 			(5
-				(aLarry observeControl: cWHITE cYELLOW setMotion: Wander 22)
+				(aLarry observeControl: -32768 16384 setMotion: Wander 22)
 			)
 			(6
 				(Ok)
 				(HandsOff)
 				(theGame changeScore: 40)
-				(aSwitch setCycle: EndLoop self)
+				(aSwitch setCycle: End self)
 				(aLarry setMotion: MoveTo 148 (aLarry y?))
 			)
 			(7
 				(aSwitch stopUpd:)
 				(aGeneratorTop setCel: 0 stopUpd:)
-				(if (== musicLoop SND_DONE)
-					(music number: 631 loop: 1 play: self)
+				(if (== global72 -1)
+					(gTheMusic number: 631 loop: 1 play: self)
 				else
 					(= cycles 22)
 				)
 			)
 			(8
 				(Print 630 12)
-				(if (== musicLoop SND_DONE)
-					(= seconds 2)
-				else
-					(= cycles 22)
-				)
+				(if (== global72 -1) (= seconds 2) else (= cycles 22))
 			)
 			(9
-				(= currentStatus 2)
+				(= gCurRoomNum 2)
 				(Print 630 13)
-				(music number: 4 loop: 1 play:)
+				(gTheMusic number: 4 loop: 1 play:)
 				(ego
 					baseSetter: 0
 					illegalBits: 0
@@ -178,92 +176,137 @@
 				)
 			)
 			(10
-				(ego posn: (ego x?) 181 loop: 2 cel: 0 setCycle: EndLoop)
+				(ego posn: (ego x?) 181 loop: 2 cel: 0 setCycle: End)
 			)
 			(11
 				(aLarry
 					posn: (aLarry x?) 181
 					loop: 2
 					cel: 0
-					setCycle: EndLoop
+					setCycle: End
 				)
 				(= seconds 3)
 			)
 			(12
-				(ego cycleSpeed: 1 loop: 3 cel: 0 setCycle: EndLoop)
-				(aLarry cycleSpeed: 1 loop: 3 cel: 0 setCycle: EndLoop self)
+				(ego cycleSpeed: 1 loop: 3 cel: 0 setCycle: End)
+				(aLarry cycleSpeed: 1 loop: 3 cel: 0 setCycle: End self)
 			)
 			(13
-				(aLarry loop: 4 setCycle: Forward)
-				(ego loop: 4 setCycle: Forward)
-				(music number: 5 loop: 1 play: self)
+				(aLarry loop: 4 setCycle: Fwd)
+				(ego loop: 4 setCycle: Fwd)
+				(gTheMusic number: 5 loop: 1 play: self)
 			)
 			(14
-				(= currentStatus 0)
+				(= gCurRoomNum 0)
 				(NormalEgo 3)
 				(NormalActor aLarry 3 720)
 				(aLarry setMotion: Follow ego 28)
-				(music number: 699 loop: musicLoop play:)
+				(gTheMusic number: 699 loop: global72 play:)
 				(Print 630 14)
 			)
 		)
 	)
 	
 	(method (handleEvent event)
-		(if (or (!= (event type?) saidEvent) (event claimed?))
-			(return)
-		)
+		(if (event claimed?) (return))
 		(cond 
-			((Said 'cable,attach,(on<drag)/cable,equipment,handle')
-				(if (== currentStatus egoNORMAL)
-					(ItIs)
-				else
-					(Print 630 0)
+			(
+			(Said 'cable,attach,(on<drag)/cable,equipment,handle') (if (== gCurRoomNum 0) (ItIs) else (Print 630 0)))
+			(
+				(Said
+					'disconnect,drain,(off<drag),cease,drag/cable,equipment,handle'
 				)
-			)
-			((Said 'disconnect,drain,(off<drag),cease,drag/cable,equipment,handle')
 				(cond 
-					((!= currentStatus 630)
-						(GoodIdea)
-					)
-					((not (ego inRect: 190 126 261 154))
-						(NotClose)
-					)
-					((or (< (ego cel?) 6) (> (ego cel?) 9))
-						(Print 630 1)
-					)
-					(else
-						(RoomScript changeState: 6)
-					)
+					((!= gCurRoomNum 630) (GoodIdea))
+					((not (ego inRect: 190 126 261 154)) (NotClose))
+					((or (< (ego cel?) 6) (> (ego cel?) 9)) (Print 630 1))
+					(else (RoomScript changeState: 6))
 				)
 			)
-			((Said 'get/cable,cable')
-				(Print 630 2)
-			)
+			((Said 'get/cable,cable') (Print 630 2))
 			((Said 'look>')
 				(cond 
 					((Said '/cable,cable,cable')
-						(if (== currentStatus 630)
+						(if (== gCurRoomNum 630)
 							(Print 630 3)
 						else
 							(Print 630 4)
 						)
 					)
-					((Said '/larry')
-						(Print 630 5)
-					)
+					((Said '/larry') (Print 630 5))
 					((Said '/equipment,equipment')
-						(if (== currentStatus 630)
+						(if (== gCurRoomNum 630)
 							(Print 630 6)
 						else
 							(Print 630 7)
 						)
 					)
-					((Said '[/area]')
-						(Print 630 8)
-						(if (== currentStatus 630)
-							(Print 630 9)
+					((Said '[/area]') (Print 630 8) (if (== gCurRoomNum 630) (Print 630 9)))
+				)
+			)
+			(
+				(and
+					(== (event type?) evMOUSEBUTTON)
+					(not (& (event modifiers?) emSHIFT))
+				)
+				(if
+					(and
+						(> (event x?) 1)
+						(< (event x?) 319)
+						(> (event y?) 21)
+						(< (event y?) 189)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(998
+							(Print 630 8)
+							(if (== gCurRoomNum 630) (Print 630 9))
 						)
+						(else  (event claimed: 0))
+					)
+				)
+				(if
+					(and
+						(> (event x?) 309)
+						(< (event x?) 319)
+						(> (event y?) 154)
+						(< (event y?) 189)
+					)
+					(event claimed: 1)
+					(switch theCursor
+						(999
+							(ego setMotion: MoveTo 321 175)
+						)
+						(else  (event claimed: 0))
+					)
+				)
+				(if
+				(proc0_26 aGeneratorBottom (event x?) (event y?))
+					(event claimed: 1)
+					(switch theCursor
+						(998
+							(if (== gCurRoomNum 630)
+								(Print 630 3)
+							else
+								(Print 630 4)
+							)
+						)
+						(995
+							(cond 
+								((!= gCurRoomNum 630) (GoodIdea))
+								((not (ego inRect: 190 126 261 154)) (NotClose))
+								((or (< (ego cel?) 6) (> (ego cel?) 9)) (Print 630 1))
+								(else (RoomScript changeState: 6))
+							)
+						)
+						(else  (event claimed: 0))
+					)
+				)
+				(if (proc0_26 aLarry (event x?) (event y?))
+					(event claimed: 1)
+					(switch theCursor
+						(998 (Print 630 5))
+						(else  (event claimed: 0))
 					)
 				)
 			)
@@ -294,7 +337,7 @@
 	
 	(method (init)
 		(super init:)
-		(self ignoreActors: setPri: 6 setCycle: Forward)
+		(self ignoreActors: setPri: 6 setCycle: Fwd)
 	)
 )
 
@@ -312,7 +355,7 @@
 	)
 )
 
-(instance aLarry of Actor
+(instance aLarry of Act
 	(properties
 		y 184
 		x -28
@@ -322,11 +365,13 @@
 	
 	(method (init)
 		(super init:)
-		(self setCycle: Forward setPri: 5 ignoreActors:)
+		(self setCycle: Fwd setPri: 5 ignoreActors:)
 	)
 )
 
 (instance SQ3Base of Code
+	(properties)
+	
 	(method (doit &tmp temp0)
 		(ego brBottom: (+ (ego y?) 1))
 		(ego brTop: (- (ego brBottom?) (ego yStep?)))
